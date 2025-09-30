@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/residentalManagement.iml" filepath="$PROJECT_DIR$/.idea/residentalManagement.iml" />
+      <module fileurl="file://$PROJECT_DIR$/residentalManagement/residentalManagement.iml" filepath="$PROJECT_DIR$/residentalManagement/residentalManagement.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/src.iml" filepath="$PROJECT_DIR$/.idea/src.iml" />
     </modules>
   </component>
 </project>
