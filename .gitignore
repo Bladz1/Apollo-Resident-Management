@@ -67,3 +67,7 @@ build/
 .vscode/
 
 *_Zone.Identifier
+
+# Node / Next.js
+node_modules/
+.next/
