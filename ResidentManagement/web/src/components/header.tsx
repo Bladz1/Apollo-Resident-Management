@@ -14,8 +14,8 @@ const Header = () => {
         {/* Logo và Tiêu đề */}
         <div className="flex items-center space-x-4">
           <Image
-            className="border rounded-md bg-transparent"
-            src="/log1o.png" // Thay bằng đường dẫn ảnh quốc kỳ trong public/
+            className="rounded-md bg-transparent"
+            src="/images/logo.png" // Thay bằng đường dẫn ảnh quốc kỳ trong public/
             alt="Quốc kỳ Việt Nam"
             width={40}
             height={40}

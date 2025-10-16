@@ -1,15 +1,15 @@
 import type { Metadata } from 'next';
-import {Inter} from 'next/font/google';
+import {Inter, DM_Serif_Text} from 'next/font/google';
 import './globals.css';
 
 const inter = Inter({
   subsets: ['greek'],
 })
+const dmSerifText = DM_Serif_Text({
+  subsets: ['latin'],
+  weight: ['400'],
+})
  
-// src/app/layout.tsx
-import Link from 'next/link';
-import Image from 'next/image';
-
 // src/app/layout.tsx
 import Header from '@/components/header';
 
@@ -20,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi">
-      <body>
+      <body className={dmSerifText.className}>
         <Header />
         <main>{children}
           
