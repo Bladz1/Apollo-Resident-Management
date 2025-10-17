@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+
 const alerts = [
   {
     title: 'Cảnh báo bảo mật tài khoản',
@@ -55,7 +57,52 @@ const steps = [
 ];
 
 export default function Home() {
+  //  useEffect(() => {
+  //   // Nếu URL đang có hash thì xóa để tránh trình duyệt tự nhảy khi reload lần sau
+  //   if (typeof window !== 'undefined' && window.location.hash) {
+  //     window.scrollTo(0, 0);
+  //     history.replaceState(null, '', window.location.pathname + window.location.search);
+  //   }
+
+  //   // Tìm tất cả các button có class 'scroll-button'
+  //   const scrollButtons = document.querySelectorAll('.scroll-button');
+
+  //   // Hàm xử lý sự kiện click
+  //   const handleScroll = (event: MouseEvent) => {
+  //     // Ngăn hành vi mặc định (thay đổi URL) -> Giải quyết lỗi refresh
+  //     event.preventDefault();
+
+  //     const targetId = (event.currentTarget as HTMLAnchorElement).getAttribute('href');
+  //     if (!targetId) return;
+
+  //     const targetElement = document.querySelector(targetId);
+
+  //     // Cuộn mượt mà đến mục tiêu
+  //     if (targetElement) {
+  //       targetElement.scrollIntoView({
+  //         behavior: 'smooth',
+  //         block: 'start'
+  //       });
+
+  //       // Xóa hash khỏi URL để lần reload sau trình duyệt không tự cuộn
+  //       history.replaceState(null, '', window.location.pathname + window.location.search);
+  //     }
+  //   };
+
+  //   // Gán sự kiện cho từng button
+  //   scrollButtons.forEach(button => {
+  //     button.addEventListener('click', handleScroll as EventListener);
+  //   });
+
+  //   // Rất quan trọng: Dọn dẹp event listener khi component bị hủy
+  //   return () => {
+  //     scrollButtons.forEach(button => {
+  //       button.removeEventListener('click', handleScroll as EventListener);
+  //     });
+  //   };
+  // }, []); // Mảng rỗng [] nghĩa là useEffect này chỉ chạy 1 lần duy nhất
   return (
+    
     <div className="relative overflow-hidden bg-slate-950 text-slate-50">
       <section className="relative hero-spotlight">
         <div className="absolute inset-0 overflow-hidden">
@@ -69,7 +116,7 @@ export default function Home() {
             <span className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-red-200 backdrop-blur">
               Hệ thống Quản lý dân cư quốc gia
             </span>
-            <h1 className="text-3xl md:text-5xl font-black leading-tight text-balance">
+            <h1 className="text-3xl md:text-5xl  leading-tight text-balance">
               Tiện lợi, an toàn và minh bạch trong mọi thủ tục cư trú
             </h1>
             <p className="max-w-2xl text-base md:text-lg text-slate-200">
@@ -87,7 +134,7 @@ export default function Home() {
                 <span className="absolute inset-0 translate-y-full bg-white/60 transition-transform duration-500 group-hover:translate-y-0" />
               </a>
               <a
-                href="/support"
+                href="#support"
                 className="inline-flex items-center gap-2 rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white/90 backdrop-blur transition duration-300 hover:border-white hover:bg-white/10"
               >
                 Trung tâm hỗ trợ
@@ -208,7 +255,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="relative bg-gradient-to-r from-amber-400/20 via-transparent to-red-500/20">
+      <section id="support" className="relative bg-gradient-to-r from-amber-400/20 via-transparent to-red-500/20">
         <div className="max-w-6xl mx-auto px-6 py-14">
           <div className="grid gap-8 md:grid-cols-[1.2fr_0.8fr] items-center rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl">
             <div className="space-y-3">
