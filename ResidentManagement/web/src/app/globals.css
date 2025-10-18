@@ -54,19 +54,3 @@ body {
   right: -6rem;
   background: radial-gradient(circle, rgba(244, 114, 182, 0.4), transparent 65%);
 }
-
-
-html {
-  scroll-behavior: smooth;
-}
-
-
-.scroll-button {
-    padding: 10px 20px;
-    background-color: #007BFF;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    font-family: sans-serif;
-    cursor: pointer;
-}

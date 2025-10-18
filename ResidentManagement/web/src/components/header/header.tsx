@@ -1,9 +1,9 @@
-// src/components/Header.tsx
-'use client'; // Cần để sử dụng client-side logic
+'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
+import SupportButton from '@/components/header/support_button';
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -40,7 +40,7 @@ const Header = () => {
                 <Link href="/search" className="hover:text-yellow-200">Tra cứu</Link>
               </li>
               <li>
-                <Link href="#support" className="hover:text-yellow-200">Hỗ trợ</Link>
+                <SupportButton></SupportButton>
               </li>
               <li>
                 <Link href="/news" className="hover:text-yellow-200">Tin tức</Link>
