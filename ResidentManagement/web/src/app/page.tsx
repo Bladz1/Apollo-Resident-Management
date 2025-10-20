@@ -1,61 +1,9 @@
 
 import ScrollToTop from "@/utils/scroll_to_top";
-import HeroStyles from "@/utils/styles";
-import Styles from "@/utils/styles";
-
-const alerts = [
-  {
-    title: 'Cảnh báo bảo mật tài khoản',
-    content:
-      'Tuyệt đối không chia sẻ mã OTP, mật khẩu hoặc thông tin cá nhân với bất kỳ ai. Hệ thống không bao giờ yêu cầu người dùng cung cấp thông tin nhạy cảm qua điện thoại.',
-    level: 'Khẩn',
-  },
-  {
-    title: 'Bảo trì hệ thống định kỳ',
-    content:
-      'Hệ thống sẽ tạm ngưng từ 22:00 đến 23:30 ngày 25/05 để nâng cấp hạ tầng. Vui lòng chủ động thực hiện các giao dịch quan trọng trước thời gian này.',
-    level: 'Thông báo',
-  },
-];
-
-const news = [
-  {
-    title: 'Ra mắt tính năng tra cứu hồ sơ trực tuyến',
-    date: '20/05/2025',
-    description:
-      'Người dân có thể theo dõi tiến độ xử lý hồ sơ cư trú trực tuyến mà không cần đến trực tiếp cơ quan hành chính.',
-  },
-  {
-    title: 'Tích hợp chữ ký số trong đăng ký tạm trú',
-    date: '18/05/2025',
-    description:
-      'Hệ thống hỗ trợ ký số đối với các thủ tục đăng ký tạm trú, giúp giảm thời gian chờ xử lý hồ sơ.',
-  },
-  {
-    title: 'Tập huấn cán bộ quản trị dữ liệu dân cư',
-    date: '15/05/2025',
-    description:
-      'Bộ phận quản trị được đào tạo chuyên sâu về an toàn thông tin và quy trình chuẩn hóa dữ liệu dân cư.',
-  },
-];
-
-const steps = [
-  {
-    title: '1. Đăng ký tài khoản',
-    detail:
-      'Sử dụng số CCCD gắn chip và số điện thoại đã đăng ký để tạo tài khoản truy cập hệ thống. Mỗi người dân chỉ có một tài khoản duy nhất.',
-  },
-  {
-    title: '2. Xác thực danh tính',
-    detail:
-      'Hoàn tất xác thực qua ứng dụng VNeID hoặc đến cơ quan công an gần nhất để kích hoạt đầy đủ quyền hạn sử dụng.',
-  },
-  {
-    title: '3. Sử dụng dịch vụ',
-    detail:
-      'Tra cứu thông tin hộ khẩu, đăng ký tạm trú, cập nhật nhân khẩu và theo dõi hồ sơ trực tuyến ngay sau khi đăng nhập.',
-  },
-];
+import styles from "./custom_css/css.module.css";
+import alerts from "./data/alerts_data"
+import news from "./data/news_data";
+import steps from "./data/steps_data";
 
 export default function Home() {
   //  useEffect(() => {
@@ -104,22 +52,21 @@ export default function Home() {
   // }, []); // Mảng rỗng [] nghĩa là useEffect này chỉ chạy 1 lần duy nhất
   return (
   <div>
-    <HeroStyles></HeroStyles>
     <ScrollToTop></ScrollToTop>
     <div className="relative overflow-hidden bg-slate-950 text-slate-50">
-      <section className="relative hero-spotlight">
+      <section className={`relative ${styles["hero-spotlight"]}`}>
         <div className="absolute inset-0 overflow-hidden">
-          <div className="hero-grid" aria-hidden />
-          <div className="hero-orb orb-1" aria-hidden />
-          <div className="hero-orb orb-2" aria-hidden />
+          <div className={`${styles["hero-grid"]}`} aria-hidden />
+          <div className={`${styles["hero-orb"]} ${styles["orb-1"]}`} aria-hidden />
+          <div className={`${styles["hero-orb"]} ${styles["orb-2"]}`} aria-hidden />
         </div>
 
         <div className="relative z-10 max-w-6xl mx-auto px-6 py-24 grid gap-16 lg:grid-cols-[1.1fr_0.9fr] items-center">
-          <div className="space-y-6 animate-fade-in">
+          <div className={`space-y-6 ${styles["animate-fade-in"]}`}>
             <span className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-red-200 backdrop-blur">
               Hệ thống Quản lý dân cư quốc gia
             </span>
-            <h1 className="text-3xl md:text-5xl  leading-tight text-balance">
+            <h1 className="text-3xl md:text-5xl leading-tight text-balance">
               Tiện lợi, an toàn và minh bạch trong mọi thủ tục cư trú
             </h1>
             <p className="max-w-2xl text-base md:text-lg text-slate-200">
@@ -141,7 +88,7 @@ export default function Home() {
                 className="inline-flex items-center gap-2 rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white/90 backdrop-blur transition duration-300 hover:border-white hover:bg-white/10"
               >
                 Trung tâm hỗ trợ
-                <span aria-hidden className="animate-pulse">✦</span>
+                <span aria-hidden className={`${styles["animate-pulse"]}`}>✦</span>
               </a>
             </div>
             <div className="grid gap-6 sm:grid-cols-3">
@@ -157,7 +104,7 @@ export default function Home() {
           </div>
 
           <div className="relative">
-            <div className="feature-card animate-float">
+            <div className={`${styles["feature-card"]} ${styles["animate-float"]}`}>
               <div className="flex items-center gap-3">
                 <span className="grid h-12 w-12 place-items-center rounded-2xl bg-red-500/20 text-2xl">🔐</span>
                 <div>
@@ -169,7 +116,7 @@ export default function Home() {
                 Dữ liệu cư trú được mã hóa đầu cuối và bảo vệ bởi hạ tầng đạt chuẩn ISO 27001.
               </p>
             </div>
-            <div className="feature-card absolute -bottom-10 left-8 w-[85%] animate-float-delayed">
+            <div className={`${styles["feature-card"]} absolute -bottom-10 left-8 w-[85%] ${styles["animate-float-delayed"]}`}>
               <div className="flex items-center gap-3">
                 <span className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-500/20 text-2xl">⚡</span>
                 <div>
@@ -188,11 +135,11 @@ export default function Home() {
       <section className="relative border-y border-white/5 bg-slate-900/60">
         <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 via-transparent to-red-500/10" aria-hidden />
         <div className="relative z-10 max-w-6xl mx-auto px-6 py-16">
-          <h2 className="section-title">
-            <span className="section-icon">⚠️</span>
+          <h2 className={`${styles["section-title"]}`}>
+            <span className={`${styles["section-icon"]}`}>⚠️</span>
             Cảnh báo và Thông báo quan trọng
           </h2>
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className={`grid gap-6 md:grid-cols-2 ${styles["wrapper"]}`}>
             {alerts.map((alert, index) => (
               <article
                 key={alert.title}
@@ -212,8 +159,8 @@ export default function Home() {
 
       <section className="relative bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
         <div className="max-w-6xl mx-auto px-6 py-16">
-          <h2 className="section-title">
-            <span className="section-icon">📰</span>
+          <h2 className={`${styles["section-title"]}`}>
+            <span className={`${styles["section-icon"]}`}>📰</span>
             Tin tức và cập nhật hệ thống
           </h2>
           <div className="grid gap-6 lg:grid-cols-3">
@@ -237,10 +184,10 @@ export default function Home() {
       </section>
 
       <section className="relative border-t border-white/5 bg-slate-950/90">
-        <div className="absolute inset-0 hero-grid" aria-hidden />
+        <div className={`absolute inset-0 ${styles["hero-grid"]}`} aria-hidden />
         <div className="relative z-10 max-w-6xl mx-auto px-6 py-16">
-          <h2 className="section-title">
-            <span className="section-icon">🛠️</span>
+          <h2 className={`${styles["section-title"]}`}>
+            <span className={`${styles["section-icon"]}`}>🛠️</span>
             Hướng dẫn sử dụng dành cho người dân
           </h2>
           <div className="grid gap-6 md:grid-cols-3">
