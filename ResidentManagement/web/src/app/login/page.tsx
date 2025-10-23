@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import { FormEvent, useState } from 'react';
-import { AuthTester, AuthTesterCopy } from '@/components/auth/AuthTester';
+import { useRouter } from 'next/navigation';
+import { saveAuth } from '@/utils/auth-storage';
+import { AuthTesterCopy } from '@/components/auth/AuthTester';
 
 const LOGIN_COPY: AuthTesterCopy = {
   endpointPath: '/auth/login',
@@ -52,7 +54,67 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ??
   'http://localhost:8080/resident-management';
 
+type AuthExtractionResult = {
+  token?: string;
+  username?: string;
+};
+
+function extractAuthDetails(payload: unknown): AuthExtractionResult {
+  const visited = new Set<object>();
+  const queue: object[] = [];
+
+  if (payload && typeof payload === 'object') {
+    queue.push(payload as object);
+  }
+
+  const pickString = (source: Record<string, unknown>, keys: string[]) => {
+    for (const key of keys) {
+      const value = source[key];
+      if (typeof value === 'string' && value.trim().length > 0) {
+        return value.trim();
+      }
+    }
+    return undefined;
+  };
+
+  const result: AuthExtractionResult = {};
+
+  while (queue.length > 0 && (!result.token || !result.username)) {
+    const current = queue.shift();
+    if (!current || typeof current !== 'object') {
+      continue;
+    }
+
+    if (visited.has(current as object)) {
+      continue;
+    }
+
+    visited.add(current as object);
+
+    const record = current as Record<string, unknown>;
+
+    if (!result.token) {
+      result.token = pickString(record, ['token', 'jwt', 'accessToken', 'access_token']);
+    }
+
+    if (!result.username) {
+      result.username = pickString(record, ['username', 'userName', 'name']);
+    }
+
+    const nestedKeys = ['result', 'data', 'user', 'account', 'profile'];
+    for (const key of nestedKeys) {
+      const value = record[key];
+      if (value && typeof value === 'object') {
+        queue.push(value as object);
+      }
+    }
+  }
+
+  return result;
+}
+
 export default function LoginPage() {
+  const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -76,13 +138,15 @@ export default function LoginPage() {
       });
 
       const text = await response.text();
-      const result = (() => {
-        try {
-          return JSON.stringify(JSON.parse(text), null, 2);
-        } catch {
-          return text;
-        }
-      })();
+      let parsed: unknown = null;
+
+      try {
+        parsed = JSON.parse(text);
+      } catch {
+        parsed = null;
+      }
+
+      const result = parsed ? JSON.stringify(parsed, null, 2) : text;
 
       setResponseBody(result || '');
 
@@ -92,8 +156,14 @@ export default function LoginPage() {
         return;
       }
 
+      const { token: tokenFromResponse, username: usernameFromResponse } = extractAuthDetails(parsed);
+      const resolvedUsername = usernameFromResponse ?? username;
+
+      saveAuth(tokenFromResponse ?? null, resolvedUsername);
+
       setStatus('success');
       setMessage('Đăng nhập thành công! API đã phản hồi thành công.');
+      router.push('/');
     } catch {
       setStatus('error');
       setMessage('Không thể kết nối tới API. Hãy kiểm tra lại server hoặc cấu hình URL.');
