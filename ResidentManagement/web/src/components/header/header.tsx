@@ -2,11 +2,83 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SupportButton from '@/components/header/support_button';
+import {
+  AUTH_CHANGE_EVENT,
+  AuthChangeDetail,
+  clearAuth,
+  loadAuth,
+  loadUsername,
+} from '@/utils/auth-storage';
+
+type HeaderAuthState = {
+  isAuthenticated: boolean;
+  username: string | null;
+};
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [authState, setAuthState] = useState<HeaderAuthState>({ isAuthenticated: false, username: null });
+
+  useEffect(() => {
+    const updateState = (hasToken: boolean, usernameCandidate: string | null) => {
+      const normalized = usernameCandidate?.trim() ?? null;
+      setAuthState({
+        isAuthenticated: hasToken,
+        username: normalized && normalized.length > 0 ? normalized : null,
+      });
+    };
+
+    const syncAuthState = (detail?: AuthChangeDetail | null) => {
+      if (detail) {
+        if (detail.token) {
+          const fallbackUsername = detail.username ?? loadUsername();
+          updateState(true, fallbackUsername ?? null);
+        } else {
+          updateState(false, null);
+        }
+        return;
+      }
+
+      const stored = loadAuth();
+
+      if (stored) {
+        const fallback = loadUsername();
+        updateState(true, stored.username || fallback || null);
+      } else {
+        updateState(false, null);
+      }
+    };
+
+    syncAuthState();
+
+    const handleStorage = () => {
+      syncAuthState();
+    };
+
+    const handleAuthChanged = (event: Event) => {
+      const customEvent = event as CustomEvent<AuthChangeDetail>;
+      syncAuthState(customEvent.detail ?? null);
+    };
+
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener(AUTH_CHANGE_EVENT, handleAuthChanged as EventListener);
+
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener(AUTH_CHANGE_EVENT, handleAuthChanged as EventListener);
+    };
+  }, []);
+
+  const isAuthenticated = authState.isAuthenticated;
+  const displayName = authState.username ?? 'Người dùng';
+
+  const handleLogout = () => {
+    clearAuth();
+    setAuthState({ isAuthenticated: false, username: null });
+    setIsOpen(false);
+  };
 
   return (
     <header className="bg-red-900 text-white shadow-md">
@@ -47,9 +119,21 @@ const Header = () => {
               </li>
             </ul>
           </nav>
-          <button className="bg-yellow-400 text-blue-900 px-4 py-2 rounded-lg hover:bg-blue-100">
-            <Link href="/login">Đăng nhập</Link>
-          </button>
+          {isAuthenticated ? (
+            <div className="flex items-center space-x-3">
+              <span className="text-sm font-semibold text-yellow-200">Xin chào, {displayName}</span>
+              <button
+                onClick={handleLogout}
+                className="rounded-lg border border-yellow-300 px-4 py-2 text-sm font-semibold text-white transition hover:bg-yellow-500/20"
+              >
+                Đăng xuất
+              </button>
+            </div>
+          ) : (
+            <button className="bg-yellow-400 text-blue-900 px-4 py-2 rounded-lg hover:bg-blue-100">
+              <Link href="/login">Đăng nhập</Link>
+            </button>
+          )}
         </div>
 
         {/* Menu Hamburger (Mobile) */}
@@ -76,6 +160,11 @@ const Header = () => {
           {isOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-yellow-400 text-white p-2 rounded-lg space-y-2 z-10">
               <ul>
+                {isAuthenticated && (
+                  <li className="px-4 py-2 text-sm font-semibold text-red-900">
+                    Xin chào, {displayName}
+                  </li>
+                )}
                 <li>
                   <Link href="/" className="block px-4 py-2 hover:bg-yellow-800" onClick={() => setIsOpen(false)}>
                     Trang chủ
@@ -101,11 +190,23 @@ const Header = () => {
                     Tin tức
                   </Link>
                 </li>
-                <li>
-                  <Link href="/login" className="block px-4 py-2 hover:bg-yellow-800" onClick={() => setIsOpen(false)}>
-                    Đăng nhập
-                  </Link>
-                </li>
+                {isAuthenticated ? (
+                  <li>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="block w-full rounded-md px-4 py-2 text-left font-semibold text-red-900 hover:bg-yellow-800"
+                    >
+                      Đăng xuất
+                    </button>
+                  </li>
+                ) : (
+                  <li>
+                    <Link href="/login" className="block px-4 py-2 hover:bg-yellow-800" onClick={() => setIsOpen(false)}>
+                      Đăng nhập
+                    </Link>
+                  </li>
+                )}
               </ul>
             </div>
           )}

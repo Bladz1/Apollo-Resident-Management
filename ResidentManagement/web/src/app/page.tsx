@@ -4,6 +4,7 @@ import styles from "./custom_css/css.module.css";
 import alerts from "./data/alerts_data"
 import news from "./data/news_data";
 import steps from "./data/steps_data";
+import UserWelcome from "@/components/auth/UserWelcome";
 
 export default function Home() {
   //  useEffect(() => {
@@ -72,6 +73,7 @@ export default function Home() {
             <p className="max-w-2xl text-base md:text-lg text-slate-200">
               Cổng thông tin chính thức hỗ trợ người dân thực hiện thủ tục hộ khẩu, tạm trú, khai báo tạm vắng và tra cứu thông tin dân cư nhanh chóng.
             </p>
+            <UserWelcome className="text-base md:text-lg text-amber-200" />
             <div className="flex flex-wrap gap-4">
               <a
                 href="/login"
