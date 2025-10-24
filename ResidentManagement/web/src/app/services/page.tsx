@@ -2,14 +2,14 @@ import Link from 'next/link';
 
 const services = [
   {
-    id: 'ho-so-sk',
-    name: 'Hồ sơ sức khỏe',
+    id: 'nop-phi',
+    name: 'Thanh Toán',
     description:
-      'Theo dõi lịch sử khám chữa bệnh, kết quả xét nghiệm và các khuyến nghị chăm sóc sức khỏe cá nhân.',
+      'Thanh toán trực tuyến các loại phí, lệ phí hành chính nhanh chóng, an toàn và tiện lợi.',
     features: [
-      'Tra cứu hồ sơ y tế điện tử',
-      'Theo dõi lịch tiêm chủng',
-      'Nhắc lịch khám định kỳ',
+      'Phí y tế  xã hội',
+      'Phí hành chính công',
+      'Phí giao thông',
     ],
   },
   {
