@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
+import { loadUsername } from "@/utils/auth-storage";
 
 type FeeStatus = "Chưa nộp" | "Đã nộp" | "Đang xử lý";
 
@@ -11,18 +12,32 @@ type FeeCategory = {
   description: string;
 };
 
-type FeeItem = {
+interface FeeItem {
   id: string;
   categoryId: string;
   name: string;
   agency: string;
   amount: number;
   dueDate?: string;
-  status: FeeStatus;
+  status: string;
   description: string;
-};
+}
 
 type PaymentMethod = "bank" | "wallet" | "card";
+
+async function loadFeeItems(): Promise<FeeItem[]> {
+  const response = await fetch(`http://localhost:8080/${loadUsername()}/fees`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch fees");
+  }
+
+  const data = await response.json(); // parse JSON from server
+  return data.map((item: any) => ({
+    ...item,
+    amount: Number(item.amount), // ensure numeric
+    dueDate: item.dueDate || undefined,
+  }));
+}
 
 const feeCategories: FeeCategory[] = [
   {
@@ -144,6 +159,8 @@ export default function FeeDetailPage() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("bank");
   const [paymentSuccess, setPaymentSuccess] = useState(false);
 
+
+
   const agencies = useMemo(() => {
     const set = new Set<string>();
     feeItems.forEach((item) => {
@@ -154,6 +171,7 @@ export default function FeeDetailPage() {
     return ["all", ...Array.from(set)];
   }, [selectedCategory.id]);
 
+  // testing filtering
   const filteredFees = useMemo(() => {
     return feeItems.filter((item) => {
       if (item.categoryId !== selectedCategory.id) return false;

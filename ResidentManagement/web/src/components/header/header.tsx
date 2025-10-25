@@ -10,7 +10,7 @@ import {
   clearAuth,
   loadAuth,
   loadUsername,
-} from '@/utils/auth-storage';
+} from '../../utils/auth-storage';
 
 type HeaderAuthState = {
   isAuthenticated: boolean;

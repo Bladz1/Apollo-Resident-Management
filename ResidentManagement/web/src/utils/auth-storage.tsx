@@ -1,5 +1,5 @@
-const TOKEN_KEY = 'resident-management.authToken';
-const USERNAME_KEY = 'resident-management.username';
+export const TOKEN_KEY = 'resident-management.authToken';
+export const USERNAME_KEY = 'resident-management.username';
 export const AUTH_CHANGE_EVENT = 'resident-management:auth-changed';
 
 export type StoredAuth = {
@@ -100,6 +100,21 @@ function deriveUsernameFromJwt(token: string | null | undefined): string | null 
   return username ?? null;
 }
 
+function deriveIdFromJwt(token: string | null | undefined): string | null {
+  if (!token) {
+    return null;
+  }
+
+  const claims = parseJwt(token);
+  if (!claims) {
+    return null;
+  }
+
+  const id = pickString(claims, ['uid', 'user_id', 'sub', 'id']);
+  
+  return id ?? null;
+}
+
 export function saveAuth(token: string | null | undefined, username: string | null | undefined) {
   if (!isBrowser()) return;
 
@@ -165,4 +180,8 @@ export function loadUsername(): string | null {
 
 export function extractUsernameFromToken(token: string | null | undefined): string | null {
   return deriveUsernameFromJwt(token);
+}
+
+export function extractIdFromToken(token: string | null | undefined): string | null {
+  return deriveIdFromJwt(token);
 }
