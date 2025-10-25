@@ -1,3 +1,5 @@
+import { jwtDecode } from 'jwt-decode';
+
 export const TOKEN_KEY = 'resident-management.authToken';
 export const USERNAME_KEY = 'resident-management.username';
 export const AUTH_CHANGE_EVENT = 'resident-management:auth-changed';
@@ -12,6 +14,8 @@ export type AuthChangeDetail = {
   username: string | null;
 };
 
+type JwtClaims = Record<string, unknown>;
+
 function isBrowser() {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 }
@@ -22,48 +26,13 @@ function dispatchAuthChanged(detail: AuthChangeDetail) {
   window.dispatchEvent(new CustomEvent<AuthChangeDetail>(AUTH_CHANGE_EVENT, { detail }));
 }
 
-function decodeBase64Url(value: string): string | null {
-  try {
-    const normalized = value.replace(/-/g, '+').replace(/_/g, '/');
-    const paddingLength = (4 - (normalized.length % 4)) % 4;
-    const padded = normalized.padEnd(normalized.length + paddingLength, '=');
-
-    if (typeof window !== 'undefined' && typeof window.atob === 'function') {
-      const binary = window.atob(padded);
-      try {
-        const percentEncoded = Array.from(binary)
-          .map((char) => `%${char.charCodeAt(0).toString(16).padStart(2, '0')}`)
-          .join('');
-        return decodeURIComponent(percentEncoded);
-      } catch {
-        return binary;
-      }
-    }
-
-    const globalBuffer = typeof globalThis !== 'undefined' ? (globalThis as any).Buffer : undefined;
-    if (globalBuffer) {
-      return globalBuffer.from(padded, 'base64').toString('utf-8');
-    }
-
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-function parseJwt(token: string): Record<string, unknown> | null {
-  const parts = token.split('.');
-  if (parts.length < 2) {
-    return null;
-  }
-
-  const payload = decodeBase64Url(parts[1]);
-  if (!payload) {
+function decodeClaims(token: string | null | undefined): JwtClaims | null {
+  if (!token) {
     return null;
   }
 
   try {
-    return JSON.parse(payload) as Record<string, unknown>;
+    return jwtDecode<JwtClaims>(token);
   } catch {
     return null;
   }
@@ -80,11 +49,7 @@ function pickString(source: Record<string, unknown>, keys: string[]): string | n
 }
 
 function deriveUsernameFromJwt(token: string | null | undefined): string | null {
-  if (!token) {
-    return null;
-  }
-
-  const claims = parseJwt(token);
+  const claims = decodeClaims(token);
   if (!claims) {
     return null;
   }
@@ -101,11 +66,7 @@ function deriveUsernameFromJwt(token: string | null | undefined): string | null 
 }
 
 function deriveIdFromJwt(token: string | null | undefined): string | null {
-  if (!token) {
-    return null;
-  }
-
-  const claims = parseJwt(token);
+  const claims = decodeClaims(token);
   if (!claims) {
     return null;
   }
