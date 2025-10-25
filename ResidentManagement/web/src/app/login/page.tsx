@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { saveAuth } from '@/utils/auth-storage';
+import { extractUsernameFromToken, saveAuth } from '@/utils/auth-storage';
 import { AuthTesterCopy } from '@/components/auth/AuthTester';
 
 const LOGIN_COPY: AuthTesterCopy = {
@@ -157,7 +157,8 @@ export default function LoginPage() {
       }
 
       const { token: tokenFromResponse, username: usernameFromResponse } = extractAuthDetails(parsed);
-      const resolvedUsername = usernameFromResponse ?? username;
+      const resolvedUsername =
+        usernameFromResponse ?? extractUsernameFromToken(tokenFromResponse) ?? username;
 
       saveAuth(tokenFromResponse ?? null, resolvedUsername);
 
