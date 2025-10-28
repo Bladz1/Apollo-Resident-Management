@@ -1,69 +1,10 @@
 
 import ScrollToTop from "@/utils/scroll_to_top";
 import styles from "./custom_css/css.module.css";
-import alerts from "./data/alerts_data";
+import alerts from "./data/alerts_data"
 import news from "./data/news_data";
 import steps from "./data/steps_data";
 import UserWelcome from "@/components/auth/UserWelcome";
-import CityHologram from "@/components/interactive/CityHologram";
-
-const commandHighlights = [
-  {
-    tag: "Realtime",
-    title: "Trực quan hóa 3D",
-    description:
-      "Toàn bộ hoạt động cư trú được dựng mô hình 3 chiều và cập nhật từng mili-giây giúp cán bộ dễ dàng quan sát.",
-  },
-  {
-    tag: "Insight",
-    title: "Phân tích ngữ cảnh",
-    description:
-      "Trí tuệ nhân tạo phát hiện bất thường từ dòng dữ liệu, gợi ý hành động tức thời và cảnh báo theo mức ưu tiên.",
-  },
-  {
-    tag: "Automation",
-    title: "Điều phối quy trình",
-    description:
-      "Các biểu mẫu và nhiệm vụ được tự động phân tuyến đến cơ quan phụ trách, hạn chế tối đa thao tác thủ công.",
-  },
-  {
-    tag: "Trust",
-    title: "Xác thực đa lớp",
-    description:
-      "Chuẩn bảo mật Zero Trust, sinh trắc học và xác thực hành vi đảm bảo dữ liệu cư dân luôn an toàn tuyệt đối.",
-  },
-];
-
-const immersivePanels = [
-  {
-    icon: "🛰️",
-    title: "Quét vệ tinh khu vực",
-    description:
-      "Kết hợp dữ liệu GIS và cảm biến để theo dõi biến động dân cư, cảnh báo rủi ro thiên tai ngay trên giao diện 3D.",
-    gradient: "from-rose-500/30 via-amber-400/10 to-red-500/20",
-  },
-  {
-    icon: "💠",
-    title: "Bảng điều khiển mô-đun",
-    description:
-      "Mỗi phân hệ cư trú là một khối lập thể có thể xoay kéo, bật/tắt lớp dữ liệu nhằm tập trung vào chỉ số quan trọng.",
-    gradient: "from-sky-500/30 via-purple-500/20 to-indigo-500/10",
-  },
-  {
-    icon: "📡",
-    title: "Tín hiệu IoT",
-    description:
-      "Hàng ngàn thiết bị camera, cảm biến môi trường gửi dữ liệu về trung tâm, hiển thị bằng luồng sáng động.",
-    gradient: "from-emerald-400/30 via-teal-400/10 to-cyan-500/20",
-  },
-  {
-    icon: "🛡️",
-    title: "Giám sát an ninh",
-    description:
-      "Tường lửa hành vi, bản đồ rủi ro và báo cáo tấn công mạng thể hiện dưới dạng lưới bảo vệ bao quanh thành phố số.",
-    gradient: "from-red-500/25 via-rose-500/10 to-fuchsia-500/20",
-  },
-];
 
 export default function Home() {
   //  useEffect(() => {
@@ -164,71 +105,31 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="relative space-y-6">
-            <CityHologram />
-            <div className="grid gap-4 sm:grid-cols-2">
-              {commandHighlights.map((item) => (
-                <article
-                  key={item.title}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur transition duration-500 hover:-translate-y-1 hover:border-amber-300/60 hover:bg-white/10"
-                >
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-200">
-                    {item.tag}
-                  </p>
-                  <h3 className="mt-2 text-lg font-semibold text-white">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-slate-200">{item.description}</p>
-                </article>
-              ))}
+          <div className="relative">
+            <div className={`${styles["feature-card"]} ${styles["animate-float"]}`}>
+              <div className="flex items-center gap-3">
+                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-red-500/20 text-2xl">🔐</span>
+                <div>
+                  <p className="text-sm text-red-200">Trạng thái an toàn</p>
+                  <p className="text-lg font-semibold">Bảo mật cấp Nhà nước</p>
+                </div>
+              </div>
+              <p className="mt-4 text-sm text-slate-200">
+                Dữ liệu cư trú được mã hóa đầu cuối và bảo vệ bởi hạ tầng đạt chuẩn ISO 27001.
+              </p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="relative overflow-hidden border-y border-white/5 bg-slate-950">
-        <div
-          className="absolute inset-0 opacity-80"
-          style={{
-            background:
-              "radial-gradient(circle at 20% -10%, rgba(248, 113, 113, 0.18), transparent 55%), radial-gradient(circle at 80% 0%, rgba(253, 224, 71, 0.12), transparent 50%)",
-          }}
-          aria-hidden
-        />
-        <div className="relative z-10 max-w-6xl mx-auto px-6 py-16 grid gap-12 lg:grid-cols-[1.05fr_0.95fr] items-center">
-          <div className="space-y-6">
-            <span className={styles["immersive-badge"]}>Trung tâm điều hành ảo</span>
-            <h2 className="text-3xl font-semibold text-white md:text-4xl">
-              Tái hiện hạ tầng cư trú trong không gian 3D
-            </h2>
-            <p className="text-base md:text-lg text-slate-200">
-              Không chỉ là giao diện web, hệ thống hiển thị một thành phố số với các lớp dữ liệu được dựng 3 chiều, cho phép xoay,
-              phóng to và theo dõi trạng thái từng phân hệ ngay lập tức.
-            </p>
-            <ul className="grid gap-3 text-sm text-slate-200/90">
-              <li className="flex items-start gap-3">
-                <span className="mt-1 text-amber-300">✦</span>
-                Bản đồ nhiệt cư trú, tần suất xử lý hồ sơ và lưu lượng người dân hiển thị bằng luồng sáng động.
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-1 text-amber-300">✦</span>
-                Tích hợp thiết bị IoT và camera AI, mỗi tín hiệu bất thường lập tức tạo hiệu ứng rung trên mô hình.
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-1 text-amber-300">✦</span>
-                Phối hợp giữa các sở ngành thông qua chế độ trình chiếu cùng lúc nhiều lớp dữ liệu chuyên biệt.
-              </li>
-            </ul>
-          </div>
-          <div className={styles["immersive-grid"]}>
-            {immersivePanels.map((panel) => (
-              <article
-                key={panel.title}
-                className={`${styles["immersive-card"]} bg-gradient-to-br ${panel.gradient}`}
-              >
-                <span className={styles["immersive-icon"]}>{panel.icon}</span>
-                <h3 className={styles["immersive-heading"]}>{panel.title}</h3>
-                <p className={styles["immersive-desc"]}>{panel.description}</p>
-              </article>
-            ))}
+            <div className={`${styles["feature-card"]} absolute -bottom-10 left-8 w-[85%] ${styles["animate-float-delayed"]}`}>
+              <div className="flex items-center gap-3">
+                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-500/20 text-2xl">⚡</span>
+                <div>
+                  <p className="text-sm text-emerald-200">Hiệu suất xử lý</p>
+                  <p className="text-lg font-semibold">Tự động hóa 70% thao tác</p>
+                </div>
+              </div>
+              <p className="mt-4 text-sm text-slate-200">
+                Hệ thống gợi ý biểu mẫu, kiểm tra dữ liệu và gửi thông báo tiến độ theo thời gian thực.
+              </p>
+            </div>
           </div>
         </div>
       </section>
