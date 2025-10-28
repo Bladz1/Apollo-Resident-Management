@@ -7,18 +7,21 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
-@Entity
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Entity
 public class Fee {
     @Id
-    String name;
+    String id;
 
+    String categoryId;
+    String name;
     String agency;
     String amount;
     LocalDateTime dueDate;
     String status;
+    String description;
 }

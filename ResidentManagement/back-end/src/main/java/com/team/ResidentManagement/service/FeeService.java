@@ -15,7 +15,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE,  makeFinal = true)
 public class FeeService {
     FeeRepository feeRepository;

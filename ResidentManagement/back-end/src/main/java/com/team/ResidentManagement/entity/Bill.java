@@ -14,6 +14,7 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Bill {
     @Id
+    String id;
     String name;
     String description;
 

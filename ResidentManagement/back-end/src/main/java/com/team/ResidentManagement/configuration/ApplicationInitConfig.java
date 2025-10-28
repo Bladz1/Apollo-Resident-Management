@@ -1,5 +1,6 @@
 package com.team.ResidentManagement.configuration;
 
+import com.team.ResidentManagement.constant.PredefinedRole;
 import com.team.ResidentManagement.entity.User;
 import com.team.ResidentManagement.enums.Role;
 import com.team.ResidentManagement.repository.UserRepository;
@@ -23,15 +24,11 @@ public class ApplicationInitConfig {
     ApplicationRunner applicationRunner(UserRepository userRepository) {
         return args -> {
                if(userRepository.findByUsername("admin").isEmpty()){
-                   var confRoles = new HashSet<String>();
-                   confRoles.add(Role.ADMIN.name());
-
-                   System.out.println(confRoles);
 
                    User user = User.builder()
                            .username("admin")
-                           //.roles(confRoles)
                            .password(passwordEncoder.encode("admin"))
+
                            .build();
 
                    userRepository.save(user);

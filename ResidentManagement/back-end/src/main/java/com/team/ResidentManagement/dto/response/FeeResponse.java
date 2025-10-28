@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -11,9 +12,12 @@ import java.time.LocalDate;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class FeeResponse {
+    String id;
+    String categoryId;
     String name;
     String agency;
     String amount;
-    LocalDate dueDate;
-    String Status;
+    LocalDateTime dueDate;
+    String status;
+    String description;
 }

@@ -1,14 +1,17 @@
 package com.team.ResidentManagement.service;
 
 import com.team.ResidentManagement.Mapper.UserMapper;
+import com.team.ResidentManagement.constant.PredefinedBill;
 import com.team.ResidentManagement.constant.PredefinedRole;
 import com.team.ResidentManagement.dto.request.UserCreationRequest;
 import com.team.ResidentManagement.dto.request.UserUpdateRequest;
 import com.team.ResidentManagement.dto.response.UserResponse;
+import com.team.ResidentManagement.entity.Bill;
 import com.team.ResidentManagement.entity.User;
 import com.team.ResidentManagement.entity.Role;
 import com.team.ResidentManagement.exception.AppException;
 import com.team.ResidentManagement.exception.ErrorCode;
+import com.team.ResidentManagement.repository.BillRepository;
 import com.team.ResidentManagement.repository.RoleRepository;
 import com.team.ResidentManagement.repository.UserRepository;
 import lombok.AccessLevel;
@@ -32,6 +35,7 @@ public class UserService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
     RoleRepository roleRepository;
+    BillRepository billRepository;
 
     public UserResponse createUser(UserCreationRequest request) {
         User user = userMapper.toUser(request);
@@ -41,6 +45,13 @@ public class UserService {
         roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
 
         user.setRoles(roles);
+
+        HashSet<Bill> bills = new HashSet<>();
+        billRepository.findById(PredefinedBill.ADMINISTRATIVE).ifPresent(bills::add);
+        billRepository.findById(PredefinedBill.HEALTH_SOCIAL).ifPresent(bills::add);
+        billRepository.findById(PredefinedBill.TRANSPORT).ifPresent(bills::add);
+
+        user.setBills(bills);
 
         try {
             user = userRepository.save(user);

@@ -11,7 +11,8 @@ import java.util.Set;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BillResponse {
+    String id;
     String name;
     String description;
-    Set<FeeResponse> Fees;
+    Set<FeeResponse> fees;
 }

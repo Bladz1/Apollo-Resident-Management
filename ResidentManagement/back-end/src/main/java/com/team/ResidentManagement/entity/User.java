@@ -27,5 +27,5 @@ public class User {
     Set<Role> roles;
 
     @ManyToMany
-    Set<Bill> groups;
+    Set<Bill> bills;
 }

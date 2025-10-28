@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/bills")
 @RequiredArgsConstructor
@@ -26,12 +25,16 @@ public class BillController {
                 .build();
     }
 
-    @GetMapping
+    @GetMapping()
     ApiResponse<List<BillResponse>> getBills(){
         return ApiResponse.<List<BillResponse>>builder()
                 .result(billService.getAllBills())
                 .build();
     }
-
+    @DeleteMapping("/{bill}")
+    ApiResponse<Void> deleteBill(@PathVariable String userId){
+        billService.deleteBill(userId);
+        return ApiResponse.<Void>builder().build();
+    }
 
 }
