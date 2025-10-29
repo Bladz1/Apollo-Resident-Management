@@ -1,16 +1,16 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+
 export default function SupportButton() {
-  const scrollToSection = () => {
-    const section = document.getElementById('support');
-    section?.scrollIntoView({ behavior: 'smooth' });
+  const router = useRouter();
+
+  const navigateToSupport = () => {
+    router.push('/#support');
   };
 
   return (
-    <button
-      onClick={scrollToSection}
-      className="hover:text-yellow-200"
-    >
+    <button onClick={navigateToSupport} className="hover:text-yellow-200">
       Hỗ trợ
     </button>
   );
