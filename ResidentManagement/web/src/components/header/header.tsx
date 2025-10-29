@@ -181,7 +181,7 @@ const Header = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link href="#support" className="block px-4 py-2 hover:bg-yellow-800" onClick={() => setIsOpen(false)}>
+                  <Link href="/#support" className="block px-4 py-2 hover:bg-yellow-800" onClick={() => setIsOpen(false)}>
                     Hỗ trợ
                   </Link>
                 </li>
