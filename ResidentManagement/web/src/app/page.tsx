@@ -1,4 +1,5 @@
 
+import LoginCtaButton from "@/components/auth/LoginCtaButton";
 import ScrollToTop from "@/utils/scroll_to_top";
 import styles from "./custom_css/css.module.css";
 import alerts from "./data/alerts_data"
@@ -75,16 +76,7 @@ export default function Home() {
             </p>
             <UserWelcome className="text-base md:text-lg text-amber-200" />
             <div className="flex flex-wrap gap-4">
-              <a
-                href="/login"
-                className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-gradient-to-r from-amber-300 via-amber-400 to-amber-200 px-6 py-3 text-sm font-semibold text-red-900 shadow-lg shadow-amber-500/30 transition-transform duration-300 hover:-translate-y-0.5"
-              >
-                <span className="relative z-10 flex items-center gap-2">
-                  Đăng nhập hệ thống
-                  <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-                </span>
-                <span className="absolute inset-0 translate-y-full bg-white/60 transition-transform duration-500 group-hover:translate-y-0" />
-              </a>
+              <LoginCtaButton />
               <a
                 href="#support"
                 className="inline-flex items-center gap-2 rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white/90 backdrop-blur transition duration-300 hover:border-white hover:bg-white/10"
