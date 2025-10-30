@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
-import { loadUsername } from "@/utils/auth-storage";
+import { loadUsername, TOKEN_KEY } from "@/utils/auth-storage";
 
 type FeeStatus = "Chưa nộp" | "Đã nộp" | "Đang xử lý";
 
@@ -22,18 +22,33 @@ interface FeeItem {
   status: string;
   description: string;
 }
+interface Bill {
+  id: string;
+  name: string;
+  description: string;
+  fees: FeeItem[];
+}
 
 type PaymentMethod = "bank" | "wallet" | "card";
 
 async function loadFeeItems(): Promise<FeeItem[]> {
-  const response = await fetch(`http://localhost:8080/${loadUsername()}/fees`);
+  const response = await fetch(`http://localhost:8080/bills/${loadUsername()}`, {
+  headers: {
+    method: "GET",
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${localStorage.getItem(TOKEN_KEY) || ""}`,
+  }
+});
+
   if (!response.ok) {
     throw new Error("Failed to fetch fees");
   }
 
-  const data = await response.json(); // parse JSON from server
-  
-  return data as FeeItem[];
+  const data = await response.json();
+
+  const allFees = data[0].bills.flatMap((bill: Bill) => bill.fees);
+
+  return allFees as FeeItem[];
 }
 
 const feeCategories: FeeCategory[] = [
