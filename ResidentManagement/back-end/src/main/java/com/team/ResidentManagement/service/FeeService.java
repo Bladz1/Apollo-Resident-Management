@@ -4,7 +4,11 @@ import com.team.ResidentManagement.Mapper.FeeMapper;
 import com.team.ResidentManagement.dto.request.FeeRequest;
 import com.team.ResidentManagement.dto.response.FeeResponse;
 import com.team.ResidentManagement.entity.Fee;
+import com.team.ResidentManagement.entity.User;
+import com.team.ResidentManagement.exception.AppException;
+import com.team.ResidentManagement.exception.ErrorCode;
 import com.team.ResidentManagement.repository.FeeRepository;
+import com.team.ResidentManagement.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -19,6 +23,7 @@ import java.util.List;
 public class FeeService {
     FeeRepository feeRepository;
     FeeMapper feeMapper;
+    UserRepository userRepository;
 
     public FeeResponse create(FeeRequest request){
         Fee fee = feeMapper.toFee(request);
@@ -27,8 +32,19 @@ public class FeeService {
     }
 
     public List<FeeResponse> getAll(){
-        var fees = feeRepository.findAll();
-        return fees.stream().map(feeMapper::toFeeResponse).toList();
+        return feeRepository.findAll()
+                .stream()
+                .map(feeMapper::toFeeResponse)
+                .toList();
+    }
+
+    public List<FeeResponse> getAllFromUser(String userId){
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        return user.getFees()
+                .stream()
+                .map(feeMapper::toFeeResponse)
+                .toList();
     }
 
     public void delete(String fee){

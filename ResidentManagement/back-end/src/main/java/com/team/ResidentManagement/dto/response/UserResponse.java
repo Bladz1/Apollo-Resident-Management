@@ -1,6 +1,5 @@
 package com.team.ResidentManagement.dto.response;
 
-import com.team.ResidentManagement.entity.Bill;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -19,5 +18,5 @@ public class UserResponse {
     String lastName;
     LocalDate birthday;
     Set<RoleResponse> roles;
-    Set<BillResponse> bills;
+    Set<FeeResponse> fees;
 }

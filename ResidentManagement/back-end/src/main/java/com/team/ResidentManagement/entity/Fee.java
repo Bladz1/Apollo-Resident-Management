@@ -20,7 +20,7 @@ public class Fee {
     String categoryId;
     String name;
     String agency;
-    String amount;
+    int amount;
     LocalDateTime dueDate;
     String status;
     String description;

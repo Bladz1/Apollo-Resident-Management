@@ -27,10 +27,17 @@ public class FeeController {
                 .build();
     }
 
-    @GetMapping
+    @GetMapping()
     ApiResponse<List<FeeResponse>> getAllFees(){
         return ApiResponse.<List<FeeResponse>>builder()
                 .result(feeService.getAll())
+                .build();
+    }
+
+    @GetMapping("/{userId}")
+    ApiResponse<List<FeeResponse>> getAllFeesFromUser(@PathVariable String userId){
+        return ApiResponse.<List<FeeResponse>>builder()
+                .result(feeService.getAllFromUser(userId))
                 .build();
     }
 
