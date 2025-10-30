@@ -32,7 +32,7 @@ interface Bill {
 type PaymentMethod = "bank" | "wallet" | "card";
 
 async function loadFeeItems(): Promise<FeeItem[]> {
-  const response = await fetch(`http://localhost:8080/bills/${loadUsername()}`, {
+  const response = await fetch(`http://localhost:8080/resident-management/fees/${loadUsername()}`, {
   headers: {
     method: "GET",
     "Content-Type": "application/json",
@@ -46,7 +46,9 @@ async function loadFeeItems(): Promise<FeeItem[]> {
 
   const data = await response.json();
 
-  const allFees = data[0].bills.flatMap((bill: Bill) => bill.fees);
+  const allFees = data.result;
+
+  console.log(allFees);
 
   return allFees as FeeItem[];
 }
@@ -172,16 +174,18 @@ export default function FeeDetailPage() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("bank");
   const [paymentSuccess, setPaymentSuccess] = useState(false);
 
-const [feeItems, setFeeItems] = useState<FeeItem[]>([]);
+  const [feeItems, setFeeItems] = useState<FeeItem[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     loadFeeItems()
       .then(setFeeItems)
-      .catch((err) => setError(err.message));
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
   }, []);
 
-  
+  console.log(feeItems);
 
   const agencies = useMemo(() => {
     const set = new Set<string>();
@@ -191,7 +195,7 @@ const [feeItems, setFeeItems] = useState<FeeItem[]>([]);
       }
     });
     return ["all", ...Array.from(set)];
-  }, [selectedCategory.id]);
+  }, [selectedCategory.id, feeItems]);
 
   // testing filtering
   const filteredFees = useMemo(() => {
@@ -206,7 +210,7 @@ const [feeItems, setFeeItems] = useState<FeeItem[]>([]);
         item.agency.toLowerCase().includes(query)
       );
     });
-  }, [selectedCategory.id, statusFilter, agencyFilter, searchTerm]);
+  }, [selectedCategory.id, statusFilter, agencyFilter, searchTerm, feeItems]);
 
   const summary = useMemo(() => {
     const totalPending = filteredFees.filter((item) => item.status === "Chưa nộp").length;
@@ -254,6 +258,21 @@ const [feeItems, setFeeItems] = useState<FeeItem[]>([]);
   const handleConfirmPayment = () => {
     setPaymentSuccess(true);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-lg font-semibold text-slate-900">Loading...</p>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-lg font-semibold text-slate-900">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 pb-12">
