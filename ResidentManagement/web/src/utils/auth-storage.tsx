@@ -79,6 +79,61 @@ function pickString(source: Record<string, unknown>, keys: string[]): string | n
   return null;
 }
 
+function splitRoles(value: string): string[] {
+  return value
+    .split(/[;,]/)
+    .flatMap((segment) => segment.split(/\s+/))
+    .map((segment) => segment.trim())
+    .filter((segment) => segment.length > 0)
+    .map((segment) => segment.toUpperCase());
+}
+
+function normalizeRoles(value: unknown): string[] | null {
+  if (!value) {
+    return null;
+  }
+
+  const collected = new Set<string>();
+  const queue: unknown[] = [value];
+  const visited = new Set<object>();
+
+  while (queue.length > 0) {
+    const current = queue.shift();
+
+    if (!current) {
+      continue;
+    }
+
+    if (typeof current === 'string') {
+      splitRoles(current).forEach((role) => collected.add(role));
+      continue;
+    }
+
+    if (Array.isArray(current)) {
+      current.forEach((item) => queue.push(item));
+      continue;
+    }
+
+    if (typeof current === 'object') {
+      if (visited.has(current as object)) {
+        continue;
+      }
+
+      visited.add(current as object);
+
+      for (const candidate of Object.values(current as Record<string, unknown>)) {
+        queue.push(candidate);
+      }
+    }
+  }
+
+  if (collected.size === 0) {
+    return null;
+  }
+
+  return Array.from(collected);
+}
+
 function deriveUsernameFromJwt(token: string | null | undefined): string | null {
   if (!token) {
     return null;
@@ -111,8 +166,50 @@ function deriveIdFromJwt(token: string | null | undefined): string | null {
   }
 
   const id = pickString(claims, ['uid', 'user_id', 'sub', 'id']);
-  
+
   return id ?? null;
+}
+
+function deriveRolesFromJwt(token: string | null | undefined): string[] | null {
+  if (!token) {
+    return null;
+  }
+
+  const claims = parseJwt(token);
+  if (!claims) {
+    return null;
+  }
+
+  const candidateKeys = ['roles', 'role', 'authorities', 'permissions', 'scopes', 'scope'];
+
+  for (const key of candidateKeys) {
+    const roles = normalizeRoles(claims[key]);
+    if (roles && roles.length > 0) {
+      return roles;
+    }
+  }
+
+  const realmAccess = claims['realm_access'];
+  if (realmAccess && typeof realmAccess === 'object') {
+    const roles = normalizeRoles((realmAccess as Record<string, unknown>)['roles']);
+    if (roles && roles.length > 0) {
+      return roles;
+    }
+  }
+
+  const resourceAccess = claims['resource_access'];
+  if (resourceAccess && typeof resourceAccess === 'object') {
+    for (const value of Object.values(resourceAccess as Record<string, unknown>)) {
+      if (value && typeof value === 'object') {
+        const roles = normalizeRoles((value as Record<string, unknown>)['roles']);
+        if (roles && roles.length > 0) {
+          return roles;
+        }
+      }
+    }
+  }
+
+  return null;
 }
 
 export function saveAuth(token: string | null | undefined, username: string | null | undefined) {
@@ -184,4 +281,8 @@ export function extractUsernameFromToken(token: string | null | undefined): stri
 
 export function extractIdFromToken(token: string | null | undefined): string | null {
   return deriveIdFromJwt(token);
+}
+
+export function extractRolesFromToken(token: string | null | undefined): string[] | null {
+  return deriveRolesFromJwt(token);
 }

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { extractUsernameFromToken, saveAuth } from '@/utils/auth-storage';
+import { extractRolesFromToken, extractUsernameFromToken, saveAuth } from '@/utils/auth-storage';
 import { AuthTesterCopy } from '@/components/auth/AuthTester';
 import styles from './login.module.css';
 
@@ -58,7 +58,93 @@ const API_BASE_URL =
 type AuthExtractionResult = {
   token?: string;
   username?: string;
+  roles?: string[];
 };
+
+function normalizeRoles(value: unknown): string[] | null {
+  if (!value) {
+    return null;
+  }
+
+  const collected = new Set<string>();
+  const queue: unknown[] = [value];
+  const visited = new Set<object>();
+
+  while (queue.length > 0) {
+    const current = queue.shift();
+
+    if (!current) {
+      continue;
+    }
+
+    if (typeof current === 'string') {
+      current
+        .split(/[;,]/)
+        .flatMap((segment) => segment.split(/\s+/))
+        .map((segment) => segment.trim())
+        .filter((segment) => segment.length > 0)
+        .map((segment) => segment.toUpperCase())
+        .forEach((segment) => collected.add(segment));
+      continue;
+    }
+
+    if (Array.isArray(current)) {
+      current.forEach((item) => queue.push(item));
+      continue;
+    }
+
+    if (typeof current === 'object') {
+      if (visited.has(current as object)) {
+        continue;
+      }
+
+      visited.add(current as object);
+
+      for (const candidate of Object.values(current as Record<string, unknown>)) {
+        queue.push(candidate);
+      }
+    }
+  }
+
+  if (collected.size === 0) {
+    return null;
+  }
+
+  return Array.from(collected);
+}
+
+function pickRolesFromRecord(record: Record<string, unknown>): string[] | null {
+  const candidateKeys = ['roles', 'role', 'authorities', 'permissions', 'scopes', 'scope'];
+
+  for (const key of candidateKeys) {
+    const roles = normalizeRoles(record[key]);
+    if (roles && roles.length > 0) {
+      return roles;
+    }
+  }
+
+  const realmAccess = record['realm_access'];
+  if (realmAccess && typeof realmAccess === 'object') {
+    const roles = normalizeRoles((realmAccess as Record<string, unknown>)['roles']);
+    if (roles && roles.length > 0) {
+      return roles;
+    }
+  }
+
+  const resourceAccess = record['resource_access'];
+  if (resourceAccess && typeof resourceAccess === 'object') {
+    for (const value of Object.values(resourceAccess as Record<string, unknown>)) {
+      if (value && typeof value === 'object') {
+        const roles = normalizeRoles((value as Record<string, unknown>)['roles']);
+        if (roles && roles.length > 0) {
+          return roles;
+        }
+      }
+    }
+  }
+
+  return null;
+}
 
 function extractAuthDetails(payload: unknown): AuthExtractionResult {
   const visited = new Set<object>();
@@ -80,7 +166,7 @@ function extractAuthDetails(payload: unknown): AuthExtractionResult {
 
   const result: AuthExtractionResult = {};
 
-  while (queue.length > 0 && (!result.token || !result.username)) {
+  while (queue.length > 0 && (!result.token || !result.username || !result.roles)) {
     const current = queue.shift();
     if (!current || typeof current !== 'object') {
       continue;
@@ -97,6 +183,8 @@ function extractAuthDetails(payload: unknown): AuthExtractionResult {
     if (!result.token) {
       result.token = pickString(record, ['token', 'jwt', 'accessToken', 'access_token']);
     }
+
+    result.roles = result.roles ?? pickRolesFromRecord(record);
 
     if (!result.username) {
       result.username = pickString(record, ['username', 'userName', 'name']);
@@ -147,9 +235,9 @@ export default function LoginPage() {
         parsed = null;
       }
 
-      const result = parsed ? JSON.stringify(parsed, null, 2) : text;
+      const formattedResponse = parsed ? JSON.stringify(parsed, null, 2) : text;
 
-      setResponseBody(result || '');
+      setResponseBody(formattedResponse || '');
 
       if (!response.ok) {
         setStatus('error');
@@ -157,15 +245,21 @@ export default function LoginPage() {
         return;
       }
 
-      const { token: tokenFromResponse, username: usernameFromResponse } = extractAuthDetails(parsed);
+      const {
+        token: tokenFromResponse,
+        username: usernameFromResponse,
+        roles: rolesFromResponse,
+      } = extractAuthDetails(parsed);
       const resolvedUsername =
         usernameFromResponse ?? extractUsernameFromToken(tokenFromResponse) ?? username;
+      const resolvedRoles = rolesFromResponse ?? extractRolesFromToken(tokenFromResponse) ?? [];
+      const isAdmin = resolvedRoles.some((role) => role === 'ADMIN' || role === 'ROLE_ADMIN');
 
       saveAuth(tokenFromResponse ?? null, resolvedUsername);
 
       setStatus('success');
       setMessage('Đăng nhập thành công! API đã phản hồi thành công.');
-      router.push('/');
+      router.push(isAdmin ? '/admin' : '/');
     } catch {
       setStatus('error');
       setMessage('Không thể kết nối tới API. Hãy kiểm tra lại server hoặc cấu hình URL.');
