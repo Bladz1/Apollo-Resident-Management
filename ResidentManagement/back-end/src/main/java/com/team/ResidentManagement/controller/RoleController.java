@@ -18,7 +18,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RoleController {
     PermissionService permissionService;
-    private final RoleService roleService;
+    RoleService roleService;
 
     @PostMapping
     ApiResponse<RoleResponse> createRole(@RequestBody RoleRequest request){

@@ -22,7 +22,6 @@ public class FeeController {
 
     @PostMapping
     ApiResponse<FeeResponse> createFee(@RequestBody FeeRequest request){
-        log.info("Hello");
         return ApiResponse.<FeeResponse>builder()
                 .result(feeService.create(request))
                 .build();

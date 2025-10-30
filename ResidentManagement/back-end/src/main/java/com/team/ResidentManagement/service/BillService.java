@@ -3,8 +3,12 @@ package com.team.ResidentManagement.service;
 import com.team.ResidentManagement.Mapper.BillMapper;
 import com.team.ResidentManagement.dto.request.BillRequest;
 import com.team.ResidentManagement.dto.response.BillResponse;
+import com.team.ResidentManagement.entity.User;
+import com.team.ResidentManagement.exception.AppException;
+import com.team.ResidentManagement.exception.ErrorCode;
 import com.team.ResidentManagement.repository.BillRepository;
 import com.team.ResidentManagement.repository.FeeRepository;
+import com.team.ResidentManagement.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,6 +27,7 @@ public class BillService {
     BillRepository billRepository;
     FeeRepository feeRepository;
     BillMapper billMapper;
+    UserRepository userRepository;
 
     public BillResponse createBill(BillRequest request){
         var bill = billMapper.toBill(request);
@@ -34,8 +39,10 @@ public class BillService {
         return billMapper.toBillResponse(bill);
     }
 
-    public List<BillResponse> getAllBills(){
-        return billRepository.findAll()
+    public List<BillResponse> getAllBills(String userId){
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        return user.getBills()
                 .stream()
                 .map(billMapper::toBillResponse)
                 .toList();

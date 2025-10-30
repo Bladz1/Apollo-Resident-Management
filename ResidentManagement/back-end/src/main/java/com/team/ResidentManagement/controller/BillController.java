@@ -11,12 +11,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin("http://localhost3000")
 @RestController
 @RequestMapping("/bills")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class BillController {
-    private final BillService billService;
+    BillService billService;
 
     @PostMapping
     ApiResponse<BillResponse> createBill(@RequestBody BillRequest request){
@@ -25,10 +26,10 @@ public class BillController {
                 .build();
     }
 
-    @GetMapping()
-    ApiResponse<List<BillResponse>> getBills(){
+    @GetMapping("/{userId}")
+    ApiResponse<List<BillResponse>> getBills(@PathVariable String userId){
         return ApiResponse.<List<BillResponse>>builder()
-                .result(billService.getAllBills())
+                .result(billService.getAllBills(userId))
                 .build();
     }
     @DeleteMapping("/{bill}")
