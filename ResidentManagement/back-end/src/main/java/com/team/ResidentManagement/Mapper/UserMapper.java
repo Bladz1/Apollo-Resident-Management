@@ -7,6 +7,7 @@ import com.team.ResidentManagement.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Mappings;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -14,6 +15,9 @@ public interface UserMapper {
 
     UserResponse toUserResponse(User user);
 
-    @Mapping(target = "roles", ignore = true)
+    @Mappings({
+            @Mapping(target = "roles", ignore = true),
+            @Mapping(target = "fees", ignore = true)
+    })
     void updateUser(@MappingTarget User user, UserUpdateRequest request);
 }

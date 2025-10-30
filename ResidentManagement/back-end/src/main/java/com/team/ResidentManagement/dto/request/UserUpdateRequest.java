@@ -21,4 +21,5 @@ public class UserUpdateRequest {
     LocalDate birthday;
 
     List<String> roles;
+    List<String> fees;
 }

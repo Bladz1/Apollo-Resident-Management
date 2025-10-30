@@ -16,7 +16,7 @@ public class FeeRequest {
     String categoryId;
     String name;
     String agency;
-    String amount;
+    int amount;
     LocalDate dueDate;
     String status;
     String description;
