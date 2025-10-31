@@ -1,6 +1,6 @@
 package com.team.ResidentManagement.exception;
 
-import com.team.ResidentManagement.dto.request.ApiResponse;
+import com.team.ResidentManagement.dto.response.ApiResponse;
 import jakarta.validation.ConstraintViolation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;

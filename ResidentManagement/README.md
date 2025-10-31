@@ -1,107 +1,68 @@
-# Hướng dẫn nhanh dự án Resident Management
+# Resident Management
 
-Tài liệu này giải thích cấu trúc và các thành phần quan trọng của dự án để người mới có thể nắm bắt nhanh.
+Ứng dụng quản lý cư dân gồm hai phần riêng biệt:
 
-## Tổng quan kiến trúc
+- **`backend/`** – dịch vụ Spring Boot cung cấp REST API, quản lý bảo mật và truy cập cơ sở dữ liệu MySQL.
+- **`frontend/`** – ứng dụng Next.js (TypeScript) hiển thị giao diện cho cư dân và ban quản trị.
 
-Dự án gồm hai phần chính:
+Mỗi phần có thể khởi động độc lập và giao tiếp với nhau qua HTTP.
 
-1. **`src/residentalManagement`** – Ứng dụng **Spring Boot** phục vụ API quản lý cư dân.
-2. **`web`** – Ứng dụng **Next.js** (React) cho giao diện người dùng.
+## Bố cục thư mục
 
-Mỗi phần có thể chạy độc lập, giao tiếp với nhau qua HTTP.
+```
+backend/
+  src/main/java/com/team/ResidentManagement/
+    controller/     // Lớp điều khiển REST cho user, role, permission, fee, auth
+    service/        // Xử lý nghiệp vụ và tương tác repository
+    repository/     // JPA repository thao tác với MySQL
+    dto/            // DTO request/response, ApiResponse chung
+    configuration/  // Cấu hình bảo mật JWT, khởi tạo dữ liệu
+    ...
+frontend/
+  src/app/          // App Router của Next.js
+  src/components/   // Thành phần tái sử dụng (header, auth, UI helpers)
+```
 
-## Backend Spring Boot
+Một số tệp quan trọng:
 
-### Điểm khởi động
-
-| File | Vai trò |
+| Vị trí | Vai trò |
 | --- | --- |
-| [`ResidentalManagementApplication.java`](src/residentalManagement/src/main/java/com/friends/residentalManagement/ResidentalManagementApplication.java) | Hàm `main` khởi động Spring Boot và tự động quét component. |
+| [`ResidentManagementApplication`](backend/src/main/java/com/team/ResidentManagement/ResidentManagementApplication.java) | Điểm khởi động Spring Boot. |
+| [`SecurityConfig`](backend/src/main/java/com/team/ResidentManagement/configuration/SecurityConfig.java) | Cấu hình Spring Security & JWT. |
+| [`UserController`](backend/src/main/java/com/team/ResidentManagement/controller/UserController.java) | CRUD cư dân và endpoint thông tin người dùng hiện tại. |
+| [`ApiResponse`](backend/src/main/java/com/team/ResidentManagement/dto/response/ApiResponse.java) | Mẫu phản hồi chuẩn hoá cho REST API. |
+| [`frontend/src/app/page.tsx`](frontend/src/app/page.tsx) | Trang chủ Next.js. |
+| [`frontend/src/components/header/header.tsx`](frontend/src/components/header/header.tsx) | Header responsive và menu điều hướng. |
 
-### Controller (lớp điều khiển)
+## Hướng dẫn nhanh
 
-| File | Mô tả |
-| --- | --- |
-| [`UserController`](src/residentalManagement/src/main/java/com/friends/residentalManagement/controller/UserController.java) | Định nghĩa API `/users` với 3 endpoint: lấy danh sách, lấy theo `id`, tạo mới. Sử dụng `UserService`. |
+### Backend (Spring Boot)
 
-Các annotation quan trọng: `@RestController`, `@RequestMapping`, `@GetMapping`, `@PostMapping` – giúp ánh xạ HTTP request tới hàm Java.
+```bash
+cd backend
+./mvnw spring-boot:run
+```
 
-### Service (lớp nghiệp vụ)
+Mặc định ứng dụng chạy ở `http://localhost:8080`. Cập nhật thông tin kết nối MySQL trong [`application.yaml`](backend/src/main/resources/application.yaml) trước khi chạy.
 
-| File | Mô tả |
-| --- | --- |
-| [`UserService`](src/residentalManagement/src/main/java/com/friends/residentalManagement/service/UserService.java) | Chứa logic xử lý dữ liệu cư dân: gọi repository, chuyển đổi DTO bằng `UserMapper`. |
-| [`AuthenticationService`](src/residentalManagement/src/main/java/com/friends/residentalManagement/service/AuthenticationService.java) | Đang để trống – chỗ dự kiến để thêm logic đăng nhập/xác thực. |
+Chạy test:
 
-`@Service` đánh dấu lớp nghiệp vụ để Spring quản lý. Constructor được tạo nhờ Lombok `@AllArgsConstructor` + `@FieldDefaults` để tiêm phụ thuộc (`UserRepository`, `UserMapper`).
+```bash
+./mvnw test
+```
 
-### DTO (Data Transfer Object)
+### Frontend (Next.js)
 
-| File | Vai trò |
-| --- | --- |
-| [`CreateUserRequest`](src/residentalManagement/src/main/java/com/friends/residentalManagement/dto/request/CreateUserRequest.java) | Dữ liệu request khi tạo người dùng, kèm ràng buộc validate (`@Pattern`, `@Size`). |
-| [`UserResponse`](src/residentalManagement/src/main/java/com/friends/residentalManagement/dto/response/UserResponse.java) | Dữ liệu phản hồi trả về client. |
-| [`ApiResponse`](src/residentalManagement/src/main/java/com/friends/residentalManagement/dto/response/ApiResponse.java) | Mẫu response chung, có `code`, `message`, `result`. |
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-Lombok (`@Data`, `@Builder`, ...) giúp giảm boilerplate (getter/setter, constructor).
+Ứng dụng phục vụ tại `http://localhost:3000`.
 
-### Entity & Repository
+## Gợi ý mở rộng
 
-| File | Vai trò |
-| --- | --- |
-| [`User`](src/residentalManagement/src/main/java/com/friends/residentalManagement/entity/User.java) | Thực thể JPA ánh xạ bảng người dùng. Có trường UUID tự sinh. |
-| [`UserRepository`](src/residentalManagement/src/main/java/com/friends/residentalManagement/repository/UserRepository.java) | Giao diện kế thừa `JpaRepository`, cung cấp CRUD và method tùy chỉnh `existsByUsername`, `findByUsername`. |
-
-### Mapper
-
-| File | Vai trò |
-| --- | --- |
-| [`UserMapper`](src/residentalManagement/src/main/java/com/friends/residentalManagement/mapper/UserMapper.java) | Interface MapStruct chuyển đổi giữa `CreateUserRequest` ⇄ `User` và `User` ⇄ `UserResponse`. | 
-
-MapStruct sẽ tạo implementation tự động khi build (cần thêm dependency trong `pom.xml`).
-
-### Cấu hình
-
-| File | Vai trò |
-| --- | --- |
-| [`application.yaml`](src/residentalManagement/src/main/resources/application.yaml) | Port 8080, context-path `/resident-management`, cấu hình kết nối MySQL, `hibernate.ddl-auto=update`. |
-
-> **Lưu ý:** cần khởi tạo database `resident_management` trước và chỉnh sửa `username/password` cho phù hợp.
-
-## Frontend Next.js
-
-### Layout & Page
-
-| File | Vai trò |
-| --- | --- |
-| [`src/app/layout.tsx`](web/src/app/layout.tsx) | Định nghĩa layout gốc: import font, CSS, render `<Header />`, `<footer>`. |
-| [`src/app/page.tsx`](web/src/app/page.tsx) | Trang chủ, hiện đang để nội dung trống. |
-
-### Component tái sử dụng
-
-| File | Vai trò |
-| --- | --- |
-| [`src/components/header.tsx`](web/src/components/header.tsx) | Header responsive với menu desktop, hamburger menu mobile, sử dụng state React. |
-
-Layout sử dụng Tailwind CSS utility class (ví dụ `bg-red-900`, `flex`, `space-x-4`).
-
-## Điều quan trọng cần biết
-
-1. **Spring Boot + JPA**: hiểu Dependency Injection, `@RestController`, `@Service`, `@Entity`, `JpaRepository`.
-2. **Lombok & MapStruct**: dự án phụ thuộc vào quá trình build để tạo code – cần cấu hình IDE để hỗ trợ annotation processing.
-3. **Validation**: tạo user dùng `jakarta.validation` – cần bật `@Valid` trong controller nếu muốn kích hoạt.
-4. **Cấu hình DB**: chạy được backend cần MySQL với cấu hình tương ứng.
-5. **Frontend Next.js**: sử dụng App Router (`src/app`), component client (`'use client'`).
-
-## Gợi ý học tiếp theo
-
-- **Bổ sung phương thức**: cập nhật, xóa người dùng (RESTful CRUD đầy đủ).
-- **Xác thực/Bảo mật**: triển khai `AuthenticationService`, tìm hiểu Spring Security, JWT.
-- **Exception Handling**: viết `@ControllerAdvice` để trả lỗi chuẩn hóa.
-- **MapStruct nâng cao**: custom mapping, mapping nested object.
-- **Unit/Integration Test**: dùng JUnit + Spring Boot Test cho backend, React Testing Library cho frontend.
-- **Frontend UI**: hoàn thiện trang chủ, kết nối API bằng `fetch`/`axios`, quản lý state (React Query/Redux).
-- **Triển khai thực tế**: docker hóa, cấu hình profile (`application-dev.yaml`, `application-prod.yaml`).
-
-Hy vọng tài liệu giúp bạn bắt đầu nhanh chóng!
+- Thêm Docker Compose để khởi chạy cả backend và frontend cùng MySQL.
+- Viết tài liệu API và thử nghiệm bằng Postman/Insomnia.
+- Bổ sung test tự động cho component React và service Spring Boot.

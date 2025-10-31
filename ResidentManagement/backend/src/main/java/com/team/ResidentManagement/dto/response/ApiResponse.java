@@ -1,7 +1,11 @@
-package com.team.ResidentManagement.dto.request;
+package com.team.ResidentManagement.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -10,11 +14,10 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ApiResponse <T> {
+public class ApiResponse<T> {
     @Builder.Default
     int code = 1000;
 
     String message;
     T result;
-
 }

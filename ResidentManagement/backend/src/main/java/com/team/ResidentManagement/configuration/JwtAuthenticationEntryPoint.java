@@ -1,6 +1,6 @@
 package com.team.ResidentManagement.configuration;
 
-import com.team.ResidentManagement.dto.request.ApiResponse;
+import com.team.ResidentManagement.dto.response.ApiResponse;
 import com.team.ResidentManagement.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
