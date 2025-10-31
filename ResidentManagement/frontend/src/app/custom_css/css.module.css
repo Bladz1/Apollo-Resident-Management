@@ -1,7 +1,11 @@
 .hero-spotlight {
-  background: radial-gradient(circle at top right, rgba(244, 114, 182, 0.16), transparent 40%),
-    radial-gradient(circle at bottom left, rgba(250, 204, 21, 0.18), transparent 45%),
-    linear-gradient(135deg, #7f1d1d, #991b1b 45%, #b91c1c 65%);
+   background-image:
+    linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+    url("/images/trongdong.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
 }
 .hero-grid {
     background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
