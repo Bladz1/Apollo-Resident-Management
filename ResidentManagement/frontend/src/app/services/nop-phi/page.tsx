@@ -262,39 +262,39 @@ export default function FeeDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-lg font-semibold text-slate-900">Loading...</p>
+        <p className="text-lg font-semibold text-slate-100">Loading...</p>
       </div>
     );
   }
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-lg font-semibold text-slate-900">{error}</p>
+        <p className="text-lg font-semibold text-slate-100">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-12">
-      <header className="bg-gradient-to-br from-red-900 via-red-700 to-red-500 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pb-12 text-slate-100">
+      <header className="border-b border-white/10 bg-gradient-to-r from-red-900/85 via-slate-950 to-amber-900/40">
         <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-14 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-sm uppercase tracking-[0.35em] text-red-100">Thanh toán trực tuyến</p>
-            <h1 className="mt-3 text-3xl font-bold md:text-4xl">Quản lý các khoản phí cần nộp</h1>
-            <p className="mt-3 max-w-2xl text-base text-red-100 md:text-lg">
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-amber-200">Thanh toán trực tuyến</p>
+            <h1 className="mt-3 text-3xl md:text-4xl">Quản lý các khoản phí cần nộp</h1>
+            <p className="mt-3 max-w-2xl text-sm text-slate-200 md:text-base">
               Xem toàn bộ danh mục phí, theo dõi trạng thái xử lý và hoàn tất thanh toán trực tuyến chỉ trong vài bước.
             </p>
-            <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-red-100">
-              <Link href="/services" className="inline-flex items-center gap-2 text-red-100 transition hover:text-white">
+            <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-200">
+              <Link href="/services" className="inline-flex items-center gap-2 text-amber-200 transition hover:text-amber-100">
                 ← Quay lại danh sách dịch vụ
               </Link>
-              <span className="hidden h-4 w-px bg-red-300 md:block" aria-hidden="true" />
+              <span className="hidden h-4 w-px bg-amber-300/70 md:block" aria-hidden="true" />
               <span>Hướng dẫn: Chọn nhóm phí → chọn khoản phí → thanh toán trực tuyến</span>
             </div>
           </div>
-          <div className="rounded-3xl border border-red-200/60 bg-white/10 p-6 text-sm backdrop-blur">
-            <p className="text-red-100">Tổng quan nhanh</p>
-            <ul className="mt-3 space-y-2 text-left text-red-50">
+          <div className="rounded-3xl border border-amber-300/60 bg-slate-900/70 p-6 text-sm backdrop-blur">
+            <p className="text-amber-200">Tổng quan nhanh</p>
+            <ul className="mt-3 space-y-2 text-left text-slate-200">
               <li>• {summary.totalPending} khoản phí chưa nộp</li>
               <li>
                 • Tổng tiền tạm tính: {summary.totalAmount.toLocaleString("vi-VN")}₫
@@ -307,9 +307,9 @@ export default function FeeDetailPage() {
 
       <main className="mx-auto grid max-w-6xl gap-10 px-6 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(320px,360px)]">
         <div className="space-y-8">
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">Danh mục phí</h2>
-            <p className="mt-2 text-sm text-slate-600">
+          <section className="rounded-3xl border border-white/10 bg-slate-900/75 p-6 shadow-xl shadow-black/40 backdrop-blur">
+            <h2 className="text-lg font-semibold text-slate-100">Danh mục phí</h2>
+            <p className="mt-2 text-sm text-slate-300">
               Lựa chọn một nhóm phí để xem và quản lý các khoản cần thanh toán.
             </p>
             <div className="mt-6 grid gap-4 md:grid-cols-3">
@@ -320,10 +320,10 @@ export default function FeeDetailPage() {
                     key={category.id}
                     type="button"
                     onClick={() => handleSelectCategory(category)}
-                    className={`text-left rounded-2xl border p-4 transition focus:outline-none focus:ring-2 focus:ring-red-500 ${
+                    className={`text-left rounded-2xl border p-4 transition focus:outline-none focus:ring-2 focus:ring-amber-300 ${
                       isActive
-                        ? "border-red-500 bg-red-50 text-red-800 shadow-md"
-                        : "border-slate-200 bg-white text-slate-700 hover:border-red-300 hover:bg-red-50/60"
+                        ? "border-amber-300/70 bg-amber-400/15 text-amber-200 shadow-lg shadow-amber-500/20"
+                        : "border-white/10 bg-slate-900/75 text-slate-200 hover:border-amber-300/60 hover:bg-amber-200/10"
                     }`}
                   >
                     <h3 className="text-base font-semibold">{category.name}</h3>
@@ -334,10 +334,10 @@ export default function FeeDetailPage() {
             </div>
           </section>
 
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <section className="rounded-3xl border border-white/10 bg-slate-900/75 p-6 shadow-xl shadow-black/40 backdrop-blur">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div className="flex-1">
-                <label htmlFor="search" className="block text-sm font-medium text-slate-600">
+                <label htmlFor="search" className="block text-sm font-medium text-slate-300">
                   Tìm kiếm phí
                 </label>
                 <input
@@ -346,19 +346,19 @@ export default function FeeDetailPage() {
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Nhập tên phí hoặc cơ quan thu..."
-                  className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 shadow-inner focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200"
+                  className="mt-2 w-full rounded-xl border border-white/10 px-4 py-3 text-sm text-slate-100 shadow-inner focus:border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-200/40"
                 />
               </div>
               <div className="grid w-full gap-4 sm:grid-cols-2 lg:w-auto">
                 <div>
-                  <label htmlFor="status" className="block text-sm font-medium text-slate-600">
+                  <label htmlFor="status" className="block text-sm font-medium text-slate-300">
                     Trạng thái
                   </label>
                   <select
                     id="status"
                     value={statusFilter}
                     onChange={(event) => setStatusFilter(event.target.value as (typeof statusOptions)[number])}
-                    className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200"
+                    className="mt-2 w-full rounded-xl border border-white/10 px-4 py-3 text-sm text-slate-100 focus:border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-200/40"
                   >
                     {statusOptions.map((option) => (
                       <option key={option} value={option}>
@@ -368,14 +368,14 @@ export default function FeeDetailPage() {
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="agency" className="block text-sm font-medium text-slate-600">
+                  <label htmlFor="agency" className="block text-sm font-medium text-slate-300">
                     Cơ quan thu
                   </label>
                   <select
                     id="agency"
                     value={agencyFilter}
                     onChange={(event) => setAgencyFilter(event.target.value)}
-                    className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200"
+                    className="mt-2 w-full rounded-xl border border-white/10 px-4 py-3 text-sm text-slate-100 focus:border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-200/40"
                   >
                     {agencies.map((agency) => (
                       <option key={agency} value={agency}>
@@ -388,7 +388,7 @@ export default function FeeDetailPage() {
             </div>
 
             {dueSoonNotices.length > 0 && (
-              <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              <div className="mt-6 rounded-2xl border border-amber-300/60 bg-amber-400/10 p-4 text-sm text-amber-100">
                 <p className="font-semibold">Thông báo hạn nộp</p>
                 <ul className="mt-2 space-y-1">
                   {dueSoonNotices.map((item) => (
@@ -400,9 +400,9 @@ export default function FeeDetailPage() {
               </div>
             )}
 
-            <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200">
-              <table className="min-w-full divide-y divide-slate-200 text-sm">
-                <thead className="bg-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
+            <div className="mt-6 overflow-hidden rounded-2xl border border-white/10">
+              <table className="min-w-full divide-y divide-white/10 text-sm">
+                <thead className="bg-slate-900/70 text-left text-xs font-semibold uppercase tracking-wide text-slate-200">
                   <tr>
                     <th className="px-4 py-3">Tên phí</th>
                     <th className="px-4 py-3">Cơ quan thu</th>
@@ -412,30 +412,30 @@ export default function FeeDetailPage() {
                     <th className="px-4 py-3 text-right">Thao tác</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 bg-white">
+                <tbody className="divide-y divide-white/10 bg-slate-900/60">
                   {filteredFees.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-4 py-6 text-center text-sm text-slate-500">
+                      <td colSpan={6} className="px-4 py-6 text-center text-sm text-slate-300">
                         Không tìm thấy khoản phí phù hợp với tiêu chí lọc hiện tại.
                       </td>
                     </tr>
                   ) : (
                     filteredFees.map((fee) => (
-                      <tr key={fee.id} className="transition hover:bg-red-50/60">
-                        <td className="px-4 py-4 font-medium text-slate-900">{fee.name}</td>
-                        <td className="px-4 py-4 text-slate-600">{fee.agency}</td>
-                        <td className="px-4 py-4 text-slate-900">{fee.amount.toLocaleString("vi-VN")}₫</td>
-                        <td className="px-4 py-4 text-slate-600">
+                      <tr key={fee.id} className="transition hover:bg-amber-200/10">
+                        <td className="px-4 py-4 font-medium text-slate-100">{fee.name}</td>
+                        <td className="px-4 py-4 text-slate-300">{fee.agency}</td>
+                        <td className="px-4 py-4 text-slate-100">{fee.amount.toLocaleString("vi-VN")}₫</td>
+                        <td className="px-4 py-4 text-slate-300">
                           {fee.dueDate ? new Date(fee.dueDate).toLocaleDateString("vi-VN") : "-"}
                         </td>
                         <td className="px-4 py-4">
                           <span
-                            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+                            className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${
                               fee.status === "Đã nộp"
-                                ? "bg-emerald-100 text-emerald-700"
+                                ? "border-emerald-300/60 bg-emerald-400/10 text-emerald-200"
                                 : fee.status === "Đang xử lý"
-                                  ? "bg-amber-100 text-amber-700"
-                                  : "bg-rose-100 text-rose-700"
+                                  ? "border-amber-300/60 bg-amber-400/10 text-amber-200"
+                                  : "border-rose-400/60 bg-rose-400/10 text-rose-200"
                             }`}
                           >
                             {fee.status}
@@ -445,7 +445,7 @@ export default function FeeDetailPage() {
                           <button
                             type="button"
                             onClick={() => handleSelectFee(fee)}
-                            className="inline-flex items-center gap-2 rounded-full border border-red-200 px-4 py-2 font-medium text-red-700 transition hover:border-red-500 hover:bg-red-50"
+                            className="inline-flex items-center gap-2 rounded-full border border-amber-300/60 px-4 py-2 font-medium text-amber-200 transition hover:border-amber-300/70 hover:bg-amber-400/10"
                           >
                             {fee.status === "Đã nộp" ? "Chi tiết" : "Chi tiết / Nộp ngay"}
                           </button>
@@ -460,113 +460,113 @@ export default function FeeDetailPage() {
         </div>
 
         <aside className="space-y-6">
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">Chi tiết khoản phí</h2>
+          <section className="rounded-3xl border border-white/10 bg-slate-900/75 p-6 shadow-xl shadow-black/40 backdrop-blur">
+            <h2 className="text-lg font-semibold text-slate-100">Chi tiết khoản phí</h2>
             {selectedFee ? (
-              <div className="mt-4 space-y-5 text-sm text-slate-700">
+              <div className="mt-4 space-y-5 text-sm text-slate-200">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Thông tin chung</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-300">Thông tin chung</p>
                   <ul className="mt-2 space-y-2 text-sm">
                     <li>
-                      <span className="font-medium text-slate-900">Tên phí:</span> {selectedFee.name}
+                      <span className="font-medium text-slate-100">Tên phí:</span> {selectedFee.name}
                     </li>
                     <li>
-                      <span className="font-medium text-slate-900">Cơ quan thu:</span> {selectedFee.agency}
+                      <span className="font-medium text-slate-100">Cơ quan thu:</span> {selectedFee.agency}
                     </li>
                     <li>
-                      <span className="font-medium text-slate-900">Số tiền:</span> {selectedFee.amount.toLocaleString("vi-VN")}₫
+                      <span className="font-medium text-slate-100">Số tiền:</span> {selectedFee.amount.toLocaleString("vi-VN")}₫
                     </li>
                     <li>
-                      <span className="font-medium text-slate-900">Hạn nộp:</span>{" "}
+                      <span className="font-medium text-slate-100">Hạn nộp:</span>{" "}
                       {selectedFee.dueDate
                         ? new Date(selectedFee.dueDate).toLocaleDateString("vi-VN")
                         : "Không quy định"}
                     </li>
                     <li>
-                      <span className="font-medium text-slate-900">Trạng thái:</span> {selectedFee.status}
+                      <span className="font-medium text-slate-100">Trạng thái:</span> {selectedFee.status}
                     </li>
                   </ul>
-                  <p className="mt-3 rounded-xl bg-slate-100 p-3 text-sm leading-relaxed text-slate-700">
+                  <p className="mt-3 rounded-xl border border-white/10 bg-slate-900/60 p-3 text-sm leading-relaxed text-slate-200">
                     {selectedFee.description}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Phương thức thanh toán</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-300">Phương thức thanh toán</p>
                   <div className="mt-3 space-y-3">
-                    <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 p-3 hover:border-red-400">
+                    <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 p-3 hover:border-amber-300/60">
                       <input
                         type="radio"
                         name="payment-method"
                         value="bank"
                         checked={paymentMethod === "bank"}
                         onChange={() => setPaymentMethod("bank")}
-                        className="h-4 w-4 text-red-600 focus:ring-red-500"
+                        className="h-4 w-4 text-amber-200 focus:ring-amber-300"
                       />
                       <div>
-                        <p className="font-medium text-slate-900">Ngân hàng nội địa</p>
-                        <p className="text-xs text-slate-500">Hỗ trợ tài khoản Vietcombank, BIDV, Vietinbank...</p>
+                        <p className="font-medium text-slate-100">Ngân hàng nội địa</p>
+                        <p className="text-xs text-slate-300">Hỗ trợ tài khoản Vietcombank, BIDV, Vietinbank...</p>
                       </div>
                     </label>
-                    <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 p-3 hover:border-red-400">
+                    <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 p-3 hover:border-amber-300/60">
                       <input
                         type="radio"
                         name="payment-method"
                         value="wallet"
                         checked={paymentMethod === "wallet"}
                         onChange={() => setPaymentMethod("wallet")}
-                        className="h-4 w-4 text-red-600 focus:ring-red-500"
+                        className="h-4 w-4 text-amber-200 focus:ring-amber-300"
                       />
                       <div>
-                        <p className="font-medium text-slate-900">Ví điện tử</p>
-                        <p className="text-xs text-slate-500">Thanh toán qua MoMo, VNPay, ZaloPay.</p>
+                        <p className="font-medium text-slate-100">Ví điện tử</p>
+                        <p className="text-xs text-slate-300">Thanh toán qua MoMo, VNPay, ZaloPay.</p>
                       </div>
                     </label>
-                    <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 p-3 hover:border-red-400">
+                    <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 p-3 hover:border-amber-300/60">
                       <input
                         type="radio"
                         name="payment-method"
                         value="card"
                         checked={paymentMethod === "card"}
                         onChange={() => setPaymentMethod("card")}
-                        className="h-4 w-4 text-red-600 focus:ring-red-500"
+                        className="h-4 w-4 text-amber-200 focus:ring-amber-300"
                       />
                       <div>
-                        <p className="font-medium text-slate-900">Thẻ tín dụng / ghi nợ</p>
-                        <p className="text-xs text-slate-500">Hỗ trợ Visa, Mastercard, JCB.</p>
+                        <p className="font-medium text-slate-100">Thẻ tín dụng / ghi nợ</p>
+                        <p className="text-xs text-slate-300">Hỗ trợ Visa, Mastercard, JCB.</p>
                       </div>
                     </label>
                   </div>
                 </div>
 
-                <div className="space-y-3 rounded-2xl bg-slate-50 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Xác nhận &amp; biên lai</p>
+                <div className="space-y-3 rounded-2xl border border-white/10 bg-slate-900/65 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-300">Xác nhận &amp; biên lai</p>
                   {!paymentSuccess ? (
                     <>
-                      <p className="text-sm text-slate-600">
+                      <p className="text-sm text-slate-300">
                         Sau khi nhấn thanh toán, hệ thống sẽ chuyển tới cổng thanh toán tương ứng để xác nhận giao dịch.
                       </p>
                       <button
                         type="button"
                         onClick={handleConfirmPayment}
-                        className="inline-flex w-full items-center justify-center rounded-full bg-red-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-red-200 transition hover:bg-red-700"
+                        className="inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-red-600 via-amber-500 to-red-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-red-900/40 transition hover:-translate-y-0.5"
                       >
                         Xác nhận thanh toán
                       </button>
                     </>
                   ) : (
-                    <div className="space-y-3 text-sm text-slate-700">
-                      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-emerald-700">
+                    <div className="space-y-3 text-sm text-slate-200">
+                      <div className="rounded-2xl border border-emerald-300/60 bg-emerald-400/10 p-3 text-emerald-200">
                         <p className="font-semibold">Thanh toán thành công</p>
                         <p>Mã giao dịch: TT-{selectedFee.id.toUpperCase()}-2025</p>
                         <p>Thời gian: {new Date().toLocaleString("vi-VN")}</p>
                         <p>Số tiền: {selectedFee.amount.toLocaleString("vi-VN")}₫</p>
                       </div>
                       <div className="flex flex-col gap-2 sm:flex-row">
-                        <button className="inline-flex flex-1 items-center justify-center rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-red-400 hover:text-red-600">
+                        <button className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-amber-300/60 hover:text-amber-200">
                           Tải biên lai PDF
                         </button>
-                        <button className="inline-flex flex-1 items-center justify-center rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
+                        <button className="inline-flex flex-1 items-center justify-center rounded-full bg-gradient-to-r from-red-600 via-amber-500 to-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5">
                           Gửi biên lai qua email
                         </button>
                       </div>
@@ -575,26 +575,26 @@ export default function FeeDetailPage() {
                 </div>
               </div>
             ) : (
-              <div className="mt-4 rounded-2xl border border-dashed border-slate-200 p-6 text-sm text-slate-500">
+              <div className="mt-4 rounded-2xl border border-dashed border-white/10 p-6 text-sm text-slate-300">
                 Vui lòng chọn một khoản phí ở danh sách bên trái để xem thông tin chi tiết và tiến hành thanh toán.
               </div>
             )}
           </section>
 
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 text-sm shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">Tổng kết nhanh</h2>
+          <section className="rounded-3xl border border-white/10 bg-slate-900/75 p-6 text-sm shadow-xl shadow-black/40 backdrop-blur">
+            <h2 className="text-lg font-semibold text-slate-100">Tổng kết nhanh</h2>
             <div className="mt-4 space-y-3">
-              <div className="flex items-center justify-between rounded-2xl bg-slate-100 px-4 py-3">
-                <span className="text-slate-600">Khoản chưa nộp</span>
-                <span className="font-semibold text-slate-900">{summary.totalPending}</span>
+              <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3">
+                <span className="text-slate-300">Khoản chưa nộp</span>
+                <span className="font-semibold text-slate-100">{summary.totalPending}</span>
               </div>
-              <div className="flex items-center justify-between rounded-2xl bg-slate-100 px-4 py-3">
-                <span className="text-slate-600">Tổng tiền chưa nộp</span>
-                <span className="font-semibold text-slate-900">{summary.totalAmount.toLocaleString("vi-VN")}₫</span>
+              <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3">
+                <span className="text-slate-300">Tổng tiền chưa nộp</span>
+                <span className="font-semibold text-slate-100">{summary.totalAmount.toLocaleString("vi-VN")}₫</span>
               </div>
-              <div className="flex items-center justify-between rounded-2xl bg-slate-100 px-4 py-3">
-                <span className="text-slate-600">Sắp đến hạn</span>
-                <span className="font-semibold text-slate-900">{summary.dueSoon}</span>
+              <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3">
+                <span className="text-slate-300">Sắp đến hạn</span>
+                <span className="font-semibold text-slate-100">{summary.dueSoon}</span>
               </div>
             </div>
           </section>
