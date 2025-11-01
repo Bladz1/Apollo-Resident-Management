@@ -112,8 +112,8 @@ export default function RegisterPage() {
 
       <div className="relative z-10 mx-auto max-w-5xl px-6 py-16">
         <div className="mb-10 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-amber-200">Đăng ký tài khoản</p>
-          <h1 className="mt-3 text-3xl font-bold text-white md:text-4xl">Tạo hồ sơ truy cập Cổng Dịch vụ Công</h1>
+          <h1 className="text-xs font-semibold uppercase tracking-[0.35em] text-amber-200">Đăng ký tài khoản</h1>
+          {/* <h1 className="mt-3 text-3xl font-bold text-white md:text-4xl">Tạo hồ sơ truy cập Cổng Dịch vụ Công</h1> */}
           <p className="mt-3 text-sm text-slate-200 md:text-base">
             Vui lòng cung cấp thông tin chính xác để xác minh danh tính và đảm bảo an toàn dữ liệu.
           </p>
@@ -139,7 +139,7 @@ export default function RegisterPage() {
                 value={formState.nationalId}
                 onChange={(event) => handleChange("nationalId")(event.target.value)}
                 className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white shadow-inner shadow-black/20 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-                placeholder="012345678901"
+                placeholder=""
                 autoComplete="off"
               />
             </div>
@@ -155,7 +155,7 @@ export default function RegisterPage() {
                 value={formState.fullName}
                 onChange={(event) => handleChange("fullName")(event.target.value)}
                 className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white shadow-inner shadow-black/20 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-                placeholder="Nguyễn Văn A"
+                placeholder=""
                 autoComplete="name"
               />
             </div>
@@ -171,7 +171,7 @@ export default function RegisterPage() {
                 value={formState.address}
                 onChange={(event) => handleChange("address")(event.target.value)}
                 className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white shadow-inner shadow-black/20 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-                placeholder="Số nhà, đường, phường/xã, quận/huyện"
+                placeholder=""
                 autoComplete="street-address"
               />
             </div>
@@ -188,7 +188,7 @@ export default function RegisterPage() {
                 value={formState.phone}
                 onChange={(event) => handleChange("phone")(event.target.value)}
                 className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white shadow-inner shadow-black/20 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-                placeholder="0987654321"
+                placeholder=""
                 autoComplete="tel"
               />
             </div>
@@ -203,7 +203,7 @@ export default function RegisterPage() {
                 value={formState.email}
                 onChange={(event) => handleChange("email")(event.target.value)}
                 className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white shadow-inner shadow-black/20 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-                placeholder="nguoidung@example.com"
+                placeholder=""
                 autoComplete="email"
               />
             </div>
@@ -236,7 +236,7 @@ export default function RegisterPage() {
                 value={formState.password}
                 onChange={(event) => handleChange("password")(event.target.value)}
                 className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white shadow-inner shadow-black/20 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-                placeholder="••••••••"
+                placeholder=""
                 autoComplete="new-password"
               />
               <ul className="mt-3 space-y-1 text-xs text-slate-300">
@@ -253,11 +253,10 @@ export default function RegisterPage() {
                   return (
                     <li key={requirement} className="flex items-center gap-2">
                       <span
-                        className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-[10px] ${
-                          isMet
-                            ? 'border-emerald-300 bg-emerald-500/20 text-emerald-200'
-                            : 'border-white/20 bg-white/5 text-slate-300'
-                        }`}
+                        className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-[10px] ${isMet
+                          ? 'border-emerald-300 bg-emerald-500/20 text-emerald-200'
+                          : 'border-white/20 bg-white/5 text-slate-300'
+                          }`}
                       >
                         {isMet ? '✓' : '•'}
                       </span>
@@ -279,7 +278,7 @@ export default function RegisterPage() {
                 value={formState.confirmPassword}
                 onChange={(event) => handleChange("confirmPassword")(event.target.value)}
                 className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white shadow-inner shadow-black/20 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-                placeholder="••••••••"
+                placeholder=""
                 autoComplete="new-password"
               />
               {formState.confirmPassword.length > 0 && !passwordsMatch && (
@@ -287,31 +286,9 @@ export default function RegisterPage() {
               )}
             </div>
 
-            <div>
-              <label htmlFor="captcha" className="text-sm font-semibold text-slate-100">
-                Mã xác nhận CAPTCHA <span className="text-amber-300">*</span>
-              </label>
-              <div className="mt-2 flex flex-wrap items-center gap-3">
-                <div className="flex h-12 items-center justify-center rounded-lg bg-slate-800/80 px-6 text-lg font-semibold tracking-[0.35em] text-amber-200 shadow-inner shadow-black/30">
-                  7K4P
-                </div>
-                <input
-                  id="captcha"
-                  type="text"
-                  required
-                  value={formState.captcha}
-                  onChange={(event) => handleChange("captcha")(event.target.value.toUpperCase())}
-                  className="flex-1 rounded-lg border border-white/10 bg-slate-950/60 px-4 py-3 text-sm uppercase tracking-[0.3em] text-white shadow-inner shadow-black/20 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60 md:flex-none md:w-40"
-                  placeholder="Nhập mã"
-                  autoComplete="off"
-                />
-              </div>
-              <p className="mt-2 text-xs text-slate-300">
-                Nhập mã hiển thị bên cạnh để xác thực. Mã sẽ thay đổi sau mỗi lần làm mới trang.
-              </p>
-            </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-slate-200">
+
+            <div className="rounded-2xl  p-4 text-xs text-slate-200">
               <label className="flex items-start gap-3">
                 <input
                   type="checkbox"
@@ -333,6 +310,19 @@ export default function RegisterPage() {
               </label>
             </div>
 
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-xs">
+              <p
+                className={`font-semibold ${status === 'success'
+                  ? 'text-emerald-200'
+                  : status === 'error'
+                    ? 'text-rose-200'
+                    : 'text-slate-200'
+                  }`}
+              >
+                {status === 'idle' ? 'Vui lòng điền đầy đủ thông tin trước khi gửi đăng ký.' : message}
+              </p>
+            </div>
+
             <div className="flex flex-wrap items-center gap-3">
               <button
                 type="submit"
@@ -340,12 +330,7 @@ export default function RegisterPage() {
               >
                 Gửi đăng ký
               </button>
-              <button
-                type="reset"
-                className="inline-flex items-center justify-center rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition hover:border-amber-300 hover:text-amber-200"
-              >
-                Nhập lại
-              </button>
+
               <Link
                 href="/login"
                 className="inline-flex items-center justify-center rounded-full border border-amber-200 px-6 py-3 text-sm font-semibold text-amber-200 transition hover:border-amber-100 hover:text-amber-100"
@@ -354,19 +339,7 @@ export default function RegisterPage() {
               </Link>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-xs">
-              <p
-                className={`font-semibold ${
-                  status === 'success'
-                    ? 'text-emerald-200'
-                    : status === 'error'
-                    ? 'text-rose-200'
-                    : 'text-slate-200'
-                }`}
-              >
-                {status === 'idle' ? 'Vui lòng điền đầy đủ thông tin trước khi gửi đăng ký.' : message}
-              </p>
-            </div>
+
           </div>
         </form>
       </div>
