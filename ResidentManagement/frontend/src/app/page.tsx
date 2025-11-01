@@ -9,50 +9,7 @@ import steps from "./data/steps_data";
 import UserWelcome from "@/components/auth/UserWelcome";
 
 export default function Home() {
-  //  useEffect(() => {
-  //   // Nếu URL đang có hash thì xóa để tránh trình duyệt tự nhảy khi reload lần sau
-  //   if (typeof window !== 'undefined' && window.location.hash) {
-  //     window.scrollTo(0, 0);
-  //     history.replaceState(null, '', window.location.pathname + window.location.search);
-  //   }
-
-  //   // Tìm tất cả các button có class 'scroll-button'
-  //   const scrollButtons = document.querySelectorAll('.scroll-button');
-
-  //   // Hàm xử lý sự kiện click
-  //   const handleScroll = (event: MouseEvent) => {
-  //     // Ngăn hành vi mặc định (thay đổi URL) -> Giải quyết lỗi refresh
-  //     event.preventDefault();
-
-  //     const targetId = (event.currentTarget as HTMLAnchorElement).getAttribute('href');
-  //     if (!targetId) return;
-
-  //     const targetElement = document.querySelector(targetId);
-
-  //     // Cuộn mượt mà đến mục tiêu
-  //     if (targetElement) {
-  //       targetElement.scrollIntoView({
-  //         behavior: 'smooth',
-  //         block: 'start'
-  //       });
-
-  //       // Xóa hash khỏi URL để lần reload sau trình duyệt không tự cuộn
-  //       history.replaceState(null, '', window.location.pathname + window.location.search);
-  //     }
-  //   };
-
-  //   // Gán sự kiện cho từng button
-  //   scrollButtons.forEach(button => {
-  //     button.addEventListener('click', handleScroll as EventListener);
-  //   });
-
-  //   // Rất quan trọng: Dọn dẹp event listener khi component bị hủy
-  //   return () => {
-  //     scrollButtons.forEach(button => {
-  //       button.removeEventListener('click', handleScroll as EventListener);
-  //     });
-  //   };
-  // }, []); // Mảng rỗng [] nghĩa là useEffect này chỉ chạy 1 lần duy nhất
+  
   return (
     <div>
       <ScrollToTop></ScrollToTop>

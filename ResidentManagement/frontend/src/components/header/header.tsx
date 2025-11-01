@@ -81,7 +81,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-red-900 text-white shadow-md">
+    <header className="bg-gradient-to-r from-red-800 via-red-950 to-red-800 text-white shadow-md">
       <div className="container mx-auto px-4 py-2 flex justify-between items-center">
         {/* Logo và Tiêu đề */}
         <div className="flex items-center space-x-4">
@@ -91,7 +91,7 @@ const Header = () => {
             alt="Quốc kỳ Việt Nam"
             width={40}
             height={40}
-           
+
           />
           <h1 className="text-xl font-bold">
             <Link href="/">Hệ thống Quản lý Dân cư và Hộ khẩu</Link>
