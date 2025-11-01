@@ -1,7 +1,7 @@
 package com.team.ResidentManagement.controller;
 
 import com.team.ResidentManagement.dto.request.*;
-import com.team.ResidentManagement.dto.request.*;
+import com.team.ResidentManagement.dto.response.ApiResponse;
 import com.team.ResidentManagement.dto.response.AuthenticationResponse;
 import com.team.ResidentManagement.dto.response.IntrospectResponse;
 import com.team.ResidentManagement.service.AuthenticationService;

@@ -1,6 +1,6 @@
 package com.team.ResidentManagement.controller;
 
-import com.team.ResidentManagement.dto.request.ApiResponse;
+import com.team.ResidentManagement.dto.response.ApiResponse;
 import com.team.ResidentManagement.dto.request.PermissionRequest;
 import com.team.ResidentManagement.dto.response.PermissionResponse;
 import com.team.ResidentManagement.service.PermissionService;

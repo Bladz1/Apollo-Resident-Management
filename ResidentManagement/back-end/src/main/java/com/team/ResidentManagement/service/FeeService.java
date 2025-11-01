@@ -50,4 +50,8 @@ public class FeeService {
     public void delete(String fee){
         feeRepository.deleteById(fee);
     }
+
+    public void deleteAll(){
+        feeRepository.deleteAll();
+    }
 }

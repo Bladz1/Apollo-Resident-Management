@@ -1,4 +1,4 @@
-package com.team.ResidentManagement.dto.request;
+package com.team.ResidentManagement.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;

@@ -1,6 +1,6 @@
 package com.team.ResidentManagement.controller;
 
-import com.team.ResidentManagement.dto.request.ApiResponse;
+import com.team.ResidentManagement.dto.response.ApiResponse;
 import com.team.ResidentManagement.dto.request.FeeRequest;
 import com.team.ResidentManagement.dto.response.FeeResponse;
 import com.team.ResidentManagement.service.FeeService;
@@ -44,6 +44,12 @@ public class FeeController {
     @DeleteMapping("/{fee}")
     ApiResponse<Void> deleteFee(@PathVariable String fee){
         feeService.delete(fee);
+        return ApiResponse.<Void>builder().build();
+    }
+
+    @DeleteMapping
+    ApiResponse<Void> deleteAllFees(){
+        feeService.deleteAll();
         return ApiResponse.<Void>builder().build();
     }
 }
