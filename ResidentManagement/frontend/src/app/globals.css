@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #020817;
+  --background-gradient: radial-gradient(circle at 0% -10%, rgba(248, 113, 113, 0.18), transparent 55%),
+    radial-gradient(circle at 100% 10%, rgba(251, 191, 36, 0.14), transparent 50%),
+    linear-gradient(180deg, #020817 0%, #0f1729 45%, #020817 100%);
+  --foreground: #e2e8f0;
+  --foreground-muted: #cbd5f5;
+  --heading: #f8fafc;
+  --surface: rgba(15, 23, 42, 0.82);
+  --surface-alt: rgba(15, 23, 42, 0.92);
+  --border: rgba(148, 163, 184, 0.22);
+  --border-strong: rgba(248, 250, 252, 0.3);
+  --accent: #f59e0b;
+  --accent-soft: rgba(245, 158, 11, 0.16);
+  --accent-strong: #f97316;
+  --shadow-strong: rgba(15, 23, 42, 0.4);
+  --shadow-soft: rgba(15, 23, 42, 0.28);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #020817;
+  }
+}
+
+body {
+  min-height: 100vh;
+  background: var(--background-gradient);
+  color: var(--foreground);
+  font-family: var(--font-body), "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.65;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading), "DM Serif Text", "Times New Roman", serif;
+  color: var(--heading);
+  letter-spacing: 0.015em;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: clamp(2.5rem, 5vw, 3.75rem);
+  font-weight: 500;
+}
+
+h2 {
+  font-size: clamp(1.85rem, 3.4vw, 2.65rem);
+  font-weight: 500;
+}
+
+h3 {
+  font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+  font-weight: 500;
+}
+
+p {
+  color: var(--foreground);
+}
+
+a {
+  color: var(--accent-strong);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover,
+a:focus-visible {
+  color: var(--accent);
+}
+
+main {
+  background: transparent;
+}
+
+.page-container {
+  position: relative;
+  isolation: isolate;
+}
+
+.card-surface {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 45px var(--shadow-soft);
+}
+
+.card-surface-strong {
+  background: var(--surface-alt);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 24px 55px var(--shadow-strong);
+}
+
+.admin-grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(56, 189, 248, 0.12) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.admin-orb {
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border-radius: 9999px;
+  filter: blur(100px);
+  opacity: 0.55;
+}
+
+.admin-orb.orb-left {
+  top: -12rem;
+  left: -8rem;
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.45), transparent 65%);
+}
+
+.admin-orb.orb-right {
+  bottom: -10rem;
+  right: -6rem;
+  background: radial-gradient(circle, rgba(244, 114, 182, 0.4), transparent 65%);
+}
+
