@@ -1,11 +1,12 @@
 import Link from "next/link";
-
+import styles from "../custom_css/css.module.css";
 import { services } from "./data";
 
 export default function ServicesPage() {
   return (
     <div className="min-h-screen bg-slate-50">
-      <section className="bg-gradient-to-br from-red-900 via-red-700 to-red-500 text-white">
+      <section className={`bg-gradient-to-br from-red-900 via-red-700 to-red-500 text-white relative ${styles["hero-spotlight1"]}`}>
+
         <div className="mx-auto max-w-5xl px-6 py-16">
           <p className="text-sm uppercase tracking-[0.3em] text-red-100">Dịch vụ trực tuyến</p>
           <h1 className="mt-4 text-3xl font-bold md:text-4xl">Cổng thông tin dịch vụ công dân</h1>

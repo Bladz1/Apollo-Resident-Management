@@ -35,13 +35,7 @@ export default function Home() {
               <UserWelcome className="text-base md:text-lg text-amber-200" />
               <div className="flex flex-wrap gap-4">
                 <LoginCtaButton />
-                <a
-                  href="#support"
-                  className="inline-flex items-center gap-2 rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white/90 backdrop-blur transition duration-300 hover:border-white hover:bg-white/10"
-                >
-                  Trung tâm hỗ trợ
-                  <span aria-hidden className={`${styles["animate-pulse"]}`}>✦</span>
-                </a>
+                
               </div>
               <div className="grid gap-6 sm:grid-cols-3">
                 {[{ label: 'Hồ sơ xử lý trong ngày', value: '4.512' }, { label: 'Tỷ lệ đúng hạn', value: '98%' }, { label: 'Hotline hỗ trợ', value: '1800 1096' }].map(

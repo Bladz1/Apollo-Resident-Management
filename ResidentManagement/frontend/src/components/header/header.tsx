@@ -108,12 +108,10 @@ const Header = () => {
               <li>
                 <Link href="/services" className="hover:text-yellow-200">Dịch vụ</Link>
               </li>
-              <li>
-                <Link href="/search" className="hover:text-yellow-200">Tra cứu</Link>
-              </li>
+              
               <li>
                 <SupportButton></SupportButton>
-              </li>
+              </li> 
               <li>
                 <Link href="/news" className="hover:text-yellow-200">Tin tức</Link>
               </li>
