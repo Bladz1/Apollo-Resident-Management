@@ -22,7 +22,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter), var(--font-bevietnam), sans-serif;
+  font-family: var(--font-primary), var(--font-secondary), var(--font-secondary-alt), 'Inter', 'Be Vietnam Pro', sans-serif;
   font-feature-settings: 'liga' 1, 'kern' 1;
 }
 
@@ -32,7 +32,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-bevietnam), var(--font-inter), sans-serif;
+  font-family: var(--font-secondary), var(--font-secondary-alt), var(--font-primary), 'Be Vietnam Pro', 'Inter', sans-serif;
 }
 
 .admin-grid {
@@ -61,31 +61,4 @@ h6 {
   bottom: -10rem;
   right: -6rem;
   background: radial-gradient(circle, rgba(244, 114, 182, 0.4), transparent 65%);
-}
-
-/* ===== Font Combos Preview ===== */
-
-/* 1. Inter + Be Vietnam Pro (Hành chính hiện đại) */
-.font-combo-1 {
-  font-family: var(--font-inter), var(--font-bevietnam), sans-serif;
-}
-
-/* 2. Nunito Sans + Be Vietnam Pro (Thân thiện công dân) */
-.font-combo-2 {
-  font-family: var(--font-nunito), var(--font-bevietnam), sans-serif;
-}
-
-/* 3. Public Sans + Be Vietnam Pro (Cổng dân cư) */
-.font-combo-3 {
-  font-family: var(--font-public), var(--font-bevietnam), sans-serif;
-}
-
-/* 4. Quicksand + Be Vietnam Pro (Dịch vụ công) */
-.font-combo-4 {
-  font-family: var(--font-quicksand), var(--font-bevietnam), sans-serif;
-}
-
-/* 5. Manrope + IBM Plex Sans (Quản trị - Tech) */
-.font-combo-5 {
-  font-family: var(--font-manrope), var(--font-plex), sans-serif;
 }
