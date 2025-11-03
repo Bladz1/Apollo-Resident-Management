@@ -33,12 +33,6 @@ const LOGIN_COPY: AuthTesterCopy = {
     network: 'Không thể kết nối tới API. Hãy kiểm tra lại server hoặc cấu hình URL.',
   },
   aside: {
-    badgeLabel: 'Trạng thái API',
-    heading: 'Theo dõi phản hồi ngay tức thì',
-    endpointDescription: {
-      before: 'Trang này sẽ gọi tới endpoint ',
-      after: '. Hãy đảm bảo backend đang chạy và cho phép CORS từ domain của ứng dụng.',
-    },
     statusTitle: 'Thông báo',
     responseTitle: 'Phản hồi từ API',
     defaultResponseText: 'Chưa có phản hồi.',
