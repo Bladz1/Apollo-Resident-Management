@@ -19,20 +19,28 @@
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-primary), var(--font-secondary), var(--font-secondary-alt), 'Inter', 'Be Vietnam Pro', sans-serif;
-  font-feature-settings: 'liga' 1, 'kern' 1;
-}
+@layer base {
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-inter), 'Inter', 'system-ui', sans-serif;
+    font-feature-settings: 'liga' 1, 'kern' 1;
+  }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-secondary), var(--font-secondary-alt), var(--font-primary), 'Be Vietnam Pro', 'Inter', sans-serif;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .font-heading,
+  .accent-text {
+    font-family: var(--font-be-vietnam), 'Be Vietnam Pro', 'Inter', sans-serif;
+  }
+
+  .font-body {
+    font-family: var(--font-inter), 'Inter', 'system-ui', sans-serif;
+  }
 }
 
 .admin-grid {
