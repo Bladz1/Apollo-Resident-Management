@@ -82,9 +82,9 @@ const Header = () => {
 
   return (
     <header className="bg-gradient-to-r from-red-800 via-red-950 to-red-800 text-white shadow-md">
-      <div className="container mx-auto px-4 py-2 flex justify-between items-center">
+      <div className="container mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-3">
         {/* Logo và Tiêu đề */}
-        <div className="flex items-center space-x-4">
+        <div className="flex min-w-0 items-center gap-3">
           <Image
             className="rounded-md bg-transparent"
             src="/images/logo.png" // Thay bằng đường dẫn ảnh quốc kỳ trong public/
@@ -93,15 +93,15 @@ const Header = () => {
             height={40}
 
           />
-          <h1 className="text-xl font-bold">
+          <h1 className="text-sm font-semibold leading-tight text-balance sm:text-base md:text-lg">
             <Link href="/">Hệ thống Quản lý Dân cư và Hộ khẩu</Link>
           </h1>
         </div>
 
         {/* Menu và Nút Đăng nhập (Desktop) */}
-        <div className="hidden md:flex items-center space-x-6">
+        <div className="hidden items-center gap-6 md:flex">
           <nav>
-            <ul className="flex  space-x-4">
+            <ul className="flex items-center gap-4">
               <li>
                 <Link href="/" className="hover:text-yellow-200">Trang chủ</Link>
               </li>
@@ -135,7 +135,7 @@ const Header = () => {
         </div>
 
         {/* Menu Hamburger (Mobile) */}
-        <div className="md:hidden relative">
+        <div className="relative ml-auto md:hidden">
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="focus:outline-none"

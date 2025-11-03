@@ -21,26 +21,26 @@ export default function Home() {
             <div className={`${styles["hero-orb"]} ${styles["orb-2"]}`} aria-hidden />
           </div>
 
-          <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-20 lg:py-24 grid gap-12 lg:gap-16 lg:grid-cols-[1.1fr_0.9fr] items-center">
-            <div className={`space-y-6 ${styles["animate-fade-in"]}`}>
+          <div className="relative z-10 mx-auto grid max-w-6xl gap-10 px-4 pb-16 pt-20 sm:px-6 sm:pb-20 sm:pt-24 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+            <div className={`space-y-6 text-center lg:text-left ${styles["animate-fade-in"]}`}>
               <span className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-red-200 backdrop-blur">
                 Hệ thống Quản lý dân cư quốc gia
               </span>
               <h1 className="text-3xl md:text-5xl leading-tight text-balance">
                 Tiện lợi, an toàn và minh bạch trong mọi thủ tục cư trú
               </h1>
-              <p className="max-w-2xl text-base md:text-lg text-slate-200">
+              <p className="mx-auto max-w-2xl text-base text-slate-200 md:text-lg lg:mx-0">
                 Cổng thông tin chính thức hỗ trợ người dân thực hiện thủ tục hộ khẩu, tạm trú, khai báo tạm vắng và tra cứu thông tin dân cư nhanh chóng.
               </p>
-              <UserWelcome className="text-base md:text-lg text-amber-200" />
-              <div className="flex flex-wrap gap-4">
+              <UserWelcome className="mx-auto text-base text-amber-200 md:text-lg lg:mx-0" />
+              <div className="flex flex-wrap justify-center gap-4 sm:justify-start">
                 <LoginCtaButton />
-                
+
               </div>
-              <div className="grid gap-4 sm:gap-6 sm:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
                 {[{ label: 'Hồ sơ xử lý trong ngày', value: '4.512' }, { label: 'Tỷ lệ đúng hạn', value: '98%' }, { label: 'Hotline hỗ trợ', value: '1800 1096' }].map(
                   (stat) => (
-                    <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur transition hover:border-white/40 hover:bg-white/10">
+                    <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center backdrop-blur transition hover:border-white/40 hover:bg-white/10 sm:text-left">
                       <p className="text-xs uppercase tracking-wide text-slate-300">{stat.label}</p>
                       <p className="mt-2 text-2xl font-bold text-white">{stat.value}</p>
                     </div>
@@ -49,7 +49,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="relative flex flex-col items-center gap-6 lg:block">
+            <div className="relative flex flex-col items-center gap-6 lg:items-start">
               <div
                 className={`${styles["feature-card"]} ${styles["feature-card-primary"]} ${styles["animate-float"]} flex flex-col items-center justify-center relative py-6 px-6`}
               >
@@ -68,8 +68,8 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className={`${styles["feature-card"]} ${styles["feature-card-secondary"]} ${styles["animate-float-delayed"]} p-4 lg:absolute lg:-bottom-10 lg:left-8`}>
-                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-center">
+              <div className={`${styles["feature-card"]} ${styles["feature-card-secondary"]} ${styles["animate-float-delayed"]} w-full p-4 lg:absolute lg:-bottom-10 lg:left-8`}>
+                <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
                   <Image
                     src="/images/sv.png"
                     alt="Đơn giản hóa mọi thủ tục hành chính"
@@ -78,7 +78,7 @@ export default function Home() {
                     className="rounded-xl object-cover flex-shrink-0"
                     style={{ width: '180px', height: '140px' }}
                   />
-                  <div className="flex-1 sm:h-[140px] flex flex-col justify-center text-center sm:text-left">
+                  <div className="flex flex-1 flex-col justify-center text-center sm:h-[140px] sm:text-left">
                     <p className="font-semibold text-lg text-red-200 mb-3">Đơn giản hóa</p>
                     <p className="text-sm text-slate-200 leading-relaxed">
                       Sử dụng định danh điện tử thay thế các loại giấy tờ truyền thống, không phải kê khai biểu mẫu giấy.
@@ -92,7 +92,7 @@ export default function Home() {
 
         <section className="relative border-y border-white/5 bg-slate-900/60">
           <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 via-transparent to-red-500/10" aria-hidden />
-          <div className="relative z-10 max-w-6xl mx-auto px-6 py-16">
+          <div className="relative z-10 mx-auto max-w-6xl px-4 py-16 sm:px-6">
             <h2 className={`${styles["section-title"]}`}>
               <span className={`${styles["section-icon"]}`}>⚠️</span>
               Cảnh báo và Thông báo quan trọng
@@ -116,7 +116,7 @@ export default function Home() {
         </section>
 
         <section className="relative bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-          <div className="max-w-6xl mx-auto px-6 py-16">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
             <h2 className={`${styles["section-title"]}`}>
               <span className={`${styles["section-icon"]}`}>📰</span>
               Tin tức và cập nhật hệ thống
@@ -143,7 +143,7 @@ export default function Home() {
 
         <section className="relative border-t border-white/5 bg-slate-950/90">
           <div className={`absolute inset-0 ${styles["hero-grid"]}`} aria-hidden />
-          <div className="relative z-10 max-w-6xl mx-auto px-6 py-16">
+          <div className="relative z-10 mx-auto max-w-6xl px-4 py-16 sm:px-6">
             <h2 className={`${styles["section-title"]}`}>
               <span className={`${styles["section-icon"]}`}>🛠️</span>
               Hướng dẫn sử dụng dành cho người dân
@@ -164,8 +164,8 @@ export default function Home() {
         </section>
 
         <section id="support" className="relative bg-gradient-to-r from-amber-400/20 via-transparent to-red-500/20">
-          <div className="max-w-6xl mx-auto px-6 py-14">
-            <div className="grid gap-8 md:grid-cols-[1.2fr_0.8fr] items-center rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl">
+          <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+            <div className="grid gap-8 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl md:grid-cols-[1.2fr_0.8fr] md:p-8">
               <div className="space-y-3">
                 <p className="text-sm font-semibold uppercase tracking-wide text-amber-200">Cần hỗ trợ thêm?</p>
                 <h2 className="text-2xl font-bold text-white">Đội ngũ chăm sóc luôn sẵn sàng 24/7</h2>
@@ -174,13 +174,13 @@ export default function Home() {
                 </p>
               </div>
               <div className="grid gap-4 text-sm text-slate-100">
-                <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <span>Hotline phản ánh</span>
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <span className="font-medium">Hotline phản ánh</span>
                   <strong className="text-lg">1800 1096</strong>
                 </div>
-                <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <span>Email hỗ trợ</span>
-                  <strong className="text-lg">hotro@quanlycuutru.gov.vn</strong>
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <span className="font-medium">Email hỗ trợ</span>
+                  <strong className="text-lg text-balance">hotro@quanlycuutru.gov.vn</strong>
                 </div>
               </div>
             </div>
