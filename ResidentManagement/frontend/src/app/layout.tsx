@@ -1,25 +1,17 @@
-import type { Metadata } from "next";
-import { DM_Serif_Text, Inter } from "next/font/google";
-import "./globals.css";
-
-import Header from "@/components/header/header";
+import type { Metadata } from 'next';
+import { Inter, DM_Serif_Text } from 'next/font/google';
+import './globals.css';
 
 const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-body",
-});
-
+  subsets: ['greek'],
+})
 const dmSerifText = DM_Serif_Text({
-  subsets: ["latin"],
-  weight: "400",
-  display: "swap",
-  variable: "--font-heading",
-});
+  subsets: ['latin'],
+  weight: ['400'],
+})
 
-export const metadata: Metadata = {
-  title: "Hệ thống Quản lý Dân cư",
-};
+// src/app/layout.tsx
+import Header from '@/components/header/header';
 
 export default function RootLayout({
   children,
@@ -27,12 +19,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi" className="bg-slate-950">
-      <body className={`${inter.variable} ${dmSerifText.variable}`}>
+    <html lang="vi">
+      <body className={dmSerifText.className}>
         <Header />
-        <main>{children}</main>
-        <footer className="bg-slate-950/90 text-slate-200 text-center text-sm tracking-wide border-t border-white/10 py-6">
-          <p className="font-medium">&copy; 2025 Hệ thống Quản lý Dân cư. Hotline: 1800 1096</p>
+        <main>{children}
+
+        </main>
+        <footer className="bg-gray-800 text-white text-center p-4">
+          <p>&copy; 2025 Hệ thống Quản lý Dân cư. Hotline: 1800 1096</p>
         </footer>
       </body>
     </html>

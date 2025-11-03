@@ -9,50 +9,7 @@ import steps from "./data/steps_data";
 import UserWelcome from "@/components/auth/UserWelcome";
 
 export default function Home() {
-  //  useEffect(() => {
-  //   // Nếu URL đang có hash thì xóa để tránh trình duyệt tự nhảy khi reload lần sau
-  //   if (typeof window !== 'undefined' && window.location.hash) {
-  //     window.scrollTo(0, 0);
-  //     history.replaceState(null, '', window.location.pathname + window.location.search);
-  //   }
-
-  //   // Tìm tất cả các button có class 'scroll-button'
-  //   const scrollButtons = document.querySelectorAll('.scroll-button');
-
-  //   // Hàm xử lý sự kiện click
-  //   const handleScroll = (event: MouseEvent) => {
-  //     // Ngăn hành vi mặc định (thay đổi URL) -> Giải quyết lỗi refresh
-  //     event.preventDefault();
-
-  //     const targetId = (event.currentTarget as HTMLAnchorElement).getAttribute('href');
-  //     if (!targetId) return;
-
-  //     const targetElement = document.querySelector(targetId);
-
-  //     // Cuộn mượt mà đến mục tiêu
-  //     if (targetElement) {
-  //       targetElement.scrollIntoView({
-  //         behavior: 'smooth',
-  //         block: 'start'
-  //       });
-
-  //       // Xóa hash khỏi URL để lần reload sau trình duyệt không tự cuộn
-  //       history.replaceState(null, '', window.location.pathname + window.location.search);
-  //     }
-  //   };
-
-  //   // Gán sự kiện cho từng button
-  //   scrollButtons.forEach(button => {
-  //     button.addEventListener('click', handleScroll as EventListener);
-  //   });
-
-  //   // Rất quan trọng: Dọn dẹp event listener khi component bị hủy
-  //   return () => {
-  //     scrollButtons.forEach(button => {
-  //       button.removeEventListener('click', handleScroll as EventListener);
-  //     });
-  //   };
-  // }, []); // Mảng rỗng [] nghĩa là useEffect này chỉ chạy 1 lần duy nhất
+  
   return (
     <div>
       <ScrollToTop></ScrollToTop>
@@ -78,13 +35,7 @@ export default function Home() {
               <UserWelcome className="text-base md:text-lg text-amber-200" />
               <div className="flex flex-wrap gap-4">
                 <LoginCtaButton />
-                <a
-                  href="#support"
-                  className="inline-flex items-center gap-2 rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white/90 backdrop-blur transition duration-300 hover:border-white hover:bg-white/10"
-                >
-                  Trung tâm hỗ trợ
-                  <span aria-hidden className={`${styles["animate-pulse"]}`}>✦</span>
-                </a>
+                
               </div>
               <div className="grid gap-6 sm:grid-cols-3">
                 {[{ label: 'Hồ sơ xử lý trong ngày', value: '4.512' }, { label: 'Tỷ lệ đúng hạn', value: '98%' }, { label: 'Hotline hỗ trợ', value: '1800 1096' }].map(
