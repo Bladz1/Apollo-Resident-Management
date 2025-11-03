@@ -6,7 +6,7 @@ export default function ServicesPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
       <section
-        className={`relative overflow-hidden border-b border-white/5 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 ${styles["hero-spotlight1"]}`}
+        className={`relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 ${styles["hero-spotlight1"]}`}
       >
         <div
           className="absolute inset-0 bg-gradient-to-r from-red-900/40 via-transparent to-amber-500/30 mix-blend-screen"
