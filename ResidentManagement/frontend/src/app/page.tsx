@@ -21,7 +21,7 @@ export default function Home() {
             <div className={`${styles["hero-orb"]} ${styles["orb-2"]}`} aria-hidden />
           </div>
 
-          <div className="relative z-10 max-w-6xl mx-auto px-6 py-24 grid gap-16 lg:grid-cols-[1.1fr_0.9fr] items-center">
+          <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-20 lg:py-24 grid gap-12 lg:gap-16 lg:grid-cols-[1.1fr_0.9fr] items-center">
             <div className={`space-y-6 ${styles["animate-fade-in"]}`}>
               <span className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-red-200 backdrop-blur">
                 Hệ thống Quản lý dân cư quốc gia
@@ -37,7 +37,7 @@ export default function Home() {
                 <LoginCtaButton />
                 
               </div>
-              <div className="grid gap-6 sm:grid-cols-3">
+              <div className="grid gap-4 sm:gap-6 sm:grid-cols-3">
                 {[{ label: 'Hồ sơ xử lý trong ngày', value: '4.512' }, { label: 'Tỷ lệ đúng hạn', value: '98%' }, { label: 'Hotline hỗ trợ', value: '1800 1096' }].map(
                   (stat) => (
                     <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur transition hover:border-white/40 hover:bg-white/10">
@@ -49,9 +49,9 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="relative">
+            <div className="relative flex flex-col items-center gap-6 lg:block">
               <div
-                className={`${styles["feature-card"]} ${styles["animate-float"]} flex flex-col items-center justify-center relative py-6 px-6 w-[320px]`}
+                className={`${styles["feature-card"]} ${styles["feature-card-primary"]} ${styles["animate-float"]} flex flex-col items-center justify-center relative py-6 px-6`}
               >
                 <p className="text-lg font-semibold text-center text-red-200 mb-4">
                   Tích hợp đa dạng tiện ích
@@ -68,8 +68,8 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className={`${styles["feature-card"]} absolute -bottom-10 left-8 w-[400px] ${styles["animate-float-delayed"]} p-4`}>
-                <div className="flex gap-6 items-center">
+              <div className={`${styles["feature-card"]} ${styles["feature-card-secondary"]} ${styles["animate-float-delayed"]} p-4 lg:absolute lg:-bottom-10 lg:left-8`}>
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-center">
                   <Image
                     src="/images/sv.png"
                     alt="Đơn giản hóa mọi thủ tục hành chính"
@@ -78,7 +78,7 @@ export default function Home() {
                     className="rounded-xl object-cover flex-shrink-0"
                     style={{ width: '180px', height: '140px' }}
                   />
-                  <div className="flex-1 h-[140px] flex flex-col justify-center">
+                  <div className="flex-1 sm:h-[140px] flex flex-col justify-center text-center sm:text-left">
                     <p className="font-semibold text-lg text-red-200 mb-3">Đơn giản hóa</p>
                     <p className="text-sm text-slate-200 leading-relaxed">
                       Sử dụng định danh điện tử thay thế các loại giấy tờ truyền thống, không phải kê khai biểu mẫu giấy.
