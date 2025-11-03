@@ -361,6 +361,16 @@ export default function LoginPage() {
         </section>
 
         <aside className="w-full max-w-md space-y-6 rounded-3xl border border-white/10 bg-gradient-to-br from-red-900/80 via-slate-950 to-amber-900/40 p-8 shadow-2xl shadow-red-900/40 backdrop-blur-xl">
+          <div className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-200">{LOGIN_COPY.aside.badgeLabel}</p>
+            <h2 className="text-2xl font-bold text-white">{LOGIN_COPY.aside.heading}</h2>
+            <p className="text-sm leading-relaxed text-slate-200">
+              {LOGIN_COPY.aside.endpointDescription.before}
+              <code className="rounded bg-white/10 px-1.5 py-0.5 text-[11px]">{API_BASE_URL + LOGIN_COPY.endpointPath}</code>
+              {LOGIN_COPY.aside.endpointDescription.after}
+            </p>
+          </div>
+
           <dl className="space-y-3 text-sm text-slate-200">
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
               <dt className="text-xs uppercase tracking-wide text-amber-200">{LOGIN_COPY.aside.statusTitle}</dt>
