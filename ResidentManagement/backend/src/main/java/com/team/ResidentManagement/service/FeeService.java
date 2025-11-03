@@ -2,6 +2,7 @@ package com.team.ResidentManagement.service;
 
 import com.team.ResidentManagement.Mapper.FeeMapper;
 import com.team.ResidentManagement.dto.request.FeeRequest;
+import com.team.ResidentManagement.dto.request.FeeUpdateRequest;
 import com.team.ResidentManagement.dto.response.FeeResponse;
 import com.team.ResidentManagement.entity.Fee;
 import com.team.ResidentManagement.entity.User;
@@ -13,6 +14,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -47,11 +49,26 @@ public class FeeService {
                 .toList();
     }
 
-    public void delete(String fee){
-        feeRepository.deleteById(fee);
+    public void delete(String id){
+        feeRepository.deleteById(id);
     }
 
     public void deleteAll(){
         feeRepository.deleteAll();
+    }
+
+    public FeeResponse updateFee(FeeUpdateRequest request){
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+
+        User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Fee fee = feeRepository.findById(request.getId()).orElseThrow(() -> new AppException(ErrorCode.FEE_NOT_FOUND));
+
+        if (user.getFees().contains(fee)){
+            fee.setAmount(0);
+        }
+        else throw new AppException(ErrorCode.FEE_NOT_BELONG_TO_USER);
+
+        return feeMapper.toFeeResponse(feeRepository.save(fee));
     }
 }

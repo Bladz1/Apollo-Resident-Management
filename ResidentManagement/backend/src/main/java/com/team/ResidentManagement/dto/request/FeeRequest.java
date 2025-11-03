@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class FeeRequest {
-    String id;
+    String feeType;
     String categoryId;
     String name;
     String agency;

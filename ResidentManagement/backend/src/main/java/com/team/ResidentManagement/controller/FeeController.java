@@ -1,5 +1,6 @@
 package com.team.ResidentManagement.controller;
 
+import com.team.ResidentManagement.dto.request.FeeUpdateRequest;
 import com.team.ResidentManagement.dto.response.ApiResponse;
 import com.team.ResidentManagement.dto.request.FeeRequest;
 import com.team.ResidentManagement.dto.response.FeeResponse;
@@ -41,9 +42,16 @@ public class FeeController {
                 .build();
     }
 
-    @DeleteMapping("/{fee}")
-    ApiResponse<Void> deleteFee(@PathVariable String fee){
-        feeService.delete(fee);
+    @PutMapping
+    ApiResponse<FeeResponse> updateFee(@RequestBody FeeUpdateRequest request){
+        return ApiResponse.<FeeResponse>builder()
+                .result(feeService.updateFee(request))
+                .build();
+    }
+
+    @DeleteMapping("/{feeId}")
+    ApiResponse<Void> deleteFee(@PathVariable String feeId){
+        feeService.delete(feeId);
         return ApiResponse.<Void>builder().build();
     }
 

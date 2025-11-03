@@ -15,6 +15,8 @@ public enum ErrorCode {
     UNAUTHORIZED_EXCEPTION(1006, "Unauthorized Error", HttpStatus.FORBIDDEN),
     UNAUTHENTICATED(1007, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     INVALID_BIRTHDAY(1008, "You age must be at least {min}", HttpStatus.BAD_REQUEST),
+    FEE_NOT_FOUND(1009, "Fee Not Found", HttpStatus.NOT_FOUND),
+    FEE_NOT_BELONG_TO_USER(1010, "Fee not being to User", HttpStatus.FORBIDDEN),
     ;
 
     private int code;
