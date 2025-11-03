@@ -22,7 +22,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-primary), var(--font-secondary), var(--font-secondary-alt), 'Roboto', 'Be Vietnam Pro', sans-serif;
+  font-family: var(--font-primary), var(--font-secondary), var(--font-secondary-alt), 'Inter', 'Be Vietnam Pro', sans-serif;
   font-feature-settings: 'liga' 1, 'kern' 1;
 }
 
@@ -32,7 +32,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-secondary), var(--font-secondary-alt), var(--font-primary), 'Roboto', 'Be Vietnam Pro', sans-serif;
+  font-family: var(--font-secondary), var(--font-secondary-alt), var(--font-primary), 'Be Vietnam Pro', 'Inter', sans-serif;
 }
 
 .admin-grid {
