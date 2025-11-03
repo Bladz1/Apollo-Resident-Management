@@ -3,14 +3,6 @@
 import * as React from "react"
 import { useTheme } from "next-themes"
 
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-
 type IconProps = React.ComponentPropsWithoutRef<"svg">
 
 const SunIcon = React.forwardRef<SVGSVGElement, IconProps>(
@@ -64,28 +56,28 @@ const MoonIcon = React.forwardRef<SVGSVGElement, IconProps>(
 MoonIcon.displayName = "MoonIcon"
 
 export function ModeToggle() {
-  const { setTheme } = useTheme()
+  const { resolvedTheme, setTheme } = useTheme()
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const isDarkMode = mounted && resolvedTheme === "dark"
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
-          <SunIcon className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-          <MoonIcon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-          <span className="sr-only">Toggle theme</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
-          Light
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
-          Dark
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
-          System
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <button
+      type="button"
+      onClick={() => setTheme(isDarkMode ? "light" : "dark")}
+      className="relative inline-flex h-9 w-9 items-center justify-center rounded-md border border-input bg-background text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+      aria-label={`Switch to ${isDarkMode ? "light" : "dark"} mode`}
+    >
+      <span className="sr-only">Toggle theme</span>
+      {isDarkMode ? (
+        <MoonIcon className="h-[1.2rem] w-[1.2rem]" />
+      ) : (
+        <SunIcon className="h-[1.2rem] w-[1.2rem]" />
+      )}
+    </button>
   )
 }
