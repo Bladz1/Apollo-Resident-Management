@@ -4,22 +4,15 @@ import './globals.css';
 const inter = Inter({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700', '800'],
-  variable: '--font-primary',
   display: 'swap',
+  variable: '--font-inter',
 });
 
 const beVietnamPro = Be_Vietnam_Pro({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-secondary',
+  weight: ['400', '500', '600', '700', '800'],
   display: 'swap',
-});
-
-const beVietnamProAlt = Be_Vietnam_Pro({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-secondary-alt',
-  display: 'swap',
+  variable: '--font-be-vietnam',
 });
 
 // src/app/layout.tsx
@@ -32,7 +25,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi">
-      <body className={`${inter.variable} ${beVietnamPro.variable} ${beVietnamProAlt.variable}`}>
+      <body className={`${inter.variable} ${beVietnamPro.variable} antialiased`}>
         <Header />
         <main>{children}
 
