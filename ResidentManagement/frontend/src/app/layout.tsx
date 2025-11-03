@@ -1,21 +1,21 @@
-import { Be_Vietnam_Pro, Nunito_Sans, Roboto } from 'next/font/google';
+import { Be_Vietnam_Pro, Inter } from 'next/font/google';
 import './globals.css';
 
-const nunitoSans = Nunito_Sans({
+const inter = Inter({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700', '800'],
   variable: '--font-primary',
   display: 'swap',
 });
 
-const roboto = Roboto({
+const beVietnamPro = Be_Vietnam_Pro({
   subsets: ['latin'],
-  weight: ['400', '500', '700'],
+  weight: ['400', '500', '600', '700'],
   variable: '--font-secondary',
   display: 'swap',
 });
 
-const beVietnamPro = Be_Vietnam_Pro({
+const beVietnamProAlt = Be_Vietnam_Pro({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   variable: '--font-secondary-alt',
@@ -32,7 +32,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi">
-      <body className={`${nunitoSans.variable} ${roboto.variable} ${beVietnamPro.variable}`}>
+      <body className={`${inter.variable} ${beVietnamPro.variable} ${beVietnamProAlt.variable}`}>
         <Header />
         <main>{children}
 
