@@ -17,6 +17,7 @@ public enum ErrorCode {
     INVALID_BIRTHDAY(1008, "You age must be at least {min}", HttpStatus.BAD_REQUEST),
     FEE_NOT_FOUND(1009, "Fee Not Found", HttpStatus.NOT_FOUND),
     FEE_NOT_BELONG_TO_USER(1010, "Fee not being to User", HttpStatus.FORBIDDEN),
+    WANTED_NOT_FOUND(1011, "Wanted Not Found", HttpStatus.NOT_FOUND),
     ;
 
     private int code;
