@@ -13,6 +13,7 @@ import com.team.ResidentManagement.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,7 @@ public class FeeService {
     FeeMapper feeMapper;
     UserRepository userRepository;
 
+    @PreAuthorize("{hasRole('ADMIN')}")
     public FeeResponse create(FeeRequest request){
         Fee fee = feeMapper.toFee(request);
 
