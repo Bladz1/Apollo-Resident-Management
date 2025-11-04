@@ -275,6 +275,13 @@ export function loadUsername(): string | null {
   return deriveUsernameFromJwt(token);
 }
 
+export function loadUserId(): string | null {
+  if (!isBrowser()) return null;
+
+  const token = window.localStorage.getItem(TOKEN_KEY);
+  return deriveIdFromJwt(token);
+}
+
 export function extractUsernameFromToken(token: string | null | undefined): string | null {
   return deriveUsernameFromJwt(token);
 }
