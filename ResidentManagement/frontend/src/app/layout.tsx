@@ -1,14 +1,19 @@
-import type { Metadata } from 'next';
-import { Inter, DM_Serif_Text } from 'next/font/google';
+import { Be_Vietnam_Pro, Inter } from 'next/font/google';
 import './globals.css';
 
 const inter = Inter({
-  subsets: ['greek'],
-})
-const dmSerifText = DM_Serif_Text({
   subsets: ['latin'],
-  weight: ['400'],
-})
+  weight: ['400', '500', '600', '700', '800'],
+  display: 'swap',
+  variable: '--font-inter',
+});
+
+const beVietnamPro = Be_Vietnam_Pro({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  display: 'swap',
+  variable: '--font-be-vietnam',
+});
 
 // src/app/layout.tsx
 import Header from '@/components/header/header';
@@ -20,7 +25,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi">
-      <body className={dmSerifText.className}>
+      <body className={`${inter.variable} ${beVietnamPro.variable} antialiased`}>
         <Header />
         <main>{children}
 

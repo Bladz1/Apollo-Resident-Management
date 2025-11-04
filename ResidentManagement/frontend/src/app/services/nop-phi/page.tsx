@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
-import { loadUsername, TOKEN_KEY } from "@/utils/auth-storage";
+import { loadUserId, TOKEN_KEY } from "@/utils/auth-storage";
 
 type FeeStatus = "Chưa nộp" | "Đã nộp" | "Đang xử lý";
 
@@ -32,13 +32,18 @@ interface Bill {
 type PaymentMethod = "bank" | "wallet" | "card";
 
 async function loadFeeItems(): Promise<FeeItem[]> {
-  const response = await fetch(`http://localhost:8080/resident-management/fees/${loadUsername()}`, {
-  headers: {
-    method: "GET",
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${localStorage.getItem(TOKEN_KEY) || ""}`,
+  const userId = loadUserId();
+  if (!userId) {
+    throw new Error("Missing user identifier");
   }
-});
+
+  const response = await fetch(`http://localhost:8080/resident-management/fees/${userId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem(TOKEN_KEY) || ""}`,
+    },
+  });
 
   if (!response.ok) {
     throw new Error("Failed to fetch fees");
