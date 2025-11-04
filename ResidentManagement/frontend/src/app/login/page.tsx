@@ -14,9 +14,9 @@ const LOGIN_COPY: AuthTesterCopy = {
     description:
       'Trang đăng nhập được thiết kế theo phong cách tối giản giống GitHub nhưng được phối màu đồng nhất với chủ đề đỏ - vàng của landing page. Sử dụng biểu mẫu bên dưới để gửi yêu cầu tới API xác thực và kiểm tra phản hồi ngay lập tức.',
     usernameLabel: 'Tên đăng nhập',
-    usernamePlaceholder: 'vd: admin',
+    usernamePlaceholder: 'CCCD hoặc SĐT',
     passwordLabel: 'Mật khẩu',
-    passwordPlaceholder: '••••••••',
+    passwordPlaceholder: '',
     rememberMeLabel: 'Ghi nhớ đăng nhập',
     forgotPasswordLabel: 'Quên mật khẩu?',
     forgotPasswordHref: '#',
@@ -263,24 +263,26 @@ export default function LoginPage() {
       router.push(isAdmin ? '/admin' : '/');
     } catch {
       setStatus('error');
-      setMessage('Không thể kết nối tới API. Hãy kiểm tra lại server hoặc cấu hình URL.');
+      setMessage('Sai thông tin đăng nhập. Vui lòng thử lại !');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-160px)] bg-slate-950 text-slate-50">
+    <div className="relative min-h-screen flex items-center justify-center bg-slate-950 text-slate-50">
       <div className="absolute inset-0 overflow-hidden">
         <div className="login-grid" aria-hidden />
         <div className="login-orb orb-top" aria-hidden />
         <div className="login-orb orb-bottom" aria-hidden />
       </div>
 
-      <div className="relative z-10 mx-auto flex max-w-6xl flex-col items-center gap-10 px-6 py-16 lg:flex-row lg:items-stretch">
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center justify-center gap-10 px-6 py-0 lg:flex-row lg:items-center lg:justify-center">
+
         <section className="w-full max-w-xl space-y-6 rounded-3xl border border-white/10 bg-slate-900/80 p-10 shadow-2xl shadow-red-900/30 backdrop-blur-xl">
           <h1 className="text-3xl font-black tracking-tight text-white">Đăng nhập hệ thống</h1>
-          <p className="text-sm leading-relaxed text-slate-200">{LOGIN_COPY.card.description}</p>
+
+
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-2">
@@ -358,34 +360,28 @@ export default function LoginPage() {
               {LOGIN_COPY.card.footerLinkLabel}
             </Link>
           </p>
+          {/* status / error box */}
+          {status !== 'idle' && (
+            <div
+              role="alert"
+              aria-live="polite"
+              className={`w-full rounded-md border px-4 py-3 text-sm ${status === 'error'
+                ? 'bg-rose-900/80 border-rose-400 text-rose-100'
+                : 'bg-emerald-900/80 border-emerald-300 text-emerald-100'
+                }`}
+            >
+              <div className="font-semibold ">
+                {status === 'error' ? 'Lỗi đăng nhập' : 'Thành công'}
+              </div>
+              {message && <div className="mt-1">{message}</div>}
+              {responseBody && (
+                <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap text-[11px] font-mono text-amber-100/80">{responseBody}</pre>
+              )}
+            </div>
+          )}
+
         </section>
 
-        <aside className="w-full max-w-md space-y-6 rounded-3xl border border-white/10 bg-gradient-to-br from-red-900/80 via-slate-950 to-amber-900/40 p-8 shadow-2xl shadow-red-900/40 backdrop-blur-xl">
-          <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-200">{LOGIN_COPY.aside.badgeLabel}</p>
-            <h2 className="text-2xl font-bold text-white">{LOGIN_COPY.aside.heading}</h2>
-            <p className="text-sm leading-relaxed text-slate-200">
-              {LOGIN_COPY.aside.endpointDescription.before}
-              <code className="rounded bg-white/10 px-1.5 py-0.5 text-[11px]">{API_BASE_URL + LOGIN_COPY.endpointPath}</code>
-              {LOGIN_COPY.aside.endpointDescription.after}
-            </p>
-          </div>
-
-          <dl className="space-y-3 text-sm text-slate-200">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <dt className="text-xs uppercase tracking-wide text-amber-200">{LOGIN_COPY.aside.statusTitle}</dt>
-              <dd className={`mt-2 font-medium ${status === 'success' ? 'text-emerald-300' : status === 'error' ? 'text-rose-300' : 'text-slate-100'}`}>
-                {message ?? LOGIN_COPY.messages.idle}
-              </dd>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <dt className="text-xs uppercase tracking-wide text-amber-200">{LOGIN_COPY.aside.responseTitle}</dt>
-              <dd className="mt-2 whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed text-amber-100/90">
-                {responseBody ?? LOGIN_COPY.aside.defaultResponseText}
-              </dd>
-            </div>
-          </dl>
-        </aside>
       </div>
     </div>
   );
