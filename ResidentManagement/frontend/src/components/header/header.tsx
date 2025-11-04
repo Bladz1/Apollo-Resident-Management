@@ -108,10 +108,10 @@ const Header = () => {
               <li>
                 <Link href="/services" className="hover:text-yellow-200">Dịch vụ</Link>
               </li>
-              
+
               <li>
                 <SupportButton></SupportButton>
-              </li> 
+              </li>
               <li>
                 <Link href="/news" className="hover:text-yellow-200">Tin tức</Link>
               </li>
@@ -128,9 +128,12 @@ const Header = () => {
               </button>
             </div>
           ) : (
-            <button className="bg-yellow-400 text-blue-900 px-4 py-2 rounded-lg hover:bg-blue-100">
-              <Link href="/login">Đăng nhập</Link>
-            </button>
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center bg-yellow-400 text-blue-900 px-4 py-2 rounded-lg hover:bg-blue-100"
+            >
+              Đăng nhập
+            </Link>
           )}
         </div>
 
