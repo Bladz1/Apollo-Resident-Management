@@ -3,12 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useRef, useState } from "react";
 
-import {
-  PETITION_CAPTCHA,
-  initialPetitionState,
-  services,
-  type PetitionFormState,
-} from "../data";
+import { initialPetitionState, services, type PetitionFormState } from "../data";
 
 const petitionService = services.find((service) => service.id === "kien-nghi");
 
@@ -47,12 +42,6 @@ export default function PetitionPage() {
 
   const handlePetitionSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    if (petitionState.captcha.trim().toUpperCase() !== PETITION_CAPTCHA) {
-      setPetitionStatus("error");
-      setPetitionMessage("Mã xác nhận chưa chính xác. Vui lòng kiểm tra và nhập lại.");
-      return;
-    }
 
     setPetitionStatus("success");
     setPetitionMessage(
@@ -94,7 +83,7 @@ export default function PetitionPage() {
             <li>Điền đầy đủ thông tin người gửi để thuận tiện xác minh và phản hồi.</li>
             <li>Nhập tiêu đề và nội dung kiến nghị bằng trình soạn thảo hỗ trợ định dạng.</li>
             <li>Đính kèm tài liệu, hình ảnh minh chứng (nếu có).</li>
-            <li>Xác nhận mã CAPTCHA và nhấn "Gửi" để hoàn tất.</li>
+            <li>Kiểm tra thông tin và nhấn "Gửi" để hoàn tất.</li>
             <li>Hệ thống sẽ gửi email xác nhận khi cung cấp địa chỉ liên hệ hợp lệ.</li>
           </ol>
         </section>
@@ -230,20 +219,6 @@ export default function PetitionPage() {
               {petitionState.attachment && (
                 <p className="text-xs text-slate-500">Đã chọn: {petitionState.attachment.name}</p>
               )}
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-[auto,1fr] md:items-center">
-              <div className="flex h-14 items-center justify-center rounded-xl bg-slate-900 px-6 text-lg font-semibold tracking-[0.3em] text-white shadow-inner shadow-slate-400">
-                {PETITION_CAPTCHA}
-              </div>
-              <input
-                type="text"
-                required
-                value={petitionState.captcha}
-                onChange={(event) => handlePetitionChange("captcha", event.target.value.toUpperCase())}
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm uppercase tracking-[0.3em] text-slate-900 shadow-inner focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200"
-                placeholder="Nhập mã xác nhận"
-              />
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
