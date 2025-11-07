@@ -29,7 +29,6 @@ export type PetitionFormState = {
   address: string;
   title: string;
   content: string;
-  captcha: string;
   attachment: File | null;
 };
 
@@ -125,8 +124,6 @@ export const notifications: NotificationItem[] = [
   },
 ];
 
-export const PETITION_CAPTCHA = "8ZFQ";
-
 export const initialPetitionState: PetitionFormState = {
   fullName: "",
   email: "",
@@ -134,6 +131,5 @@ export const initialPetitionState: PetitionFormState = {
   address: "",
   title: "",
   content: "",
-  captcha: "",
   attachment: null,
 };
