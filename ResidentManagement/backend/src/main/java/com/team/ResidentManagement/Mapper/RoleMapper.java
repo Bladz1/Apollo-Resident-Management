@@ -7,6 +7,9 @@ import com.team.ResidentManagement.entity.Role;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+/**
+ * Mapper chuyển đổi dữ liệu liên quan đến Role.
+ */
 @Mapper(componentModel = "spring")
 public interface RoleMapper {
 

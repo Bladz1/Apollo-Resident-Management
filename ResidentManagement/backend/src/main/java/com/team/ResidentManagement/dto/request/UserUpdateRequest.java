@@ -7,6 +7,9 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * DTO request cập nhật thông tin cá nhân, vai trò và phí của cư dân.
+ */
 @Data
 @Builder
 @NoArgsConstructor

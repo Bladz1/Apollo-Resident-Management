@@ -6,6 +6,9 @@ import lombok.experimental.FieldDefaults;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * DTO request cập nhật phần thưởng, địa điểm cuối cùng và ảnh truy nã.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

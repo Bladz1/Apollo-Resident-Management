@@ -11,10 +11,20 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Lớp gom các xử lý ngoại lệ phát sinh trong toàn bộ ứng dụng và chuẩn hoá phản hồi trả về client.
+ */
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    /** Tên thuộc tính tối thiểu trong thông điệp validate để thay thế động. */
     String MIN_ATTRIBUTE = "min";
 
+    /**
+     * Bắt mọi ngoại lệ không xác định và trả về mã lỗi chung.
+     * @param exception ngoại lệ bất kỳ phát sinh.
+     * @return ApiResponse với thông tin lỗi chuẩn hoá.
+     */
     @ExceptionHandler(value = Exception.class)
     ResponseEntity<ApiResponse> handleException(Exception exception) {
         ApiResponse apiResponse = new ApiResponse();
@@ -25,6 +35,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(apiResponse);
     }
 
+    /**
+     * Xử lý riêng cho AppException để đọc mã lỗi nội bộ.
+     * @param exception ngoại lệ nghiệp vụ do ứng dụng chủ động ném ra.
+     * @return ResponseEntity chứa status và message theo cấu hình ErrorCode.
+     */
     @ExceptionHandler(value = AppException.class)
     ResponseEntity<ApiResponse> handleAppException(AppException exception) {
         ErrorCode errorCode = exception.getErrorCode();
@@ -39,6 +54,9 @@ public class GlobalExceptionHandler {
                 .body(apiResponse);
     }
 
+    /**
+     * Chặn các truy cập bị từ chối và trả về thông điệp phù hợp.
+     */
     @ExceptionHandler(value = AccessDeniedException.class)
     ResponseEntity<ApiResponse> handleAccessDeniedException(AccessDeniedException exception) {
         ErrorCode errorCode = ErrorCode.UNAUTHORIZED_EXCEPTION;
@@ -50,6 +68,9 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
+    /**
+     * Gom lỗi validate đầu vào và map sang thông điệp do hệ thống định nghĩa.
+     */
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     ResponseEntity<ApiResponse> handleValidation(MethodArgumentNotValidException exception) {
         String enumKey = exception.getFieldError().getDefaultMessage();
@@ -65,7 +86,7 @@ public class GlobalExceptionHandler {
 
             attributes = constrainViolation.getConstraintDescriptor().getAttributes();
         } catch (IllegalArgumentException e){
-
+            // Không map được sang enum => giữ nguyên mã lỗi mặc định.
         }
 
         ApiResponse apiResponse = new ApiResponse();
@@ -76,6 +97,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(apiResponse);
     }
 
+    /**
+     * Thay thế giá trị động trong thông điệp lỗi validate (ví dụ {min}).
+     */
     private String mapAttribute(String message, Map<String, Object> attributes){
         String minValue = String.valueOf(attributes.get(MIN_ATTRIBUTE));
 

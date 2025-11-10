@@ -5,6 +5,9 @@ import com.team.ResidentManagement.dto.response.FeeResponse;
 import com.team.ResidentManagement.entity.Fee;
 import org.mapstruct.Mapper;
 
+/**
+ * Mapper chuyển đổi dữ liệu liên quan đến Fee.
+ */
 @Mapper(componentModel = "spring")
 public interface FeeMapper {
     Fee toFee(FeeRequest request);

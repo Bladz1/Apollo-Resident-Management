@@ -6,8 +6,15 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+/**
+ * Repository thao tác dữ liệu người dùng.
+ */
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
+
+    /** Kiểm tra sự tồn tại của username để đảm bảo duy nhất. */
     boolean existsByUsername(String username);
+
+    /** Tìm kiếm người dùng theo username phục vụ đăng nhập. */
     Optional<User> findByUsername(String username);
 }
