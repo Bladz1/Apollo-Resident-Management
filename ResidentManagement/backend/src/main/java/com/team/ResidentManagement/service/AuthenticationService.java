@@ -50,7 +50,7 @@ public class AuthenticationService {
 
     /** Khoá ký JWT nạp từ cấu hình. */
     @NonFinal
-    @Value("${jwt.signerKey}")
+    @Value("${jwt.signer-key}")
     protected String SIGNER_KEY;
 
     /** Thời gian token có hiệu lực (giây). */

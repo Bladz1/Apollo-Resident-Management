@@ -25,7 +25,7 @@ import com.nimbusds.jose.JOSEException;
 public class CustomJwtDecoder implements JwtDecoder {
 
     /** Khoá bí mật dùng để tạo SecretKeySpec cho thuật toán HS512. */
-    @Value("${jwt.signerKey}")
+    @Value("${jwt.signer-key}")
     private String signerKey;
 
     /** Dịch vụ xác thực cung cấp API introspect để kiểm tra token. */
