@@ -30,7 +30,7 @@ public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINT = {"/users", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh"};
 
     /** Khoá bí mật dùng để ký và xác thực token JWT. */
-    @Value("${jwt.signerKey}")
+    @Value("${jwt.signer-key}")
     private String signerKey;
 
 
