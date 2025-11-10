@@ -18,19 +18,31 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+/**
+ * Cấu hình Spring Security cho ứng dụng bao gồm phân quyền, JWT và CORS.
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+
+    /** Danh sách endpoint không yêu cầu xác thực. */
     private final String[] PUBLIC_ENDPOINT = {"/users", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh"};
 
+    /** Khoá bí mật dùng để ký và xác thực token JWT. */
     @Value("${jwt.signerKey}")
     private String signerKey;
 
 
+    /** Trình giải mã JWT tuỳ chỉnh để kiểm tra chữ ký và trích xuất claims. */
     @Autowired
     CustomJwtDecoder customJwtDecoder;
 
+    /**
+     * Định nghĩa chuỗi filter chính cho bảo mật HTTP.
+     * @param httpSecurity builder cấu hình bảo mật.
+     * @return SecurityFilterChain dùng bởi Spring Security.
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(request ->
@@ -50,6 +62,10 @@ public class SecurityConfig {
 
         return httpSecurity.build();
     }
+
+    /**
+     * Cấu hình CORS để frontend có thể gọi API trong môi trường phát triển.
+     */
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
@@ -64,6 +80,9 @@ public class SecurityConfig {
         return new CorsFilter(urlBasedCorsConfigurationSource);
     }
 
+    /**
+     * Tuỳ biến cách ánh xạ quyền hạn từ token JWT.
+     */
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
@@ -75,6 +94,9 @@ public class SecurityConfig {
         return jwtAuthenticationConverter;
     }
 
+    /**
+     * Bộ mã hoá mật khẩu dùng thuật toán BCrypt với strength = 10.
+     */
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);

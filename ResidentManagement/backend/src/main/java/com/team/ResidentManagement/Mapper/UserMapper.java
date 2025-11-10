@@ -9,6 +9,9 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 
+/**
+ * Mapper chuyển đổi dữ liệu liên quan đến User.
+ */
 @Mapper(componentModel = "spring")
 public interface UserMapper {
     User toUser(UserCreationRequest request);

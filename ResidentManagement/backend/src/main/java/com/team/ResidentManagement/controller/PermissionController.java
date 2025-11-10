@@ -11,13 +11,19 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Controller quản lý danh sách quyền truy cập.
+ */
 @RestController
 @RequestMapping("/permissions")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PermissionController {
+
+    /** Service xử lý quyền. */
     PermissionService permissionService;
 
+    /** Tạo mới quyền. */
     @PostMapping
     ApiResponse<PermissionResponse> createPermission(@RequestBody PermissionRequest request){
         return ApiResponse.<PermissionResponse>builder()
@@ -25,6 +31,7 @@ public class PermissionController {
                 .build();
     }
 
+    /** Lấy toàn bộ quyền hiện có. */
     @GetMapping
     ApiResponse<List<PermissionResponse>> getAllPermissions(){
         return ApiResponse.<List<PermissionResponse>>builder()
@@ -32,6 +39,7 @@ public class PermissionController {
                 .build();
     }
 
+    /** Xoá quyền theo tên. */
     @DeleteMapping("/{permission}")
     ApiResponse<Void> deletePermission(@PathVariable String permission){
         permissionService.delete(permission);
