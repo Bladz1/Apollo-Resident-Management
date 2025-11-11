@@ -17,16 +17,30 @@ import com.team.ResidentManagement.dto.request.IntrospectRequest;
 import com.team.ResidentManagement.service.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
 
+/**
+ * Decoder JWT tuỳ chỉnh giúp kiểm tra tính hợp lệ token thông qua dịch vụ AuthenticationService
+ * trước khi uỷ quyền cho NimbusJwtDecoder giải mã.
+ */
 @Component
 public class CustomJwtDecoder implements JwtDecoder {
-    @Value("${jwt.signerKey}")
+
+    /** Khoá bí mật dùng để tạo SecretKeySpec cho thuật toán HS512. */
+    @Value("${jwt.signer-key}")
     private String signerKey;
 
+    /** Dịch vụ xác thực cung cấp API introspect để kiểm tra token. */
     @Autowired
     private AuthenticationService authenticationService;
 
+    /** Decoder Nimbus được cache để tránh khởi tạo lại nhiều lần. */
     private NimbusJwtDecoder nimbusJwtDecoder = null;
 
+    /**
+     * Kiểm tra token bằng introspect và decode bằng Nimbus.
+     * @param token chuỗi JWT từ header Authorization.
+     * @return đối tượng Jwt chứa thông tin claims.
+     * @throws JwtException khi token không hợp lệ hoặc lỗi giải mã.
+     */
     @Override
     public Jwt decode(String token) throws JwtException {
 
