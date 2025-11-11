@@ -16,7 +16,7 @@ interface NewsCategoryTabsProps {
 
 export function NewsCategoryTabs({ options, value, onValueChange }: NewsCategoryTabsProps) {
   return (
-    <div className="flex flex-wrap gap-2 rounded-2xl border border-slate-200/60 bg-white/70 p-2 shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
+    <div className="flex flex-wrap gap-2 rounded-2xl border border-white/10 bg-white/5 p-2 backdrop-blur-sm shadow-inner shadow-black/5">
       {options.map((option) => {
         const isActive = value === option.value;
         return (
@@ -24,10 +24,10 @@ export function NewsCategoryTabs({ options, value, onValueChange }: NewsCategory
             key={option.value}
             type="button"
             onClick={() => onValueChange(option.value)}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950 ${
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 ${
               isActive
-                ? "bg-primary text-white shadow-lg"
-                : "bg-transparent text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                ? "bg-rose-500/80 text-white shadow-lg shadow-rose-900/30"
+                : "bg-transparent text-slate-200 hover:bg-white/10"
             }`}
           >
             <span>{option.label}</span>
@@ -36,7 +36,7 @@ export function NewsCategoryTabs({ options, value, onValueChange }: NewsCategory
                 className={`inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full text-xs ${
                   isActive
                     ? "bg-white/20 text-white"
-                    : "bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                    : "border border-white/10 bg-white/10 text-slate-200"
                 }`}
               >
                 {option.count}

@@ -14,7 +14,7 @@ export function NewsHero({ article }: NewsHeroProps) {
       href={article.link}
       target="_blank"
       rel="noopener noreferrer"
-      className="group relative block h-[420px] overflow-hidden rounded-3xl border border-slate-200/40 bg-slate-900/80 text-white shadow-xl transition hover:shadow-2xl dark:border-slate-700/60"
+      className="group relative block h-[420px] overflow-hidden rounded-3xl border border-white/10 bg-slate-950/60 text-white shadow-2xl shadow-black/20 transition hover:shadow-rose-500/30"
     >
       <img
         src={article.image ?? "/images/trongdong.jpg"}
@@ -23,19 +23,21 @@ export function NewsHero({ article }: NewsHeroProps) {
       />
       <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-900/10" />
       <div className="absolute inset-x-0 bottom-0 space-y-4 p-8">
-        <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wide text-slate-200/80">
-          <span className="rounded-full bg-primary/80 px-3 py-1 text-[11px] font-semibold shadow-lg">Tin nổi bật</span>
-          <span className="rounded-full bg-slate-900/70 px-3 py-1 font-medium backdrop-blur">
+        <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wide text-slate-200/90">
+          <span className="rounded-full bg-rose-500/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-white shadow-lg shadow-rose-900/40">
+            Tin nổi bật
+          </span>
+          <span className="rounded-full bg-white/10 px-3 py-1 font-medium text-amber-200 backdrop-blur">
             {formatPublishedDate(article.pubDate)}
           </span>
-          <span className="rounded-full bg-slate-900/70 px-3 py-1 font-medium backdrop-blur">
+          <span className="rounded-full bg-white/10 px-3 py-1 font-medium text-amber-200 backdrop-blur">
             {article.source}
           </span>
         </div>
         <h1 className="text-balance text-3xl font-semibold leading-snug text-white drop-shadow-lg md:text-4xl">
           {article.title}
         </h1>
-        <p className="max-w-3xl text-sm text-slate-200/90 md:text-base">
+        <p className="max-w-3xl text-sm text-slate-200 md:text-base">
           {article.description}
         </p>
       </div>
