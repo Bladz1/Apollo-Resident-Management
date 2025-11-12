@@ -22,6 +22,8 @@ public enum ErrorCode {
     FEE_NOT_FOUND(1009, "Fee Not Found", HttpStatus.NOT_FOUND),
     FEE_NOT_BELONG_TO_USER(1010, "Fee not being to User", HttpStatus.FORBIDDEN),
     WANTED_NOT_FOUND(1011, "Wanted Not Found", HttpStatus.NOT_FOUND),
+    PROFILE_NOT_FOUND(1012, "Profile Not Found", HttpStatus.NOT_FOUND),
+    PROFILE_EXISTED(1013, "Profile Existed", HttpStatus.BAD_REQUEST),
     ;
 
     /** Mã số lỗi nội bộ phục vụ phân loại. */
@@ -35,13 +37,5 @@ public enum ErrorCode {
         this.code = code;
         this.message = message;
         this.statusCode = statusCode;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public String getMessage() {
-        return message;
     }
 }

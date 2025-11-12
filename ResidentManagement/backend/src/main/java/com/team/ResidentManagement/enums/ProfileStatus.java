@@ -1,5 +1,8 @@
 package com.team.ResidentManagement.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum ProfileStatus {
     PENDING("Chờ xử lý"),
     PROCESSING("Đang xử lý"),
@@ -12,8 +15,5 @@ public enum ProfileStatus {
 
     ProfileStatus(String status){
         this.status = status;
-    }
-    public String getProfileStatus(){
-        return this.status;
     }
 }

@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Nghiệp vụ quản lý thông tin người dùng và phân quyền.
  */
-@Slf4j
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -74,8 +74,6 @@ public class UserService {
     public UserResponse getMyInfo() {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
-
-        log.info("Username : {}", name);
 
         User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 

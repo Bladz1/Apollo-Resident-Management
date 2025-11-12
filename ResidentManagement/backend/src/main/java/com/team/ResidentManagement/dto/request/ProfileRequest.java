@@ -1,6 +1,5 @@
 package com.team.ResidentManagement.dto.request;
 
-import com.team.ResidentManagement.entity.User;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
