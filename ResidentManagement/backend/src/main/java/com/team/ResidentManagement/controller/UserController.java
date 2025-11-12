@@ -21,7 +21,6 @@ import java.util.List;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@Slf4j
 public class UserController {
 
     /** Service nghiệp vụ người dùng. */

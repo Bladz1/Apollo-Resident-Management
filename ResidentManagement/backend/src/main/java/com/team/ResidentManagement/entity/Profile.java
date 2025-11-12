@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -16,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Table(name = "profile")
 public class Profile {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -28,9 +30,8 @@ public class Profile {
     @Column(nullable = false)
     String title;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    ProfileType type;
+    String type;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -39,9 +40,9 @@ public class Profile {
     @CreationTimestamp
     LocalDateTime submittedAt;
 
-    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL)
-    List<ProfileAttachment> attachments;
+    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    List<ProfileAttachment> attachments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL)
-    List<ProfileHistory> history;
+    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, fetch =  FetchType.LAZY)
+    List<ProfileHistory> history = new ArrayList<>();
 }

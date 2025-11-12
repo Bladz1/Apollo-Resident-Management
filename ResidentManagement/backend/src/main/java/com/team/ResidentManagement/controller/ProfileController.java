@@ -1,6 +1,7 @@
 package com.team.ResidentManagement.controller;
 
 import com.team.ResidentManagement.dto.request.ProfileRequest;
+import com.team.ResidentManagement.dto.request.ProfileUpdateRequest;
 import com.team.ResidentManagement.dto.response.ApiResponse;
 import com.team.ResidentManagement.dto.response.ProfileResponse;
 import com.team.ResidentManagement.service.ProfileService;
@@ -19,16 +20,21 @@ public class ProfileController {
     ProfileService profileService;
 
     @GetMapping
-    public ApiResponse<List<ProfileResponse>> getProfiles(){
-        return ApiResponse.<List<ProfileResponse>>builder()
-                .result(profileService.getProfiles())
-                .build();
+    public List<ProfileResponse> getProfiles(){
+        return profileService.getProfiles();
     }
 
     @PatchMapping
-    public ApiResponse<ProfileResponse> updateProfile(@RequestBody ProfileRequest profileRequest){
+    public ApiResponse<ProfileResponse> updateProfile(@RequestBody ProfileUpdateRequest request){
         return ApiResponse.<ProfileResponse>builder()
-                .result(profileService.updateProfile(profileRequest))
+                .result(profileService.updateProfile(request))
+                .build();
+    }
+
+    @PostMapping
+    public ApiResponse<ProfileResponse> createProfile(@RequestBody ProfileRequest request){
+        return ApiResponse.<ProfileResponse>builder()
+                .result(profileService.createProfile(request))
                 .build();
     }
 }
