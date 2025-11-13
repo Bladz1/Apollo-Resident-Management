@@ -38,6 +38,10 @@ public class User {
     /** Ngày sinh dùng để kiểm tra độ tuổi hợp lệ. */
     LocalDate birthday;
 
+    String email;
+
+    String avatarUrl;
+
     /** Các vai trò của người dùng trong hệ thống. */
     @ManyToMany
     Set<Role> roles;

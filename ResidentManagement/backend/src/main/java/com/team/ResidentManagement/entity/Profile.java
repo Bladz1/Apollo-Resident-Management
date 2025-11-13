@@ -40,6 +40,18 @@ public class Profile {
     @CreationTimestamp
     LocalDateTime submittedAt;
 
+    @Column(nullable = false)
+    String email;
+
+    @Column(nullable = false)
+    String phoneNumber;
+
+    @Column(nullable = false)
+    String  address;
+
+    @Column(nullable = true)
+    String description;
+
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<ProfileAttachment> attachments = new ArrayList<>();
 
