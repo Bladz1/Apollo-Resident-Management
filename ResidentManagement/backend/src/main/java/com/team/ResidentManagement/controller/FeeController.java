@@ -8,7 +8,6 @@ import com.team.ResidentManagement.service.FeeService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,7 +15,6 @@ import java.util.List;
 /**
  * Controller quản lý các khoản phí: tạo, xem, cập nhật, xoá.
  */
-@Slf4j
 @RestController
 @RequestMapping("/fees")
 @RequiredArgsConstructor

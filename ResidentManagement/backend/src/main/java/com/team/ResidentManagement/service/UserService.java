@@ -12,6 +12,7 @@ import com.team.ResidentManagement.exception.ErrorCode;
 import com.team.ResidentManagement.repository.FeeRepository;
 import com.team.ResidentManagement.repository.RoleRepository;
 import com.team.ResidentManagement.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,7 +23,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 
@@ -45,6 +48,8 @@ public class UserService {
     RoleRepository roleRepository;
     /** Repository phí để gán nghĩa vụ tài chính cho cư dân. */
     FeeRepository feeRepository;
+
+    FileStorageService  fileStorageService;
 
     /**
      * Tạo mới người dùng với vai trò USER mặc định.
@@ -99,6 +104,22 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
+    @Transactional
+    public User updateUserAvatar(String userId, MultipartFile file) throws IOException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.getAvatarUrl() != null) {
+            String oldFilename = extractFilenameFromUrl(user.getAvatarUrl());
+            fileStorageService.deleteFile(oldFilename);
+        }
+
+        String filename = fileStorageService.storeFile(file, userId.toString());
+        String fileUrl = "http://localhost:8080/api/files/" + filename;
+
+        user.setAvatarUrl(fileUrl);
+        return userRepository.save(user);
+    }
     /**
      * Xoá người dùng theo ID.
      */
@@ -127,5 +148,9 @@ public class UserService {
 
         return userMapper.toUserResponse(userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found")));
+    }
+
+    private String extractFilenameFromUrl(String url) {
+        return url.substring(url.lastIndexOf("/") + 1);
     }
 }

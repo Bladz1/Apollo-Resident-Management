@@ -39,9 +39,9 @@ public class ProfileService {
 
         User user = userRepository.findById(request.getUserId()).orElseThrow(()
                 ->new AppException(ErrorCode.USER_NOT_FOUND));
-        log.info("Hello Profile");
+
         String type = ProfileType.fromCode(request.getProfileType());
-        log.info("Profile Type {}", type);
+        
         profile.setStatus(ProfileStatus.PENDING);
         profile.setUser(user);
         profile.setType(type);
