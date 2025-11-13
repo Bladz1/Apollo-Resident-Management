@@ -49,6 +49,7 @@ public class UserService {
     /** Repository phí để gán nghĩa vụ tài chính cho cư dân. */
     FeeRepository feeRepository;
 
+    /** Dịch vụ lưu trữ file phục vụ avatar cư dân. */
     FileStorageService  fileStorageService;
 
     /**
@@ -104,6 +105,13 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
+    /**
+     * Cập nhật avatar người dùng.
+     * <p>
+     * Ảnh cũ sẽ bị xóa khỏi bộ nhớ nếu tồn tại để tránh rác, sau đó file mới được lưu và URL mới
+     * được cập nhật cho người dùng.
+     * </p>
+     */
     @Transactional
     public User updateUserAvatar(String userId, MultipartFile file) throws IOException {
         User user = userRepository.findById(userId)
@@ -150,6 +158,9 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found")));
     }
 
+    /**
+     * Trích xuất tên file từ đường dẫn URL của file.
+     */
     private String extractFilenameFromUrl(String url) {
         return url.substring(url.lastIndexOf("/") + 1);
     }

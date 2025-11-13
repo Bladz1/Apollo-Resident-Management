@@ -108,6 +108,7 @@ public class WantedService {
             add = new LinkedHashSet<>();
             for (String crime : request.getAddCrimes()) {
                 if (crime != null) {
+                    // Chuẩn hoá chuỗi tội danh, loại bỏ khoảng trắng đầu/cuối trước khi thêm.
                     String normalizedCrime = crime.trim();
                     if (!normalizedCrime.isEmpty()) add.add(normalizedCrime);
                 }
@@ -119,6 +120,7 @@ public class WantedService {
             remove = new LinkedHashSet<>();
             for (String crime : request.getRemoveCrimes()) {
                 if (crime != null) {
+                    // Chuẩn hoá tương tự khi xử lý danh sách cần xoá.
                     String normalizedCrime = crime.trim();
                     if (!normalizedCrime.isEmpty()) remove.add(normalizedCrime);
                 }
@@ -126,14 +128,17 @@ public class WantedService {
         }
 
         if (Boolean.TRUE.equals(request.getClearCrimes())) {
+            // Yêu cầu xoá toàn bộ tội danh hiện tại.
             crimes.clear();
         }
 
         if (remove != null && !remove.isEmpty()) {
+            // Loại bỏ các tội danh cụ thể mà request gửi lên.
             crimes.removeAll(remove);
         }
 
         if (add != null && !add.isEmpty()) {
+            // Bổ sung các tội danh mới vào danh sách.
             crimes.addAll(add);
         }
 
