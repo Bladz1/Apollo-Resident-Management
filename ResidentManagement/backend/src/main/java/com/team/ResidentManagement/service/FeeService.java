@@ -87,6 +87,7 @@ public class FeeService {
         Fee fee = feeRepository.findById(request.getId()).orElseThrow(() -> new AppException(ErrorCode.FEE_NOT_FOUND));
 
         if (user.getFees().contains(fee)){
+            // Khi cư dân xác nhận đã đóng phí, đặt amount về 0 để biểu thị đã thanh toán.
             fee.setAmount(0);
         }
         else throw new AppException(ErrorCode.FEE_NOT_BELONG_TO_USER);

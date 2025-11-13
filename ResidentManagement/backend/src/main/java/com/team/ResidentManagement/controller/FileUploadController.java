@@ -21,32 +21,41 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Controller xử lý upload và phục vụ file tĩnh (avatar người dùng).
+ */
 @RestController
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,  makeFinal = true)
 public class FileUploadController {
 
+    /** Dịch vụ lưu trữ file. */
     FileStorageService fileStorageService;
 
+    /** Dịch vụ người dùng để cập nhật avatar. */
     UserService userService;
 
+    /**
+     * Upload avatar mới cho người dùng, đồng thời cập nhật URL trong hồ sơ.
+     */
     @PostMapping("/upload-avatar")
     public ResponseEntity<?> uploadAvatar(
             @RequestParam("file") MultipartFile file,
             @RequestHeader("UserId") String userId) {
 
         try {
-            // Validate file
+            // Kiểm tra file có dữ liệu không.
             if (file.isEmpty()) {
                 return ResponseEntity.badRequest().body("File is empty");
             }
 
+            // Chỉ chấp nhận định dạng ảnh để đảm bảo tính toàn vẹn avatar.
             if (!isImageFile(file)) {
                 return ResponseEntity.badRequest().body("Only image files are allowed");
             }
 
-            // Update user avatar
+            // Cập nhật avatar người dùng và lấy lại thông tin mới nhất.
             User updatedUser = userService.updateUserAvatar(userId, file);
 
             Map<String, Object> response = new HashMap<>();
@@ -66,6 +75,9 @@ public class FileUploadController {
         }
     }
 
+    /**
+     * Trả file tĩnh theo tên để frontend hiển thị avatar.
+     */
     @GetMapping("/{filename:.+}")
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
         try {
@@ -84,11 +96,13 @@ public class FileUploadController {
         }
     }
 
+    /** Kiểm tra content-type của file có phải ảnh không. */
     private boolean isImageFile(MultipartFile file) {
         String contentType = file.getContentType();
         return contentType != null && contentType.startsWith("image/");
     }
 
+    /** Xác định content-type dựa trên đuôi file để trình duyệt hiển thị đúng. */
     private String determineContentType(String filename) {
         try {
             Path path = Paths.get(filename);

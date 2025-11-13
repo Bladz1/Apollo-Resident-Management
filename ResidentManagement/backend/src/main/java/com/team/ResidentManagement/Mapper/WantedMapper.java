@@ -10,7 +10,9 @@ import org.mapstruct.Mapper;
  */
 @Mapper(componentModel = "spring")
 public interface WantedMapper {
+    /** Ánh xạ thông tin truy nã gửi lên thành entity Wanted. */
     Wanted toWanted(WantedRequest request);
 
+    /** Chuyển entity Wanted thành DTO phản hồi chi tiết. */
     WantedResponse toWantedResponse(Wanted wanted);
 }
