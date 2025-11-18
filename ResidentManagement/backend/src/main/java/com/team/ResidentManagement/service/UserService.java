@@ -49,7 +49,7 @@ public class UserService {
     /** Repository phí để gán nghĩa vụ tài chính cho cư dân. */
     FeeRepository feeRepository;
 
-    FileStorageService fileStorageService;
+    FileStorageService  fileStorageService;
 
     /**
      * Tạo mới người dùng với vai trò USER mặc định.

@@ -30,10 +30,24 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProfileService {
+
+    /** Repository thao tác dữ liệu người dùng. */
     UserRepository userRepository;
+
+    /** Repository thao tác dữ liệu hồ sơ cư dân. */
     ProfileRepository profileRepository;
+
+    /** Mapper chuyển đổi giữa entity và DTO hồ sơ. */
     ProfileMapper profileMapper;
 
+    /**
+     * Tạo một hồ sơ cư trú mới cho người dùng.
+     * <p>
+     * Phương thức ánh xạ request sang entity, kiểm tra user tồn tại, thiết lập trạng
+     * thái chờ duyệt và khởi tạo lịch sử đầu tiên trước khi lưu vào cơ sở dữ liệu.
+     * Nếu hồ sơ đã tồn tại (vi phạm unique key) thì ném {@link AppException} phù hợp.
+     * </p>
+     */
     public ProfileResponse createProfile(ProfileRequest request){
         Profile profile = profileMapper.toProfile(request);
 
@@ -66,6 +80,12 @@ public class ProfileService {
         return profileMapper.toProfileResponse(profile);
     }
 
+    /**
+     * Lấy danh sách toàn bộ hồ sơ cư trú đã lưu.
+     * <p>
+     * Toàn bộ entity được ánh xạ sang {@link ProfileResponse} để trả về cho client.
+     * </p>
+     */
     public List<ProfileResponse> getProfiles(){
         return profileRepository.findAll()
                 .stream()

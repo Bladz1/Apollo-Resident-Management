@@ -1,10 +1,5 @@
 package com.team.ResidentManagement.service;
 
-import com.team.ResidentManagement.Mapper.UserMapper;
-import com.team.ResidentManagement.dto.response.ApiResponse;
-import com.team.ResidentManagement.dto.response.FileUploadResponse;
-import com.team.ResidentManagement.entity.User;
-import com.team.ResidentManagement.exception.ErrorCode;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,28 +17,28 @@ import java.nio.file.Paths;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,  makeFinal = true)
 public class FileStorageService {
 
-    private final UserMapper userMapper;
     @NonFinal
     @Value("${file.uploadDir}")
     protected String uploadDir;
 
     public String storeFile(MultipartFile file, String userId) throws IOException {
+        // Create upload directory if not exists
         Path uploadPath = Paths.get(uploadDir);
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
 
+        // Generate unique filename
         String filename = generateFileName(file.getOriginalFilename(), userId);
         Path filePath = uploadPath.resolve(filename);
 
+        // Save file
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
         return filename;

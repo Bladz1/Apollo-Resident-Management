@@ -11,7 +11,9 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface PermissionMapper {
 
+    /** Tạo entity Permission từ request. */
     Permission toPermission(PermissionRequest request);
 
+    /** Chuyển entity Permission thành response cho client. */
     PermissionResponse toPermissionResponse(Permission permission);
 }

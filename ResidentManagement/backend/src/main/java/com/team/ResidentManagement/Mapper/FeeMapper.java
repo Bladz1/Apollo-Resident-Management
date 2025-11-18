@@ -10,7 +10,9 @@ import org.mapstruct.Mapper;
  */
 @Mapper(componentModel = "spring")
 public interface FeeMapper {
+    /** Ánh xạ thông tin tạo khoản phí thành entity Fee. */
     Fee toFee(FeeRequest request);
 
+    /** Chuyển entity Fee thành DTO phản hồi. */
     FeeResponse toFeeResponse(Fee fee);
 }

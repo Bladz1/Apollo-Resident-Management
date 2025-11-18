@@ -1,21 +1,14 @@
 package com.team.ResidentManagement.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.team.ResidentManagement.Mapper.UserMapper;
-import com.team.ResidentManagement.dto.response.ApiResponse;
-import com.team.ResidentManagement.dto.response.FileUploadResponse;
 import com.team.ResidentManagement.entity.User;
-import com.team.ResidentManagement.exception.AppException;
-import com.team.ResidentManagement.exception.ErrorCode;
-import com.team.ResidentManagement.repository.UserRepository;
 import com.team.ResidentManagement.service.FileStorageService;
-import com.team.ResidentManagement.service.FileUploadService;
 import com.team.ResidentManagement.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,40 +27,43 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE,  makeFinal = true)
 public class FileUploadController {
 
-    FileUploadService fileUploadService;
     FileStorageService fileStorageService;
-    UserRepository userRepository;
-    private final UserMapper userMapper;
+
+    UserService userService;
 
     @PostMapping("/upload-avatar")
-    public ApiResponse<FileUploadResponse> uploadAvatar (@RequestParam("file") MultipartFile file, @RequestHeader("UserId") String userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    public ResponseEntity<?> uploadAvatar(
+            @RequestParam("file") MultipartFile file,
+            @RequestHeader("UserId") String userId) {
 
-        if (file.isEmpty()) {
-            return ApiResponse.<FileUploadResponse>builder()
-                    .result(FileUploadResponse.builder()
-                            .success(false)
-                            .message(ErrorCode.FILE_IS_EMPTY.getMessage())
-                            .avatarUrl(null)
-                            .user(userMapper.toUserResponse(user))
-                            .build())
-                    .build();
+        try {
+            // Validate file
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body("File is empty");
+            }
+
+            if (!isImageFile(file)) {
+                return ResponseEntity.badRequest().body("Only image files are allowed");
+            }
+
+            // Update user avatar
+            User updatedUser = userService.updateUserAvatar(userId, file);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Avatar uploaded successfully");
+            response.put("avatarUrl", updatedUser.getAvatarUrl());
+            response.put("user", updatedUser);
+
+            return ResponseEntity.ok(response);
+
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to upload file: " + e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
         }
-
-        if (!isImageFile(file)) {
-            return ApiResponse.<FileUploadResponse>builder()
-                    .result(FileUploadResponse.builder()
-                            .success(false)
-                            .message(ErrorCode.ONLY_FILE_ALLOW.getMessage())
-                            .avatarUrl(null)
-                            .user(userMapper.toUserResponse(user))
-                            .build())
-                    .build();
-        }
-
-        return ApiResponse.<FileUploadResponse>builder()
-                .result(fileUploadService.upload(file, userId))
-                .build();
     }
 
     @GetMapping("/{filename:.+}")
