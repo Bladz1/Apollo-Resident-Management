@@ -24,6 +24,9 @@ public enum ErrorCode {
     WANTED_NOT_FOUND(1011, "Wanted Not Found", HttpStatus.NOT_FOUND),
     PROFILE_NOT_FOUND(1012, "Profile Not Found", HttpStatus.NOT_FOUND),
     PROFILE_EXISTED(1013, "Profile Existed", HttpStatus.BAD_REQUEST),
+    FILE_IS_EMPTY(1014, "File is empty", HttpStatus.BAD_REQUEST),
+    ONLY_FILE_ALLOW(1015, "Only File Allowed ", HttpStatus.BAD_REQUEST),
+    UPLOAD_FAILED(1016, "Upload Failed", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
     /** Mã số lỗi nội bộ phục vụ phân loại. */

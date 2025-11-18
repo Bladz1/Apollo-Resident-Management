@@ -20,6 +20,8 @@ public class UserResponse {
     String firstName;
     String lastName;
     LocalDate birthday;
+    String email;
+    String avatarUrl;
     Set<RoleResponse> roles;
     Set<FeeResponse> fees;
 }
