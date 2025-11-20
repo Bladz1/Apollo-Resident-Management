@@ -10,8 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -24,12 +22,6 @@ public class FileUploadService {
         try {
             User updatedUser = userService.updateUserAvatar(userId, file);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Avatar uploaded successfully");
-            response.put("avatarUrl", updatedUser.getAvatarUrl());
-            response.put("user", updatedUser);
-
             return FileUploadResponse.builder()
                     .success(true)
                     .message("Avatar uploaded successfully")
@@ -37,18 +29,10 @@ public class FileUploadService {
                     .user(userMapper.toUserResponse(updatedUser))
                     .build();
 
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
             return FileUploadResponse.builder()
                     .success(false)
-                    .message("Avatar uploaded successfully")
-                    .avatarUrl("")
-                    .user(userService.getMyInfo())
-                    .build();
-
-        } catch (RuntimeException e) {
-            return FileUploadResponse.builder()
-                    .success(false)
-                    .message("RunTimeException " + e.getMessage())
+                    .message(e.getMessage())
                     .avatarUrl("")
                     .user(userService.getMyInfo())
                     .build();

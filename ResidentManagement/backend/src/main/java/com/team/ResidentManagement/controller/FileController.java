@@ -1,6 +1,5 @@
 package com.team.ResidentManagement.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team.ResidentManagement.Mapper.UserMapper;
 import com.team.ResidentManagement.dto.response.ApiResponse;
 import com.team.ResidentManagement.dto.response.FileUploadResponse;
@@ -10,7 +9,6 @@ import com.team.ResidentManagement.exception.ErrorCode;
 import com.team.ResidentManagement.repository.UserRepository;
 import com.team.ResidentManagement.service.FileStorageService;
 import com.team.ResidentManagement.service.FileUploadService;
-import com.team.ResidentManagement.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,14 +23,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.function.Function;
 
 @RestController
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,  makeFinal = true)
-public class FileUploadController {
+public class FileController {
 
     FileUploadService fileUploadService;
     FileStorageService fileStorageService;
@@ -43,32 +40,30 @@ public class FileUploadController {
     public ApiResponse<FileUploadResponse> uploadAvatar (@RequestParam("file") MultipartFile file, @RequestHeader("UserId") String userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
+        Function<ErrorCode, ApiResponse<FileUploadResponse>> error = errorCode ->
+                ApiResponse.<FileUploadResponse>builder()
+                        .result(FileUploadResponse.builder()
+                                .success(false)
+                                .message(errorCode.getMessage())
+                                .avatarUrl(null)
+                                .user(userMapper.toUserResponse(user))
+                                .build())
+                        .build();
+
         if (file.isEmpty()) {
-            return ApiResponse.<FileUploadResponse>builder()
-                    .result(FileUploadResponse.builder()
-                            .success(false)
-                            .message(ErrorCode.FILE_IS_EMPTY.getMessage())
-                            .avatarUrl(null)
-                            .user(userMapper.toUserResponse(user))
-                            .build())
-                    .build();
+            return error.apply(ErrorCode.FILE_IS_EMPTY);
         }
 
         if (!isImageFile(file)) {
-            return ApiResponse.<FileUploadResponse>builder()
-                    .result(FileUploadResponse.builder()
-                            .success(false)
-                            .message(ErrorCode.ONLY_FILE_ALLOW.getMessage())
-                            .avatarUrl(null)
-                            .user(userMapper.toUserResponse(user))
-                            .build())
-                    .build();
+            return error.apply(ErrorCode.ONLY_FILE_ALLOW);
         }
 
         return ApiResponse.<FileUploadResponse>builder()
                 .result(fileUploadService.upload(file, userId))
                 .build();
     }
+
+
 
     @GetMapping("/{filename:.+}")
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {

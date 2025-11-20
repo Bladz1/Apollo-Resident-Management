@@ -16,7 +16,9 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,6 +52,10 @@ public class UserService {
     FeeRepository feeRepository;
 
     FileStorageService  fileStorageService;
+
+    @NonFinal
+    @Value("${file.baseUrl}")
+    protected String baseUrl;
 
     /**
      * Tạo mới người dùng với vai trò USER mặc định.
@@ -115,7 +121,7 @@ public class UserService {
         }
 
         String filename = fileStorageService.storeFile(file, userId.toString());
-        String fileUrl = "http://localhost:8080/api/files/" + filename;
+        String fileUrl = baseUrl + "/api/files/" + filename;
 
         user.setAvatarUrl(fileUrl);
         return userRepository.save(user);
