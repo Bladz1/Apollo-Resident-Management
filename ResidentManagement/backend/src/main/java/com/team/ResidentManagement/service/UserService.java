@@ -19,6 +19,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -94,6 +96,7 @@ public class UserService {
     /**
      * Cập nhật thông tin, vai trò và các khoản phí của người dùng.
      */
+    @Cacheable(value = "users", key = "#UserId")
     public UserResponse updateUser(String UserId, UserUpdateRequest request) {
         User user = userRepository.findById(UserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -129,6 +132,7 @@ public class UserService {
     /**
      * Xoá người dùng theo ID.
      */
+    @CacheEvict(value = "users", key = "#UserId")
     public String deleteUser(String UserId) {
         if (userRepository.existsById(UserId)) {
             userRepository.deleteById(UserId);
@@ -139,6 +143,7 @@ public class UserService {
     /**
      * Lấy danh sách toàn bộ người dùng (chỉ admin được phép).
      */
+    @Cacheable(value = "users", key = "'all'")
     @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> getUsers() {
         return userRepository.findAll().stream()
@@ -149,6 +154,7 @@ public class UserService {
     /**
      * Lấy người dùng theo ID và chỉ cho phép xem nếu là chính mình.
      */
+    @Cacheable(value = "users", key = "#id")
     @PostAuthorize("returnObject.username = authentication.name")
     public UserResponse getUser(String id) {
 
