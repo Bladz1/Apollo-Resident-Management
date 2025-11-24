@@ -9,6 +9,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,6 +32,7 @@ public class PermissionService {
     /**
      * Tạo mới quyền dựa trên thông tin request.
      */
+    @CacheEvict(value = "permissions", allEntries = true)
     public PermissionResponse create(PermissionRequest request){
         Permission permission = permissionMapper.toPermission(request);
 
@@ -39,6 +42,7 @@ public class PermissionService {
     /**
      * Lấy toàn bộ quyền hiện có trong hệ thống.
      */
+    @Cacheable(value = "permissions", key = "'all'")
     public List<PermissionResponse> getAll(){
         var permissions = permissionRepository.findAll();
         return permissions.stream().map(permissionMapper::toPermissionResponse).toList();
@@ -47,6 +51,7 @@ public class PermissionService {
     /**
      * Xoá quyền theo tên.
      */
+    @CacheEvict(value = "permissions", allEntries = true)
     public void delete(String permission){
         permissionRepository.deleteById(permission);
     }

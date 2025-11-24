@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -35,6 +37,7 @@ public class RoleService {
     /**
      * Tạo mới vai trò kèm danh sách quyền.
      */
+    @CacheEvict(value = "roles", allEntries = true)
     public RoleResponse createRole(RoleRequest request){
         var role = roleMapper.toRole(request);
 
@@ -48,6 +51,7 @@ public class RoleService {
     /**
      * Trả về toàn bộ vai trò hiện có.
      */
+    @Cacheable(value = "keys", key = "'all'")
     public List<RoleResponse> getAllRoles(){
         return roleRepository.findAll()
                 .stream()
@@ -58,6 +62,7 @@ public class RoleService {
     /**
      * Xoá vai trò theo tên.
      */
+    @CacheEvict(value = "roles", allEntries = true)
     public void deleteRole(String role){
         roleRepository.deleteById(role);
     }

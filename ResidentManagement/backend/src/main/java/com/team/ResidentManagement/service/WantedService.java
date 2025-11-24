@@ -13,7 +13,8 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -24,7 +25,6 @@ import java.util.Set;
 /**
  * Dịch vụ xử lý hồ sơ truy nã và cập nhật danh sách tội danh.
  */
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -39,6 +39,7 @@ public class WantedService {
     /**
      * Tạo mới hồ sơ truy nã.
      */
+    @CacheEvict(value = "wanted", allEntries = true)
     public WantedResponse create(WantedRequest request) {
         Wanted wanted = wantedMapper.toWanted(request);
 
@@ -48,6 +49,7 @@ public class WantedService {
     /**
      * Lấy danh sách toàn bộ hồ sơ truy nã.
      */
+    @Cacheable(value = "wanted", key = "'all'")
     public List<WantedResponse> getAll(){
         return wantedRepository.findAll()
                 .stream()
@@ -58,6 +60,7 @@ public class WantedService {
     /**
      * Lấy chi tiết một hồ sơ truy nã theo ID.
      */
+    @Cacheable(value = "wanted", key = "#wantedId")
     public WantedResponse getWantedByWantedId(String wantedId){
         Wanted wanted = wantedRepository.findById(wantedId).orElseThrow(() -> new AppException(ErrorCode.WANTED_NOT_FOUND));
 
@@ -73,6 +76,7 @@ public class WantedService {
     /**
      * Cập nhật thông tin cơ bản của hồ sơ truy nã.
      */
+    @CacheEvict(value = "wanted",  allEntries = true)
     @Transactional
     public WantedResponse updateWanted(String id, WantedUpdateRequest request) {
         Wanted wanted =  wantedRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.WANTED_NOT_FOUND));
@@ -95,6 +99,7 @@ public class WantedService {
     /**
      * Thêm/bớt danh sách tội danh cho hồ sơ truy nã.
      */
+    @CacheEvict(value = "wanted", allEntries = true)
     @Transactional
     public WantedResponse patchCrimes(String id, WantedCrimePatchRequest request) {
 
