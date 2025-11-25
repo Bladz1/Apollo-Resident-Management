@@ -14,7 +14,7 @@ import java.io.IOException;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,  makeFinal = true)
-public class FileUploadService {
+public class ProfileImageUploadService {
     UserMapper userMapper;
     UserService userService;
 
