@@ -8,7 +8,7 @@ import com.team.ResidentManagement.exception.AppException;
 import com.team.ResidentManagement.exception.ErrorCode;
 import com.team.ResidentManagement.repository.UserRepository;
 import com.team.ResidentManagement.service.FileStorageService;
-import com.team.ResidentManagement.service.FileUploadService;
+import com.team.ResidentManagement.service.ProfileImageUploadService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -31,7 +31,7 @@ import java.util.function.Function;
 @FieldDefaults(level = AccessLevel.PRIVATE,  makeFinal = true)
 public class FileController {
 
-    FileUploadService fileUploadService;
+    ProfileImageUploadService profileImageUploadService;
     FileStorageService fileStorageService;
     UserRepository userRepository;
     private final UserMapper userMapper;
@@ -59,28 +59,8 @@ public class FileController {
         }
 
         return ApiResponse.<FileUploadResponse>builder()
-                .result(fileUploadService.upload(file, userId))
+                .result(profileImageUploadService.upload(file, userId))
                 .build();
-    }
-
-
-
-    @GetMapping("/{filename:.+}")
-    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
-        try {
-            Resource file = fileStorageService.loadFileAsResource(filename);
-
-            String contentType = determineContentType(filename);
-
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "inline; filename=\"" + file.getFilename() + "\"")
-                    .body(file);
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
     }
 
     private boolean isImageFile(MultipartFile file) {
