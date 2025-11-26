@@ -97,7 +97,7 @@ export function NewsPageClient({ initialArticles }: NewsPageClientProps) {
     void fetchCategoryArticles();
 
     return () => controller.abort();
-  }, [selectedCategory, refreshIndex, NEWS_API_BASE]);
+  }, [selectedCategory, refreshIndex]);
 
   const categoryOptions = useMemo(() => {
     const keys = Object.keys(CATEGORY_LABELS) as CategoryKey[];
