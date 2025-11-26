@@ -83,7 +83,7 @@ export default function PetitionPage() {
             <li>Điền đầy đủ thông tin người gửi để thuận tiện xác minh và phản hồi.</li>
             <li>Nhập tiêu đề và nội dung kiến nghị bằng trình soạn thảo hỗ trợ định dạng.</li>
             <li>Đính kèm tài liệu, hình ảnh minh chứng (nếu có).</li>
-            <li>Kiểm tra thông tin và nhấn "Gửi" để hoàn tất.</li>
+            <li>Kiểm tra thông tin và nhấn &ldquo;Gửi&rdquo; để hoàn tất.</li>
             <li>Hệ thống sẽ gửi email xác nhận khi cung cấp địa chỉ liên hệ hợp lệ.</li>
           </ol>
         </section>
