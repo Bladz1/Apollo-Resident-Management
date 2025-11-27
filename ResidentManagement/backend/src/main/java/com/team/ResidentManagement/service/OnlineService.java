@@ -22,11 +22,28 @@ public class OnlineService {
     public void updateOnlineStatus(OnlineRequest request) {
         String key = "online:" + request.getUserId();
         redisTemplate.opsForValue().set(key, "1", ONLINE_TTL);
+
+        Boolean existsImmediately = redisTemplate.hasKey(key);
+        String value = redisTemplate.opsForValue().get(key);
+        System.out.println("DEBUG - After set:");
+        System.out.println("  Key: " + key);
+        System.out.println("  Exists: " + existsImmediately);
+        System.out.println("  Value: " + value);
+        System.out.println("  TTL: " + redisTemplate.getExpire(key));
     }
 
     public OnlineResponse isOnline(String userId) {
+        String key = "online:" + userId;
+        Boolean exists = redisTemplate.hasKey(key);
+        String value = redisTemplate.opsForValue().get(key);
+
+        System.out.println("DEBUG - When checking:");
+        System.out.println("  Key: " + key);
+        System.out.println("  Exists: " + exists);
+        System.out.println("  Value: " + value);
+
         return OnlineResponse.builder()
-                .online(redisTemplate.hasKey("online:" + userId))
+                .online(exists)
                 .build();
     }
 }

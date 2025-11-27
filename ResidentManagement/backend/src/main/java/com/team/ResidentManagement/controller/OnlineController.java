@@ -5,8 +5,10 @@ import com.team.ResidentManagement.dto.response.ApiResponse;
 import com.team.ResidentManagement.dto.response.OnlineResponse;
 import com.team.ResidentManagement.service.OnlineService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/online")
 @RequiredArgsConstructor
@@ -16,7 +18,7 @@ public class OnlineController {
 
     // 🔵 Client heartbeat every 30 seconds
     @PostMapping("/ping")
-    public void ping(OnlineRequest request) {
+    public void ping(@RequestBody OnlineRequest request) {
         onlineService.updateOnlineStatus(request);
     }
 
