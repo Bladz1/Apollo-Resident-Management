@@ -252,5 +252,3 @@ export function AuthTester({ copy }: { copy: AuthTesterCopy }) {
     </div>
   );
 }
-
-export default AuthTester;
