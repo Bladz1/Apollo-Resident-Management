@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { services, wantedPersons } from "../data";
@@ -40,9 +41,11 @@ export default function WantedInformationPage() {
                 className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-slate-900/60 p-5 shadow-xl shadow-black/30 transition hover:-translate-y-1 hover:border-red-400/60"
               >
                 <div className="flex items-center gap-4">
-                  <img
+                  <Image
                     src={person.imageUrl}
                     alt={person.name}
+                    width={96}
+                    height={96}
                     className="h-24 w-24 rounded-2xl object-cover shadow-lg shadow-black/40"
                   />
                   <div>
