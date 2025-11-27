@@ -165,7 +165,7 @@ function deriveIdFromJwt(token: string | null | undefined): string | null {
     return null;
   }
 
-  const id = pickString(claims, ['uid', 'user_id', 'sub', 'id']);
+  const id = pickString(claims, ['uid', 'user_id', 'sub', 'id', "userId"]);
 
   return id ?? null;
 }
