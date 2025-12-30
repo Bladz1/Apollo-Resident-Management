@@ -63,6 +63,16 @@ public class FileController {
                 .build();
     }
 
+    @GetMapping("/avatar/{filename}")
+    public ResponseEntity<Resource> getAvatar(@PathVariable String filename) throws IOException {
+        Resource resource = fileStorageService.loadFileAsResource(filename);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, determineContentType(filename))
+                .body(resource);
+    }
+
+
     private boolean isImageFile(MultipartFile file) {
         String contentType = file.getContentType();
         return contentType != null && contentType.startsWith("image/");
