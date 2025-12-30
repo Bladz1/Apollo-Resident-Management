@@ -37,8 +37,9 @@ public class FeeService {
     /**
      * Tạo khoản phí mới (chỉ dành cho admin).
      */
-    @PreAuthorize("{hasRole('ADMIN')}")
+    @PreAuthorize("hasRole('ADMIN')")
     public FeeResponse create(FeeRequest request){
+
         Fee fee = feeMapper.toFee(request);
 
         return feeMapper.toFeeResponse(feeRepository.save(fee));

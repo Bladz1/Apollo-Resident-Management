@@ -113,6 +113,7 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
+    @CacheEvict(value = "users", key = "#userId")
     @Transactional
     public User updateUserAvatar(String userId, MultipartFile file) throws IOException {
         User user = userRepository.findById(userId)
