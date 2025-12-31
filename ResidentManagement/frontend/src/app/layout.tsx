@@ -30,8 +30,8 @@ export default function RootLayout({
       <body className={`${inter.variable} ${beVietnamPro.variable} antialiased`}>
         <Header />
         <HeartBeat></HeartBeat>
-        <main>{children}
-
+        <main>
+          {children}
         </main>
         <footer className="bg-gray-800 text-white text-center p-4">
           <p>&copy; 2025 Hệ thống Quản lý Dân cư. Hotline: 1800 1096</p>

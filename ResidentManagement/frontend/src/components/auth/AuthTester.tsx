@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { FormEvent, useState } from 'react';
+import styles from "@/custom_css/auth.module.css"
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8080/resident-management';
 
@@ -217,38 +218,6 @@ export function AuthTester({ copy }: { copy: AuthTesterCopy }) {
           </div>
         </aside>
       </div>
-
-      <style jsx global>{`
-        .login-grid {
-          position: absolute;
-          inset: 0;
-          background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-          background-size: 46px 46px;
-          opacity: 0.5;
-        }
-
-        .login-orb {
-          position: absolute;
-          width: 340px;
-          height: 340px;
-          border-radius: 9999px;
-          filter: blur(90px);
-          opacity: 0.75;
-        }
-
-        .orb-top {
-          top: -6rem;
-          right: -6rem;
-          background: radial-gradient(circle, rgba(248, 113, 113, 0.55), transparent 65%);
-        }
-
-        .orb-bottom {
-          bottom: -8rem;
-          left: -4rem;
-          background: radial-gradient(circle, rgba(251, 191, 36, 0.45), transparent 70%);
-        }
-      `}</style>
     </div>
   );
 }
