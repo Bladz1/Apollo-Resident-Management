@@ -9,7 +9,7 @@ import steps from "./data/steps_data";
 import UserWelcome from "@/components/auth/UserWelcome";
 
 export default function Home() {
-  
+
   return (
     <div>
       <ScrollToTop></ScrollToTop>
@@ -46,7 +46,7 @@ export default function Home() {
                     </div>
                   ),
                 )}
-              </div>
+              </div>  
             </div>
 
             <div className="relative flex flex-col items-center gap-6 lg:items-start">
@@ -90,97 +90,118 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="relative border-y border-white/5 bg-slate-900/60">
-          <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 via-transparent to-red-500/10" aria-hidden />
+        <section className="relative  bg-white">
           <div className="relative z-10 mx-auto max-w-6xl px-4 py-16 sm:px-6">
-            <h2 className={`${styles["section-title"]}`}>
-              <span className={`${styles["section-icon"]}`}>⚠️</span>
+            <h2 className={styles["section-title"]}>
+              <span className={styles["section-icon"]}>⚠️</span>
               Cảnh báo và Thông báo quan trọng
             </h2>
+
             <div className={`grid gap-6 md:grid-cols-2 ${styles["wrapper"]}`}>
               {alerts.map((alert, index) => (
                 <article
                   key={alert.title}
-                  className="group rounded-2xl border border-red-500/20 bg-red-500/10 p-6 shadow-lg shadow-red-900/20 transition duration-500 hover:translate-y-[-6px] hover:border-red-400/60 hover:bg-red-500/20"
+                  className="group rounded-2xl border border-red-300 bg-white p-6 shadow transition duration-500 hover:-translate-y-1 hover:border-red-500"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-red-200">
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-red-500/30 text-xs">{alert.level}</span>
+                  <div className="flex items-center gap-2 text-sm font-semibold uppercase text-black">
+                    
                     {alert.title}
                   </div>
-                  <p className="mt-3 text-sm leading-relaxed text-slate-100">{alert.content}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-gray-700">
+                    {alert.content}
+                  </p>
                 </article>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="relative bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+
+        <section className="relative bg-white border-white">
           <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-            <h2 className={`${styles["section-title"]}`}>
-              <span className={`${styles["section-icon"]}`}>📰</span>
+            <h2 className={styles["section-title"]}>
+              <span className={styles["section-icon"]}>📰</span>
               Tin tức và cập nhật hệ thống
             </h2>
+
             <div className="grid gap-6 lg:grid-cols-3">
               {news.map((item, index) => (
                 <article
                   key={item.title}
-                  className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur transition duration-500 hover:-translate-y-2 hover:border-white/40 hover:bg-white/10"
+                  className="group rounded-2xl border border-red-300 bg-white p-6 transition duration-500 hover:-translate-y-1 hover:border-red-500"
                   style={{ animationDelay: `${index * 0.12}s` }}
                 >
-                  <p className="text-xs font-semibold uppercase tracking-wide text-rose-200">{item.date}</p>
-                  <h3 className="mt-3 text-lg font-semibold text-white group-hover:text-rose-200">{item.title}</h3>
-                  <p className="mt-3 text-sm text-slate-200 leading-relaxed">{item.description}</p>
-                  <div className="mt-6 flex items-center gap-2 text-xs font-semibold text-rose-200 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-                    Xem chi tiết
-                    <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-                  </div>
+                  <p className="text-xs font-semibold uppercase text-gray-500">
+                    {item.date}
+                  </p>
+                  <h3 className="mt-3 text-lg font-semibold text-black">
+                    {item.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-gray-700">
+                    {item.description}
+                  </p>
+                  
                 </article>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="relative border-t border-white/5 bg-slate-950/90">
-          <div className={`absolute inset-0 ${styles["hero-grid"]}`} aria-hidden />
+
+        <section className="relative  bg-white">
           <div className="relative z-10 mx-auto max-w-6xl px-4 py-16 sm:px-6">
-            <h2 className={`${styles["section-title"]}`}>
-              <span className={`${styles["section-icon"]}`}>🛠️</span>
+            <h2 className={styles["section-title"]}>
+              <span className={styles["section-icon"]}>🛠️</span>
               Hướng dẫn sử dụng dành cho người dân
             </h2>
+
             <div className="grid gap-6 md:grid-cols-3">
               {steps.map((step, index) => (
                 <article
                   key={step.title}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur transition duration-500 hover:-translate-y-2 hover:border-amber-300/60 hover:bg-white/10"
+                  className="rounded-2xl border border-red-300 bg-white p-6 transition duration-500 hover:-translate-y-1 hover:border-red-500"
                   style={{ animationDelay: `${index * 0.12}s` }}
                 >
-                  <h3 className="text-lg font-semibold text-white">{step.title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-slate-200">{step.detail}</p>
+                  <h3 className="text-lg font-semibold text-black">
+                    {step.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-gray-700">
+                    {step.detail}
+                  </p>
                 </article>
               ))}
             </div>
           </div>
         </section>
 
-        <section id="support" className="relative bg-gradient-to-r from-amber-400/20 via-transparent to-red-500/20">
+
+        <section id="support" className="relative bg-white">
           <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-            <div className="grid gap-8 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl md:grid-cols-[1.2fr_0.8fr] md:p-8">
+            <div className="grid gap-8 rounded-3xl bg-white p-6 md:grid-cols-[1.2fr_0.8fr] md:p-8">
               <div className="space-y-3">
-                <p className="text-sm font-semibold uppercase tracking-wide text-amber-200">Cần hỗ trợ thêm?</p>
-                <h2 className="text-2xl font-bold text-white">Đội ngũ chăm sóc luôn sẵn sàng 24/7</h2>
-                <p className="text-sm text-slate-200">
-                  Nhận tư vấn về quy trình cư trú, báo cáo sự cố hoặc gửi góp ý trực tiếp đến cán bộ quản lý. Tất cả yêu cầu đều được phản hồi trong vòng 15 phút.
+                <p className="text-sm font-semibold uppercase text-gray-500">
+                  Cần hỗ trợ thêm?
+                </p>
+                <h2 className="text-2xl font-bold text-black">
+                  Đội ngũ chăm sóc luôn sẵn sàng 24/7
+                </h2>
+                <p className="text-sm text-gray-700">
+                  Nhận tư vấn về quy trình cư trú, báo cáo sự cố hoặc gửi góp ý trực tiếp đến
+                  cán bộ quản lý.
                 </p>
               </div>
-              <div className="grid gap-4 text-sm text-slate-100">
-                <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/10 bg-white/5 p-4">
+
+              <div className="grid gap-4 text-sm text-black">
+                <div className="flex items-center justify-between rounded-2xl border border-gray-300 p-4">
                   <span className="font-medium">Hotline phản ánh</span>
                   <strong className="text-lg">1800 1096</strong>
                 </div>
-                <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div className="flex items-center justify-between rounded-2xl border border-gray-300 p-4">
                   <span className="font-medium">Email hỗ trợ</span>
-                  <strong className="text-lg text-balance">hotro@quanlycuutru.gov.vn</strong>
+                  <strong className="text-lg">
+                    hotro@quanlycuutru.gov.vn
+                  </strong>
                 </div>
               </div>
             </div>
