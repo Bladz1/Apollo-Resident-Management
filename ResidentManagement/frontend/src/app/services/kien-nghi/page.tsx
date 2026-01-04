@@ -40,13 +40,45 @@ export default function PetitionPage() {
     handlePetitionChange("content", editorRef.current.innerHTML);
   };
 
-  const handlePetitionSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handlePetitionSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    // 1. QUAN TRỌNG NHẤT: Phải có dòng này thì mới không bị reload trang
     event.preventDefault();
 
-    setPetitionStatus("success");
-    setPetitionMessage(
-      "Kiến nghị đã được ghi nhận. Hệ thống sẽ gửi email xác nhận nếu bạn cung cấp địa chỉ email hợp lệ.",
-    );
+    setPetitionMessage("Đang gửi dữ liệu...");
+
+    try {
+      const formData = new FormData();
+      formData.append("fullName", petitionState.fullName);
+      formData.append("email", petitionState.email);
+      formData.append("phone", petitionState.phone);
+      formData.append("address", petitionState.address);
+      formData.append("title", petitionState.title);
+      formData.append("content", petitionState.content); 
+      
+      if (petitionState.attachment) {
+        formData.append("attachment", petitionState.attachment);
+      }
+
+      // 2. Sửa lại đường dẫn API. 
+      const response = await fetch("/feedbacks/userid", { 
+        method: "POST",
+        body: formData, 
+      });
+
+      if (!response.ok) {
+        throw new Error("Lỗi kết nối server");
+      }
+
+      const data = await response.json(); 
+
+      setPetitionStatus("success");
+      setPetitionMessage(
+        "Gửi thành công! Mã: " + (data.id || "Mới")
+      );
+    } catch (error) {
+      setPetitionStatus("error");
+      setPetitionMessage("Đã xảy ra lỗi khi gửi kiến nghị.");
+    }
   };
 
   const handlePetitionReset = () => {
