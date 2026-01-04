@@ -15,9 +15,6 @@ public class ProfileAttachment {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    Profile profile;
-
     @Column(nullable = false)
     String fileName;
 

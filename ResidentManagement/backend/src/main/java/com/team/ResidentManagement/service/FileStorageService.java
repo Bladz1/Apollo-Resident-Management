@@ -29,7 +29,7 @@ public class FileStorageService {
     @Value("${file.uploadDir}")
     protected String uploadDir;
 
-    public String storeFile(MultipartFile file, String userId) throws IOException {
+    public String upload(MultipartFile file, String userId) throws IOException {
         Path uploadPath = Paths.get(uploadDir);
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
@@ -65,7 +65,7 @@ public class FileStorageService {
 
     private String generateFileName(String originalFileName, String userId) {
         String extension = getFileExtension(originalFileName);
-        return "avatar-" + userId + "-" + System.currentTimeMillis() + extension;
+        return "avatar-" + userId + extension;
     }
 
     private String getFileExtension(String filename) {

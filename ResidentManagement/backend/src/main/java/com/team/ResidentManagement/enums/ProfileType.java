@@ -26,7 +26,7 @@ public enum ProfileType {
     public static String fromCode(String code){
         for (ProfileType type : values()){
             if (type.code.equals(code)){
-                return type.type;
+                return type.code;
             }
         }
         throw new IllegalArgumentException("Unknown profile type: " + code);
