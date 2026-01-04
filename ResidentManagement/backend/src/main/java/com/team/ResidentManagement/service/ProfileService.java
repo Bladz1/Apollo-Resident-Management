@@ -51,18 +51,13 @@ public class ProfileService {
     public ProfileResponse createProfile(ProfileRequest request){
         Profile profile = profileMapper.toProfile(request);
 
-        User user = userRepository.findById(request.getUserId()).orElseThrow(()
-                ->new AppException(ErrorCode.USER_NOT_FOUND));
-
         String type = ProfileType.fromCode(request.getProfileType());
         
         profile.setStatus(ProfileStatus.PENDING);
-        profile.setUser(user);
         profile.setType(type);
 
         ProfileHistory profileHistory = ProfileHistory.builder()
                 .action(ProfileAction.SUBMITTED)
-                .profile(profile)
                 .description("submitted")
                 .build();
 

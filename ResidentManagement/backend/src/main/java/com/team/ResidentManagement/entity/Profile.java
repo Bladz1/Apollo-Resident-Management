@@ -25,7 +25,7 @@ public class Profile {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    User user;
+    User fullname;
 
     @Column(nullable = false)
     String title;
@@ -44,17 +44,17 @@ public class Profile {
     String email;
 
     @Column(nullable = false)
-    String phoneNumber;
+    String phone;
 
     @Column(nullable = false)
     String  address;
 
     @Column(nullable = true)
-    String description;
+    String content;
 
-    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<ProfileAttachment> attachments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, fetch =  FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch =  FetchType.LAZY)
     List<ProfileHistory> history = new ArrayList<>();
 }

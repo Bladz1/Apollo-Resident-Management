@@ -36,7 +36,7 @@ public class FileController {
     UserRepository userRepository;
     private final UserMapper userMapper;
 
-    @PostMapping("/upload-avatar")
+    @PostMapping("/upload-file")
     public ApiResponse<FileUploadResponse> uploadAvatar (@RequestParam("file") MultipartFile file, @RequestHeader("UserId") String userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -54,7 +54,7 @@ public class FileController {
             return error.apply(ErrorCode.FILE_IS_EMPTY);
         }
 
-        if (!isImageFile(file)) {
+        if (!determineContentType(file.getOriginalFilename()).equals("image/png")) {
             return error.apply(ErrorCode.ONLY_FILE_ALLOW);
         }
 
