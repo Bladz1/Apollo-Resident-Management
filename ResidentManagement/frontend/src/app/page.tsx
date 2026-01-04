@@ -1,6 +1,6 @@
-'use client'; // 1. BẮT BUỘC: Để dùng được useState
+'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LoginCtaButton from "@/components/auth/LoginCtaButton";
 import ScrollToTop from "@/utils/scroll_to_top";
 import styles from "./custom_css/css.module.css";
@@ -10,21 +10,53 @@ import news from "./data/news_data";
 import steps from "./data/steps_data";
 import UserWelcome from "@/components/auth/UserWelcome";
 
-// 2. Import màn hình chờ (đảm bảo đường dẫn đúng với nơi bạn lưu file)
-// Nếu file WelcomeScreen.tsx nằm trực tiếp trong thư mục components:
+// Import màn hình chờ
 import WelcomeScreen from "@/components/WelcomeScreen"; 
-// Hoặc nếu bạn đã tạo thư mục con 'welcome', hãy đổi thành: "@/components/welcome/WelcomeScreen"
 
 export default function Home() {
-  // 3. Tạo biến trạng thái để kiểm soát hiển thị
+  // 1. State kiểm soát hiển thị
+  const [showWelcome, setShowWelcome] = useState(false);
   const [showContent, setShowContent] = useState(false);
+  const [isChecking, setIsChecking] = useState(true); // Trạng thái đang kiểm tra storage
+
+  useEffect(() => {
+    // 2. Kiểm tra sessionStorage khi vừa vào trang
+    const hasVisited = sessionStorage.getItem('hasVisitedPortfolio');
+
+    if (hasVisited) {
+      // Nếu đã vào rồi -> Hiện nội dung luôn, không hiện Welcome
+      setShowContent(true);
+      setShowWelcome(false);
+    } else {
+      // Nếu chưa vào -> Hiện Welcome
+      setShowWelcome(true);
+      setShowContent(false);
+    }
+    
+    // Đã kiểm tra xong
+    setIsChecking(false);
+  }, []);
+
+  const handleWelcomeComplete = () => {
+    // 3. Khi Welcome chạy xong -> Lưu vào bộ nhớ là "Đã xem"
+    sessionStorage.setItem('hasVisitedPortfolio', 'true');
+    
+    // Tắt Welcome, hiện nội dung chính
+    setShowWelcome(false);
+    setShowContent(true);
+  };
+
+  // Tránh nháy giao diện lúc đang load check storage
+  if (isChecking) return <div className="min-h-screen bg-slate-950"></div>;
 
   return (
     <main>
-      {/* 4. Màn hình chờ luôn được render trước */}
-      <WelcomeScreen onLoadingComplete={() => setShowContent(true)} />
+      {/* 4. Chỉ hiện Welcome khi biến showWelcome = true */}
+      {showWelcome && (
+        <WelcomeScreen onLoadingComplete={handleWelcomeComplete} />
+      )}
 
-      {/* 5. Nội dung chính chỉ hiện khi showContent = true */}
+      {/* 5. Nội dung chính */}
       {showContent && (
         <div className="animate-[fadeIn_1s_ease-in-out]"> 
           {/* --- BẮT ĐẦU NỘI DUNG CŨ CỦA BẠN --- */}

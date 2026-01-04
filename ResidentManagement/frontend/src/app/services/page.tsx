@@ -93,8 +93,8 @@ export default function ServicesPage() {
 
             <ul className="mt-4 space-y-2 text-sm text-gray-700">
               {service.features.map((feature) => (
-                <li key={feature} className="flex items-start gap-3">
-                  <span className="mt-1 inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-red-100 text-xs font-semibold text-black">
+                <li key={feature} className="flex items-center gap-3">
+                  <span className="inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-red-100 text-xs font-semibold text-black">
                     ✓
                   </span>
                   <span>{feature}</span>
