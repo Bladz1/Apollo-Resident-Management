@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+import { TOKEN_KEY } from '@/utils/auth-storage';
 
 const overviewStats = [
   { label: 'Hồ sơ chờ duyệt', value: '128', trend: '+12', trendLabel: 'so với hôm qua' },
@@ -59,30 +61,96 @@ const automationRules = [
   },
 ];
 
-type ComplaintStatus = 'pending' | 'accepted' | 'rejected';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8080';
+
+type FeedbackStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
 
 type Complaint = {
-  fullName: string;
+  id: string;
+  name: string;
   phone: string;
   email: string;
   address: string;
-  status: ComplaintStatus;
+  status: FeedbackStatus;
+  title?: string;
 };
 
-const complaints: Complaint[] = [
-  { fullName: 'Nguyễn Văn A', phone: '0901 234 567', email: 'nguyenvana@gmail.com', address: 'Quận 1, TP.HCM', status: 'pending' },
-  { fullName: 'Trần Thị B', phone: '0987 654 321', email: 'tranthib@yahoo.com', address: 'Hà Đông, Hà Nội', status: 'pending' },
-];
+type ApiResponse<T> = {
+  result: T;
+};
 
 export default function AdminDashboardPage() {
-  const [localComplaints, setLocalComplaints] = useState<Complaint[]>(complaints);
+  const [localComplaints, setLocalComplaints] = useState<Complaint[]>([]);
+  const [loadingComplaints, setLoadingComplaints] = useState(true);
+  const [complaintError, setComplaintError] = useState<string | null>(null);
 
-  const handleAccept = (i: number) => {
-    setLocalComplaints((prev) => prev.map((c, idx) => (idx === i ? { ...c, status: 'accepted' } : c)));
+  const loadComplaints = async () => {
+    setLoadingComplaints(true);
+    setComplaintError(null);
+
+    try {
+      const token = localStorage.getItem(TOKEN_KEY);
+      const headers: Record<string, string> = { Accept: 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const response = await fetch(`${API_BASE_URL}/feedbacks`, { headers });
+      if (!response.ok) {
+        const detail = await response.text();
+        throw new Error(detail || 'Không thể tải danh sách phản ánh.');
+      }
+
+      const data = (await response.json()) as ApiResponse<Complaint[]>;
+      setLocalComplaints(data.result ?? []);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Không thể tải danh sách phản ánh.';
+      setComplaintError(message);
+    } finally {
+      setLoadingComplaints(false);
+    }
   };
 
-  const handleReject = (i: number) => {
-    setLocalComplaints((prev) => prev.map((c, idx) => (idx === i ? { ...c, status: 'rejected' } : c)));
+  useEffect(() => {
+    void loadComplaints();
+  }, []);
+
+  const updateStatus = async (id: string, status: FeedbackStatus) => {
+    const token = localStorage.getItem(TOKEN_KEY);
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    const response = await fetch(`${API_BASE_URL}/feedbacks/${id}/status`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({ status }),
+    });
+
+    if (!response.ok) {
+      const detail = await response.text();
+      throw new Error(detail || 'Cập nhật trạng thái thất bại.');
+    }
+
+    const data = (await response.json()) as ApiResponse<Complaint>;
+    return data.result;
+  };
+
+  const handleAccept = async (id: string) => {
+    try {
+      const updated = await updateStatus(id, 'ACCEPTED');
+      setLocalComplaints((prev) => prev.map((c) => (c.id === id ? { ...c, status: updated.status } : c)));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Cập nhật trạng thái thất bại.';
+      setComplaintError(message);
+    }
+  };
+
+  const handleReject = async (id: string) => {
+    try {
+      const updated = await updateStatus(id, 'REJECTED');
+      setLocalComplaints((prev) => prev.map((c) => (c.id === id ? { ...c, status: updated.status } : c)));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Cập nhật trạng thái thất bại.';
+      setComplaintError(message);
+    }
   };
 
   return (
@@ -180,6 +248,12 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
+            {complaintError && (
+              <div className="border-b border-white/5 px-8 py-4 text-sm text-rose-200">
+                {complaintError}
+              </div>
+            )}
+
             <div className="overflow-x-auto">
               <table className="min-w-full table-fixed divide-y divide-white/10 text-sm">
                 <thead className="bg-white/5 text-xs uppercase tracking-wide text-slate-300">
@@ -193,9 +267,23 @@ export default function AdminDashboardPage() {
                 </thead>
 
                 <tbody className="divide-y divide-white/5 text-slate-200">
-                  {localComplaints.map((item, index) => (
-                    <tr key={index} className="transition hover:bg-white/5">
-                      <td className="px-8 py-4 font-semibold text-white">{item.fullName}</td>
+                  {loadingComplaints && (
+                    <tr>
+                      <td colSpan={5} className="px-8 py-6 text-center text-sm text-slate-400">
+                        Đang tải phản ánh...
+                      </td>
+                    </tr>
+                  )}
+                  {!loadingComplaints && localComplaints.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-8 py-6 text-center text-sm text-slate-400">
+                        Chưa có phản ánh mới.
+                      </td>
+                    </tr>
+                  )}
+                  {localComplaints.map((item) => (
+                    <tr key={item.id} className="transition hover:bg-white/5">
+                      <td className="px-8 py-4 font-semibold text-white">{item.name}</td>
                       <td className="px-4 py-4">{item.phone}</td>
                       <td className="px-4 py-4 text-slate-300">{item.email}</td>
                       <td className="px-4 py-4 text-slate-400">{item.address}</td>
@@ -203,18 +291,18 @@ export default function AdminDashboardPage() {
                       {/* ✅ When rejected: hide accept button, center the remaining badge */}
                       <td className="px-4 py-4">
                         <div className="flex min-w-[260px] justify-center">
-                          {item.status === 'pending' && (
+                          {item.status === 'PENDING' && (
                             <div className="flex gap-2">
                               <button
                                 type="button"
-                                onClick={() => handleAccept(index)}
+                                onClick={() => handleAccept(item.id)}
                                 className="w-32 rounded-md bg-amber-500 px-3 py-1 text-xs font-semibold text-white hover:bg-amber-400"
                               >
                                 Xác nhận
                               </button>
                               <button
                                 type="button"
-                                onClick={() => handleReject(index)}
+                                onClick={() => handleReject(item.id)}
                                 className="w-32 rounded-md border border-rose-400 px-3 py-1 text-xs font-semibold text-rose-200 hover:bg-rose-400/10"
                               >
                                 Từ chối
@@ -222,13 +310,13 @@ export default function AdminDashboardPage() {
                             </div>
                           )}
 
-                          {item.status === 'accepted' && (
+                          {item.status === 'ACCEPTED' && (
                             <span className="w-32 rounded-md bg-emerald-500 px-3 py-1 text-center text-xs font-semibold text-white">
                               Đã tiếp nhận
                             </span>
                           )}
 
-                          {item.status === 'rejected' && (
+                          {item.status === 'REJECTED' && (
                             <span className="w-32 rounded-md bg-rose-500 px-3 py-1 text-center text-xs font-semibold text-white">
                               Đã từ chối
                             </span>

@@ -3,9 +3,12 @@
 import Link from "next/link";
 import { FormEvent, useRef, useState } from "react";
 
+import { loadUserId, TOKEN_KEY } from "@/utils/auth-storage";
+
 import { initialPetitionState, services, type PetitionFormState } from "../data";
 
 const petitionService = services.find((service) => service.id === "kien-nghi");
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
 
 const createEmptyPetitionState = (): PetitionFormState => ({ ...initialPetitionState });
 
@@ -47,21 +50,33 @@ export default function PetitionPage() {
     setPetitionMessage("Đang gửi dữ liệu...");
 
     try {
+      const userId = loadUserId();
+      if (!userId) {
+        throw new Error("Missing user identifier");
+      }
+
       const formData = new FormData();
-      formData.append("fullName", petitionState.fullName);
+      formData.append("name", petitionState.fullName);
       formData.append("email", petitionState.email);
       formData.append("phone", petitionState.phone);
       formData.append("address", petitionState.address);
       formData.append("title", petitionState.title);
-      formData.append("content", petitionState.content); 
+      formData.append("description", petitionState.content); 
       
       if (petitionState.attachment) {
-        formData.append("attachment", petitionState.attachment);
+        formData.append("file", petitionState.attachment);
+      }
+
+      const token = localStorage.getItem(TOKEN_KEY);
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
       }
 
       // 2. Sửa lại đường dẫn API. 
-      const response = await fetch("/feedbacks/userid", { 
+      const response = await fetch(`${API_BASE_URL}/feedbacks/${userId}`, { 
         method: "POST",
+        headers,
         body: formData, 
       });
 
@@ -69,12 +84,8 @@ export default function PetitionPage() {
         throw new Error("Lỗi kết nối server");
       }
 
-      const data = await response.json(); 
-
       setPetitionStatus("success");
-      setPetitionMessage(
-        "Gửi thành công! Mã: " + (data.id || "Mới")
-      );
+      setPetitionMessage("Gửi thành công! Phản ánh của bạn đã được ghi nhận.");
     } catch (error) {
       setPetitionStatus("error");
       setPetitionMessage("Đã xảy ra lỗi khi gửi kiến nghị.");
