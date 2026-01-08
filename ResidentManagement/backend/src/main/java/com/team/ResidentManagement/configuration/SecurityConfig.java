@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -55,6 +56,12 @@ public class SecurityConfig {
             oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)
                     .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                     .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+        );
+        httpSecurity.authorizeHttpRequests(request ->
+                request
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(PUBLIC_ENDPOINT).permitAll()
+                        .anyRequest().authenticated()
         );
 
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
