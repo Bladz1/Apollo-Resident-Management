@@ -127,7 +127,7 @@ export default function RegisterPage() {
           <div className="space-y-5">
             <div>
               <label htmlFor="national-id" className="text-sm font-semibold text-slate-700">
-                Số CCCD <span className="text-amber-300">*</span>
+                Số CCCD <span className="text-red-900">*</span>
               </label>
               <input
                 id="national-id"
@@ -146,7 +146,7 @@ export default function RegisterPage() {
 
             <div>
               <label htmlFor="full-name" className="text-sm font-semibold text-slate-700">
-                Họ và tên <span className="text-amber-300">*</span>
+                Họ và tên <span className="text-red-900">*</span>
               </label>
               <input
                 id="full-name"
@@ -162,7 +162,7 @@ export default function RegisterPage() {
 
             <div>
               <label htmlFor="address" className="text-sm font-semibold text-slate-700">
-                Nơi ở hiện tại <span className="text-amber-300">*</span>
+                Nơi ở hiện tại <span className="text-red-900">*</span>
               </label>
               <input
                 id="address"
@@ -178,7 +178,7 @@ export default function RegisterPage() {
 
             <div>
               <label htmlFor="phone" className="text-sm font-semibold text-slate-700">
-                Số điện thoại <span className="text-amber-300">*</span>
+                Số điện thoại <span className="text-red-900">*</span>
               </label>
               <input
                 id="phone"
@@ -210,7 +210,7 @@ export default function RegisterPage() {
 
             <div>
               <label htmlFor="dob" className="text-sm font-semibold text-slate-700">
-                Ngày tháng năm sinh <span className="text-amber-300">*</span>
+                Ngày tháng năm sinh <span className="text-red-900">*</span>
               </label>
               <input
                 id="dob"
@@ -227,7 +227,7 @@ export default function RegisterPage() {
           <div className="space-y-5">
             <div>
               <label htmlFor="password" className="text-sm font-semibold text-slate-700">
-                Mật khẩu <span className="text-amber-300">*</span>
+                Mật khẩu <span className="text-red-900">*</span>
               </label>
               <input
                 id="password"
@@ -269,7 +269,7 @@ export default function RegisterPage() {
 
             <div>
               <label htmlFor="confirm-password" className="text-sm font-semibold text-slate-700">
-                Xác nhận mật khẩu <span className="text-amber-300">*</span>
+                Xác nhận mật khẩu <span className="text-red-900">*</span>
               </label>
               <input
                 id="confirm-password"
