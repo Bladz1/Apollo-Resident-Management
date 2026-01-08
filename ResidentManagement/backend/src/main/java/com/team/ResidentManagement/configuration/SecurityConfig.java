@@ -45,29 +45,30 @@ public class SecurityConfig {
      * @return SecurityFilterChain dùng bởi Spring Security.
      */
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeHttpRequests(request ->
-                request.requestMatchers(PUBLIC_ENDPOINT)
-                        .permitAll()
-                        .anyRequest()
-                        .authenticated());
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        httpSecurity.oauth2ResourceServer(oauth2 ->
-            oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)
-                    .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                    .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
-        );
-        httpSecurity.authorizeHttpRequests(request ->
-                request
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(PUBLIC_ENDPOINT).permitAll()
+                        .requestMatchers(
+                                "/auth/**",
+                                "/users/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
-        );
+                )
 
-        httpSecurity.csrf(AbstractHttpConfigurer::disable);
-        httpSecurity.cors(Customizer.withDefaults());
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt
+                                .decoder(customJwtDecoder)
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                        )
+                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+                );
 
-        return httpSecurity.build();
+        return http.build();
     }
 
     /**
