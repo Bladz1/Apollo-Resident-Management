@@ -1,4 +1,5 @@
 const overviewStats = [
+  
   {
     label: 'Hồ sơ chờ duyệt',
     value: '128',
@@ -136,6 +137,23 @@ const automationRules = [
     updatedAt: '18/05/2025',
     status: 'Đang kích hoạt',
   },
+  
+];
+const complaints = [
+  {
+    fullName: "Nguyễn Văn A",
+    phone: "0901 234 567",
+    email: "nguyenvana@gmail.com",
+    address: "Quận 1, TP.HCM",
+    accepted: true,
+  },
+  {
+    fullName: "Trần Thị B",
+    phone: "0987 654 321",
+    email: "tranthib@yahoo.com",
+    address: "Hà Đông, Hà Nội",
+    accepted: false,
+  },
 ];
 
 export default function AdminDashboardPage() {
@@ -175,32 +193,13 @@ export default function AdminDashboardPage() {
                   ● Ổn định
                 </span>
               </div>
-              <button className="rounded-full bg-emerald-500/20 px-4 py-2 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-500/40">
-                Xem chi tiết trạng thái
-              </button>
             </div>
-          </div>
-
-          <div className="mt-10 grid gap-4 sm:grid-cols-3">
-            {overviewStats.map((stat) => (
-              <div
-                key={stat.label}
-                className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-black/20 transition hover:border-white/30 hover:bg-white/10"
-              >
-                <p className="text-xs uppercase tracking-wide text-slate-300">{stat.label}</p>
-                <p className="mt-3 text-3xl font-semibold text-white">{stat.value}</p>
-                <p className="mt-1 text-xs text-emerald-200">
-                  {stat.trend}
-                  <span className="ml-1 text-slate-300">{stat.trendLabel}</span>
-                </p>
-              </div>
-            ))}
           </div>
         </div>
       </div>
 
       <main className="mx-auto max-w-6xl space-y-12 px-6 py-12">
-        <section className="grid gap-8 lg:grid-cols-[1.4fr_0.9fr]">
+        <section className="mx-auto max-w-7xl  grid justify-center">
           <div className="rounded-3xl border border-white/10 bg-slate-900/70 shadow-xl shadow-black/40 backdrop-blur">
             <div className="flex items-center justify-between border-b border-white/5 px-8 py-6">
               <div>
@@ -241,119 +240,67 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          <aside className="space-y-8">
-            <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-xl shadow-black/40 backdrop-blur">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-white">Hoạt động gần đây</h2>
-                <span className="text-xs text-slate-400">09:00 - 11:00</span>
-              </div>
-              <div className="mt-5 space-y-4">
-                {recentActivities.map((log) => (
-                  <div
-                    key={`${log.time}-${log.actor}`}
-                    className="flex gap-3 rounded-2xl border border-white/5 bg-white/5 p-4"
-                  >
-                    <div className="text-sm font-semibold text-emerald-200">{log.time}</div>
-                    <div className="space-y-1">
-                      <p className="text-sm font-semibold text-white">{log.actor}</p>
-                      <p className="text-sm text-slate-300">{log.action}</p>
-                      <span
-                        className={`inline-flex w-fit items-center rounded-full px-3 py-1 text-[11px] font-semibold ${
-                          log.priority === 'high'
-                            ? 'bg-red-500/20 text-red-200'
-                            : log.priority === 'normal'
-                              ? 'bg-amber-400/10 text-amber-200'
-                              : 'bg-emerald-400/10 text-emerald-200'
-                        }`}
-                      >
-                        {log.priority === 'high'
-                          ? 'Mức độ khẩn'
-                          : log.priority === 'normal'
-                            ? 'Mức độ trung bình'
-                            : 'Tự động hóa'}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
 
-            <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/10 via-slate-900 to-slate-950 p-6 shadow-xl shadow-emerald-900/30 backdrop-blur">
-              <h2 className="text-lg font-semibold text-white">Đội ngũ đang trực</h2>
-              <p className="mt-1 text-xs text-slate-300">Thông tin ca trực cập nhật tự động từ hệ thống nhân sự</p>
-              <div className="mt-5 space-y-4">
-                {teamMembers.map((member) => (
-                  <div key={member.name} className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/5 p-4">
-                    <div>
-                      <p className="text-sm font-semibold text-white">{member.name}</p>
-                      <p className="text-xs text-slate-300">{member.role}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs font-semibold text-emerald-200">{member.status}</p>
-                      <p className="text-[11px] text-slate-400">{member.shift}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </aside>
         </section>
-
-        <section className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-xl shadow-black/40 backdrop-blur">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">Trung tâm cảnh báo</h2>
-              <button className="text-xs font-semibold text-emerald-200 hover:text-emerald-100">Cấu hình</button>
-            </div>
-            <div className="mt-5 space-y-4">
-              {systemAlerts.map((alert) => (
-                <div
-                  key={alert.title}
-                  className={`rounded-2xl border px-4 py-4 text-sm transition ${
-                    alert.severity === 'critical'
-                      ? 'border-red-500/40 bg-red-500/10 text-red-100'
-                      : alert.severity === 'warning'
-                        ? 'border-amber-400/40 bg-amber-400/10 text-amber-100'
-                        : 'border-emerald-400/40 bg-emerald-400/10 text-emerald-100'
-                  }`}
-                >
-                  <h3 className="text-base font-semibold text-white">{alert.title}</h3>
-                  <p className="mt-1 text-sm">{alert.description}</p>
-                  <button className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-white/80 hover:text-white">
-                    Xem chi tiết
-                    <span aria-hidden>→</span>
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
+        <section className="mx-auto max-w-7xl grid justify-center">
           <div className="rounded-3xl border border-white/10 bg-slate-900/70 shadow-xl shadow-black/40 backdrop-blur">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/5 px-8 py-6">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-white/5 px-8 py-6">
               <div>
-                <h2 className="text-xl font-semibold text-white">Tự động hóa quy trình</h2>
-                <p className="text-xs text-slate-400">Theo dõi trạng thái kịch bản đang hoạt động</p>
+                <h2 className="text-xl font-semibold text-white">Kiến nghị & phản ánh</h2>
+                <p className="text-xs text-slate-400">
+                  Danh sách phản ánh của người dân gửi lên hệ thống
+                </p>
               </div>
-              <button className="rounded-full border border-emerald-400/40 px-4 py-2 text-xs font-semibold text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100">
-                Tạo kịch bản mới
+              <button className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold text-slate-200 transition hover:border-white/40 hover:text-white">
+                Xuất dữ liệu
               </button>
             </div>
-            <div className="grid gap-6 px-8 py-6 md:grid-cols-2">
-              {automationRules.map((rule) => (
-                <div key={rule.name} className="rounded-2xl border border-white/5 bg-white/5 p-5 shadow-inner shadow-black/40">
-                  <p className="text-sm font-semibold text-white">{rule.name}</p>
-                  <p className="mt-2 text-sm text-slate-300">{rule.description}</p>
-                  <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
-                    <span>Cập nhật: {rule.updatedAt}</span>
-                    <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold text-emerald-200">
-                      {rule.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
+
+            {/* Table */}
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-white/10 text-sm">
+                <thead className="bg-white/5 text-xs uppercase tracking-wide text-slate-300">
+                  <tr>
+                    <th className="px-8 py-3 text-left">Họ và tên</th>
+                    <th className="px-4 py-3 text-left">SĐT</th>
+                    <th className="px-4 py-3 text-left">Email</th>
+                    <th className="px-4 py-3 text-left">Địa chỉ liên hệ</th>
+                    <th className="px-4 py-3 text-left">Trạng thái</th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-white/5 text-slate-200">
+                  {complaints.map((item, index) => (
+                    <tr key={index} className="transition hover:bg-white/5">
+                      <td className="px-8 py-4 font-semibold text-white">
+                        {item.fullName}
+                      </td>
+                      <td className="px-4 py-4">{item.phone}</td>
+                      <td className="px-4 py-4 text-slate-300">{item.email}</td>
+                      <td className="px-4 py-4 text-slate-400">
+                        {item.address}
+                      </td>
+                      <td className="px-4 py-4">
+                        {item.accepted ? (
+                          <span className="inline-flex items-center rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-200">
+                            Đã tiếp nhận
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-full bg-rose-400/10 px-3 py-1 text-xs font-semibold text-rose-200">
+                            Chưa tiếp nhận
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </section>
+
+
       </main>
 
     </div>

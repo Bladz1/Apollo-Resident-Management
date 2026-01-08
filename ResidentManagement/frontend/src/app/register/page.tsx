@@ -103,7 +103,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-slate-950 text-slate-50">
+    <div className="relative min-h-screen bg-white text-slate-900">
       <div className="absolute inset-0 overflow-hidden">
         <div className="login-grid" aria-hidden />
         <div className="login-orb orb-top" aria-hidden />
@@ -112,9 +112,9 @@ export default function RegisterPage() {
 
       <div className="relative z-10 mx-auto max-w-5xl px-6 py-16">
         <div className="mb-10 text-center">
-          <h1 className="text-xs font-semibold uppercase tracking-[0.35em] text-amber-200">Đăng ký tài khoản</h1>
+          <h1 className="text-xs font-semibold uppercase tracking-[0.35em] text-amber-700">Đăng ký tài khoản</h1>
           {/* <h1 className="mt-3 text-3xl font-bold text-white md:text-4xl">Tạo hồ sơ truy cập Cổng Dịch vụ Công</h1> */}
-          <p className="mt-3 text-sm text-slate-200 md:text-base">
+          <p className="mt-3 text-sm text-slate-700 md:text-base">
             Vui lòng cung cấp thông tin chính xác để xác minh danh tính và đảm bảo an toàn dữ liệu.
           </p>
         </div>
@@ -122,11 +122,11 @@ export default function RegisterPage() {
         <form
           onSubmit={handleSubmit}
           onReset={handleReset}
-          className="grid gap-6 rounded-3xl border border-white/10 bg-slate-900/80 p-8 shadow-2xl shadow-red-900/30 backdrop-blur-xl md:grid-cols-2"
+          className="grid gap-6 rounded-3xl border border-slate-200 bg-white p-8 shadow-xl md:grid-cols-2"
         >
           <div className="space-y-5">
             <div>
-              <label htmlFor="national-id" className="text-sm font-semibold text-slate-100">
+              <label htmlFor="national-id" className="text-sm font-semibold text-slate-700">
                 Số CCCD <span className="text-amber-300">*</span>
               </label>
               <input
@@ -138,14 +138,14 @@ export default function RegisterPage() {
                 required
                 value={formState.nationalId}
                 onChange={(event) => handleChange("nationalId")(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white shadow-inner shadow-black/20 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
+                className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
                 placeholder=""
                 autoComplete="off"
               />
             </div>
 
             <div>
-              <label htmlFor="full-name" className="text-sm font-semibold text-slate-100">
+              <label htmlFor="full-name" className="text-sm font-semibold text-slate-700">
                 Họ và tên <span className="text-amber-300">*</span>
               </label>
               <input
@@ -154,14 +154,14 @@ export default function RegisterPage() {
                 required
                 value={formState.fullName}
                 onChange={(event) => handleChange("fullName")(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white shadow-inner shadow-black/20 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
+                className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
                 placeholder=""
                 autoComplete="name"
               />
             </div>
 
             <div>
-              <label htmlFor="address" className="text-sm font-semibold text-slate-100">
+              <label htmlFor="address" className="text-sm font-semibold text-slate-700">
                 Nơi ở hiện tại <span className="text-amber-300">*</span>
               </label>
               <input
@@ -170,14 +170,14 @@ export default function RegisterPage() {
                 required
                 value={formState.address}
                 onChange={(event) => handleChange("address")(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white shadow-inner shadow-black/20 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
+                className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
                 placeholder=""
                 autoComplete="street-address"
               />
             </div>
 
             <div>
-              <label htmlFor="phone" className="text-sm font-semibold text-slate-100">
+              <label htmlFor="phone" className="text-sm font-semibold text-slate-700">
                 Số điện thoại <span className="text-amber-300">*</span>
               </label>
               <input
@@ -187,14 +187,14 @@ export default function RegisterPage() {
                 required
                 value={formState.phone}
                 onChange={(event) => handleChange("phone")(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white shadow-inner shadow-black/20 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
+                className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
                 placeholder=""
                 autoComplete="tel"
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="text-sm font-semibold text-slate-100">
+              <label htmlFor="email" className="text-sm font-semibold text-slate-700">
                 Email (nếu có)
               </label>
               <input
@@ -202,14 +202,14 @@ export default function RegisterPage() {
                 type="email"
                 value={formState.email}
                 onChange={(event) => handleChange("email")(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white shadow-inner shadow-black/20 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
+                className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
                 placeholder=""
                 autoComplete="email"
               />
             </div>
 
             <div>
-              <label htmlFor="dob" className="text-sm font-semibold text-slate-100">
+              <label htmlFor="dob" className="text-sm font-semibold text-slate-700">
                 Ngày tháng năm sinh <span className="text-amber-300">*</span>
               </label>
               <input
@@ -218,7 +218,7 @@ export default function RegisterPage() {
                 required
                 value={formState.dob}
                 onChange={(event) => handleChange("dob")(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white shadow-inner shadow-black/20 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
+                className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
                 autoComplete="bday"
               />
             </div>
@@ -226,7 +226,7 @@ export default function RegisterPage() {
 
           <div className="space-y-5">
             <div>
-              <label htmlFor="password" className="text-sm font-semibold text-slate-100">
+              <label htmlFor="password" className="text-sm font-semibold text-slate-700">
                 Mật khẩu <span className="text-amber-300">*</span>
               </label>
               <input
@@ -235,11 +235,11 @@ export default function RegisterPage() {
                 required
                 value={formState.password}
                 onChange={(event) => handleChange("password")(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white shadow-inner shadow-black/20 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
+                className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
                 placeholder=""
                 autoComplete="new-password"
               />
-              <ul className="mt-3 space-y-1 text-xs text-slate-300">
+              <ul className="mt-3 space-y-1 text-xs text-slate-600">
                 {PASSWORD_REQUIREMENTS.map((requirement, index) => {
                   const checks = [
                     passwordValidation.lengthOk,
@@ -255,7 +255,7 @@ export default function RegisterPage() {
                       <span
                         className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-[10px] ${isMet
                           ? 'border-emerald-300 bg-emerald-500/20 text-emerald-200'
-                          : 'border-white/20 bg-white/5 text-slate-300'
+                          : 'border-slate-200 bg-slate-50 text-slate-500'
                           }`}
                       >
                         {isMet ? '✓' : '•'}
@@ -268,7 +268,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="confirm-password" className="text-sm font-semibold text-slate-100">
+              <label htmlFor="confirm-password" className="text-sm font-semibold text-slate-700">
                 Xác nhận mật khẩu <span className="text-amber-300">*</span>
               </label>
               <input
@@ -277,7 +277,7 @@ export default function RegisterPage() {
                 required
                 value={formState.confirmPassword}
                 onChange={(event) => handleChange("confirmPassword")(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white shadow-inner shadow-black/20 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
+                className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
                 placeholder=""
                 autoComplete="new-password"
               />
@@ -288,21 +288,21 @@ export default function RegisterPage() {
 
 
 
-            <div className="rounded-2xl  p-4 text-xs text-slate-200">
+            <div className="rounded-2xl  p-4 text-xs text-slate-700">
               <label className="flex items-start gap-3">
                 <input
                   type="checkbox"
                   checked={formState.agree}
                   onChange={(event) => handleChange("agree")(event.target.checked)}
-                  className="mt-1 h-5 w-5 rounded border-white/30 bg-slate-950/80 text-amber-400 focus:ring-amber-400"
+                  className="mt-1 h-5 w-5 rounded border-slate-300 bg-white text-amber-500 focus:ring-amber-400"
                 />
                 <span>
                   Tôi đồng ý với{' '}
-                  <Link href="#" className="font-semibold text-amber-200 hover:text-amber-100">
+                  <Link href="#" className="font-semibold text-black ">
                     Điều khoản sử dụng
                   </Link>{' '}
                   và{' '}
-                  <Link href="#" className="font-semibold text-amber-200 hover:text-amber-100">
+                  <Link href="#" className="font-semibold text-black ">
                     Chính sách chia sẻ thông tin
                   </Link>{' '}
                   của Cổng Dịch vụ Công.
@@ -310,13 +310,13 @@ export default function RegisterPage() {
               </label>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-xs">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs">
               <p
                 className={`font-semibold ${status === 'success'
-                  ? 'text-emerald-200'
+                  ? 'text-emerald-700'
                   : status === 'error'
-                    ? 'text-rose-200'
-                    : 'text-slate-200'
+                    ? 'text-gray-600'
+                    : 'text-slate-700'
                   }`}
               >
                 {status === 'idle' ? 'Vui lòng điền đầy đủ thông tin trước khi gửi đăng ký.' : message}
@@ -333,7 +333,7 @@ export default function RegisterPage() {
 
               <Link
                 href="/login"
-                className="inline-flex items-center justify-center rounded-full border border-amber-200 px-6 py-3 text-sm font-semibold text-amber-200 transition hover:border-amber-100 hover:text-amber-100"
+                className="inline-flex items-center justify-center rounded-full border border-amber-300 px-6 py-3 text-sm font-semibold text-amber-700 transition hover:border-amber-200 hover:text-amber-600"
               >
                 Đã có tài khoản? Đăng nhập
               </Link>
