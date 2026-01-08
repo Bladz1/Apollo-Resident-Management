@@ -40,10 +40,11 @@ async function loadFeeItems(): Promise<FeeItem[]> {
   const response = await fetch(`http://localhost:8080/resident-management/fees/${userId}`, {
     method: "GET",
     headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${localStorage.getItem(TOKEN_KEY) || ""}`,
+      Accept: "application/json",
+      Authorization: `Bearer ${localStorage.getItem(TOKEN_KEY) || ""}`,
     },
   });
+
 
   if (!response.ok) {
     throw new Error("Failed to fetch fees");
