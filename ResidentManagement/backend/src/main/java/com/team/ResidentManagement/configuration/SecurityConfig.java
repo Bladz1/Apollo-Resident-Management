@@ -56,6 +56,13 @@ public class SecurityConfig {
                     .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                     .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
         );
+        httpSecurity.authorizeHttpRequests(request ->
+                request
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(PUBLIC_ENDPOINT).permitAll()
+                        .anyRequest().authenticated()
+        );
+
 
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
         httpSecurity.cors(Customizer.withDefaults());
