@@ -42,8 +42,10 @@ public class UserController {
      * Lấy danh sách toàn bộ người dùng.
      */
     @GetMapping()
-    public List<UserResponse> getAllUsers() {
-        return userService.getUsers();
+    public ApiResponse<List<UserResponse>> getAllUsers() {
+        return ApiResponse.<List<UserResponse>>builder()
+                .result(userService.getUsers())
+                .build();
     }
 
     /**
