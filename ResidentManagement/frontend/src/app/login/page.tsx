@@ -52,8 +52,8 @@ const LOGIN_COPY: AuthTesterCopy = {
 };
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  'http://localhost:8080/resident-management';
+  process.env.NEXT_PUBLIC_API_BASE ??
+  'http://localhost:8080';
 
 type AuthExtractionResult = {
   token?: string;
