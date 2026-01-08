@@ -31,13 +31,14 @@ interface Bill {
 
 type PaymentMethod = "bank" | "wallet" | "card";
 
+const API_BASE = "https://name-production-0016.up.railway.app/resident-management";
 async function loadFeeItems(): Promise<FeeItem[]> {
   const userId = loadUserId();
   if (!userId) {
     throw new Error("Missing user identifier");
   }
 
-  const response = await fetch(`http://localhost:8080/resident-management/fees/${userId}`, {
+  const response = await fetch(`${API_BASE}/fees/${userId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
