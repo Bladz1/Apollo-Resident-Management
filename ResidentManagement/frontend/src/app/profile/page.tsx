@@ -187,10 +187,7 @@ const ProfilePage = () => {
           <h1 className="mt-3 text-3xl font-bold text-[#3f2a19] md:text-4xl">
             Thông tin tài khoản
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-[#7a6246]">
-            Giữ đúng chất ứng dụng mobile với vùng nền hoạ tiết, đồng thời tối ưu bố cục đọc
-            nhanh trên desktop.
-          </p>
+          
         </div>
       </div>
 
@@ -220,31 +217,8 @@ const ProfilePage = () => {
             </div>
 
             <div className="mt-6 space-y-3">
-              <button
-                type="button"
-                onClick={() => handleCopy('personalId', personalIdValue)}
-                className="flex w-full items-center justify-between rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-              >
-                Sao chép số định danh
-                <span aria-hidden>⧉</span>
-              </button>
-              <button
-                type="button"
-                className="flex w-full items-center justify-between rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-              >
-                Tải PDF thông tin
-                <span aria-hidden>⬇</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleToggleSensitive}
-                className="flex w-full items-center justify-between rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-              >
-                {visibleFields.personalId || visibleFields.phone
-                  ? 'Ẩn dữ liệu nhạy cảm'
-                  : 'Hiện dữ liệu nhạy cảm'}
-                <span aria-hidden>{visibleFields.personalId || visibleFields.phone ? '🙈' : '👁️'}</span>
-              </button>
+              
+  
             </div>
 
             <div className="mt-6 rounded-xl bg-[#faf8f5] p-4 text-sm text-gray-600">
@@ -337,8 +311,7 @@ const ProfilePage = () => {
                       type="button"
                       onClick={() => setIsAddressExpanded((prev) => !prev)}
                       className="mt-2 text-xs font-semibold text-red-700 hover:text-red-800"
-                    >
-                      {isAddressExpanded ? 'Thu gọn' : 'Xem thêm'}
+                    >  
                     </button>
                   </div>
                 </div>
