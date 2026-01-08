@@ -2,6 +2,7 @@ package com.team.ResidentManagement.controller;
 
 import com.team.ResidentManagement.Mapper.FeedbackMapper;
 import com.team.ResidentManagement.dto.request.FeedbackRequest;
+import com.team.ResidentManagement.dto.request.FeedbackStatusRequest;
 import com.team.ResidentManagement.dto.response.ApiResponse;
 import com.team.ResidentManagement.dto.response.FeedbackResponse;
 import com.team.ResidentManagement.service.FeedbackService;
@@ -29,6 +30,13 @@ public class FeedbackController {
                 .build();
     }
 
+    @GetMapping
+    public ApiResponse<List<FeedbackResponse>> getAllFeedbacks() {
+        return ApiResponse.<List<FeedbackResponse>>builder()
+                .result(feedBackService.getAllFeedbacks())
+                .build();
+    }
+
     @PostMapping("/{userId}")
     public ApiResponse<Object> uploadFeedback(@PathVariable String userId, @ModelAttribute FeedbackRequest feedBackRequest) throws IOException {
 
@@ -36,6 +44,16 @@ public class FeedbackController {
 
         return ApiResponse.builder()
                 .result("Thank you for your feed back!")
+                .build();
+    }
+
+    @PutMapping("/{id}/status")
+    public ApiResponse<FeedbackResponse> updateFeedbackStatus(
+            @PathVariable String id,
+            @RequestBody FeedbackStatusRequest request
+    ) {
+        return ApiResponse.<FeedbackResponse>builder()
+                .result(feedBackService.updateFeedbackStatus(id, request.getStatus()))
                 .build();
     }
 

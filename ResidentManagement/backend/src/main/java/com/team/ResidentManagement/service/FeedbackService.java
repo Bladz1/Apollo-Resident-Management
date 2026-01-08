@@ -5,6 +5,7 @@ import com.team.ResidentManagement.dto.request.FeedbackRequest;
 import com.team.ResidentManagement.dto.response.FeedbackResponse;
 import com.team.ResidentManagement.entity.Feedback;
 import com.team.ResidentManagement.entity.User;
+import com.team.ResidentManagement.enums.FeedbackStatus;
 import com.team.ResidentManagement.exception.AppException;
 import com.team.ResidentManagement.exception.ErrorCode;
 import com.team.ResidentManagement.repository.FeedbackRepository;
@@ -32,11 +33,13 @@ public class FeedbackService {
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.FEE_NOT_FOUND));
 
         Feedback feedback = Feedback.builder()
+                .name(request.getName())
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .phone(request.getPhone())
                 .address(request.getAddress())
                 .email(request.getEmail())
+                .status(FeedbackStatus.PENDING)
                 .user(user)
                 .build();
 
@@ -54,6 +57,20 @@ public class FeedbackService {
         return feedbacks.stream()
                 .map(feedbackMapper::toFeedbackResponse)
                 .toList();
+    }
+
+    public List<FeedbackResponse> getAllFeedbacks() {
+        return feedbackRepository.findAll().stream()
+                .map(feedbackMapper::toFeedbackResponse)
+                .toList();
+    }
+
+    public FeedbackResponse updateFeedbackStatus(String id, FeedbackStatus status) {
+        Feedback feedback = feedbackRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.FEEDBACK_NOT_FOUND));
+        feedback.setStatus(status);
+        feedbackRepository.save(feedback);
+        return feedbackMapper.toFeedbackResponse(feedback);
     }
     public void deleteFeedback(String id){
         feedbackRepository.deleteById(id);

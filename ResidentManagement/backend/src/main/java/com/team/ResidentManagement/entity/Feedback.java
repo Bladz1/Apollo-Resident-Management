@@ -1,5 +1,6 @@
 package com.team.ResidentManagement.entity;
 
+import com.team.ResidentManagement.enums.FeedbackStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -26,6 +27,9 @@ public class Feedback {
     String description;
 
     String attachmentUrl;
+
+    @Enumerated(EnumType.STRING)
+    FeedbackStatus status;
 
     @CreationTimestamp
     LocalDate createdAt;
