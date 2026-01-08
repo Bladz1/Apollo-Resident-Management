@@ -1,15 +1,18 @@
 package com.team.ResidentManagement.service;
 
+import com.team.ResidentManagement.Mapper.FeedbackMapper;
 import com.team.ResidentManagement.Mapper.UserMapper;
 import com.team.ResidentManagement.constant.PredefinedRole;
 import com.team.ResidentManagement.dto.request.UserCreationRequest;
 import com.team.ResidentManagement.dto.request.UserUpdateRequest;
+import com.team.ResidentManagement.dto.response.FeedbackResponse;
 import com.team.ResidentManagement.dto.response.UserResponse;
 import com.team.ResidentManagement.entity.User;
 import com.team.ResidentManagement.entity.Role;
 import com.team.ResidentManagement.exception.AppException;
 import com.team.ResidentManagement.exception.ErrorCode;
 import com.team.ResidentManagement.repository.FeeRepository;
+import com.team.ResidentManagement.repository.FeedbackRepository;
 import com.team.ResidentManagement.repository.RoleRepository;
 import com.team.ResidentManagement.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -29,8 +32,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Nghiệp vụ quản lý thông tin người dùng và phân quyền.
@@ -53,6 +58,9 @@ public class UserService {
     FeeRepository feeRepository;
 
     FileStorageService  fileStorageService;
+
+    FeedbackRepository feedbackRepository;
+    FeedbackMapper feedbackMapper;
 
     @NonFinal
     @Value("${file.baseUrl}")
@@ -89,7 +97,13 @@ public class UserService {
 
         User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        return userMapper.toUserResponse(user);
+        UserResponse userResponse = userMapper.toUserResponse(user);
+
+        HashSet<FeedbackResponse> responses = feedbackRepository.findByUserId(user.getId()).stream().map(feedbackMapper::toFeedbackResponse).collect(Collectors.toCollection(HashSet::new));
+
+        userResponse.setFeedbacks(responses);
+
+        return userResponse;
     }
 
     /**

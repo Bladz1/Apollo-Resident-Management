@@ -24,4 +24,5 @@ public class UserResponse {
     String avatarUrl;
     Set<RoleResponse> roles;
     Set<FeeResponse> fees;
+    Set<FeedbackResponse> feedbacks;
 }

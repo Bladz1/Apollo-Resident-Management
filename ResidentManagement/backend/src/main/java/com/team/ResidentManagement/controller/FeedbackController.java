@@ -39,8 +39,11 @@ public class FeedbackController {
                 .build();
     }
 
-    @DeleteMapping
-    public ApiResponse<Object> deleteFeedback(String id) {
+    @DeleteMapping("/{id}")
+    public ApiResponse<Object> deleteFeedback(@PathVariable String id) {
+
+        feedBackService.deleteFeedback(id);
+
         return ApiResponse.builder()
                 .result("Successfully deleted feedback!")
                 .code(123)
