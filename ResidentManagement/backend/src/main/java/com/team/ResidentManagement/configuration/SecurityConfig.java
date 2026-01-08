@@ -71,7 +71,7 @@ public class SecurityConfig {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
 
         corsConfiguration.addAllowedOrigin("http://localhost:3000");
-        corsConfiguration.addAllowedOrigin("https://resident-management-p7jq3qbmr-hoa-djas-projects.vercel.app");
+        corsConfiguration.addAllowedOrigin("https://resident-management.vercel.app");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
 
