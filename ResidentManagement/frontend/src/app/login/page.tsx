@@ -214,6 +214,10 @@ export default function LoginPage() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    console.log("SUBMIT RUN");
+    console.log("API_BASE_URL =", API_BASE_URL);
+    console.log("FETCH TO =", `${API_BASE_URL}/auth/token`);
+
 
     setLoading(true);
     setStatus('idle');
