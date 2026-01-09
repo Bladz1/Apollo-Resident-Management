@@ -149,7 +149,7 @@ const Header = () => {
                 <Image src="/images/7.png" alt="Ảnh đại diện" width={40} height={40} className="h-full w-full object-cover" />
               </button>
               {isProfileOpen && (
-                <div className="absolute right-0 top-full mt-2 w-52 rounded-lg bg-yellow-400 text-red-900 shadow-lg">
+                <div className="absolute right-0 top-full mt-2 w-52 rounded-lg bg-yellow-400 text-red-900 shadow-lg z-[9999]">
                   <div className="border-b border-yellow-200 px-4 py-3 text-sm font-semibold">
                     {displayName}
                   </div>
@@ -267,7 +267,7 @@ const Header = () => {
           </button>
 
           {isOpen && (
-            // ✅ fixed + z cao để không bị che
+
             <div className="fixed right-3 top-14 w-48 rounded-lg bg-yellow-400 p-2 text-white space-y-2 z-[9998] shadow-lg">
               <ul>
                 {isAuthenticated && (
