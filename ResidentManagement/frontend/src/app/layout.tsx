@@ -1,5 +1,6 @@
 import { Be_Vietnam_Pro, Inter } from 'next/font/google';
 import './globals.css';
+import "@/components/heart_beat/heart_beat"
 
 const inter = Inter({
   subsets: ['latin'],
@@ -17,6 +18,7 @@ const beVietnamPro = Be_Vietnam_Pro({
 
 // src/app/layout.tsx
 import Header from '@/components/header/header';
+import HeartBeat from '@/components/heart_beat/heart_beat';
 
 export default function RootLayout({
   children,
@@ -27,8 +29,9 @@ export default function RootLayout({
     <html lang="vi">
       <body className={`${inter.variable} ${beVietnamPro.variable} antialiased`}>
         <Header />
-        <main>{children}
-
+        <HeartBeat></HeartBeat>
+        <main>
+          {children}
         </main>
         <footer className="bg-gray-800 text-white text-center p-4">
           <p>&copy; 2025 Hệ thống Quản lý Dân cư. Hotline: 1800 1096</p>

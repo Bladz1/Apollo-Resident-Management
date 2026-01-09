@@ -31,31 +31,27 @@ interface Bill {
 
 type PaymentMethod = "bank" | "wallet" | "card";
 
+const API_BASE = "https://name-production-0016.up.railway.app/resident-management";
+
 async function loadFeeItems(): Promise<FeeItem[]> {
   const userId = loadUserId();
-  if (!userId) {
-    throw new Error("Missing user identifier");
-  }
+  if (!userId) throw new Error("Missing user identifier");
 
-  const response = await fetch(`http://localhost:8080/resident-management/fees/${userId}`, {
+  const token = localStorage.getItem(TOKEN_KEY);
+
+  const headers: Record<string, string> = { Accept: "application/json" };
+  if (token) headers.Authorization = `Bearer ${token}`; // token rỗng thì đừng gửi
+
+  const res = await fetch(`${API_BASE}/fees/${userId}`, {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${localStorage.getItem(TOKEN_KEY) || ""}`,
-    },
+    headers,
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch fees");
-  }
+  const text = await res.text();               // giúp thấy lỗi thật
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${text}`);
 
-  const data = await response.json();
-
-  const allFees = data.result;
-
-  console.log(allFees);
-
-  return allFees as FeeItem[];
+  const data = JSON.parse(text);
+  return data.result as FeeItem[];
 }
 
 const feeCategories: FeeCategory[] = [

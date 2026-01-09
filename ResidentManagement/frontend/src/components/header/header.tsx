@@ -8,6 +8,7 @@ import {
   AUTH_CHANGE_EVENT,
   AuthChangeDetail,
   clearAuth,
+  extractRolesFromToken,
   loadAuth,
   loadUsername,
 } from '../../utils/auth-storage';
@@ -15,18 +16,35 @@ import {
 type HeaderAuthState = {
   isAuthenticated: boolean;
   username: string | null;
+  isAdmin: boolean;
 };
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [authState, setAuthState] = useState<HeaderAuthState>({ isAuthenticated: false, username: null });
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [authState, setAuthState] = useState<HeaderAuthState>({
+    isAuthenticated: false,
+    username: null,
+    isAdmin: false,
+  });
+
+  const resolveAdmin = (token: string | null, usernameCandidate: string | null) => {
+    const roles = token ? extractRolesFromToken(token) ?? [] : [];
+    const normalizedRoles = roles.map((role) => role.toUpperCase());
+    const hasRoleAdmin = normalizedRoles.some((role) => role === 'ADMIN' || role === 'ROLE_ADMIN');
+    const username = usernameCandidate?.toLowerCase() ?? '';
+
+    return hasRoleAdmin || username.includes('admin');
+  };
 
   useEffect(() => {
-    const updateState = (hasToken: boolean, usernameCandidate: string | null) => {
+    const updateState = (hasToken: boolean, usernameCandidate: string | null, token: string | null) => {
       const normalized = usernameCandidate?.trim() ?? null;
+      const isAdmin = hasToken ? resolveAdmin(token, normalized) : false;
       setAuthState({
         isAuthenticated: hasToken,
         username: normalized && normalized.length > 0 ? normalized : null,
+        isAdmin,
       });
     };
 
@@ -34,9 +52,9 @@ const Header = () => {
       if (detail) {
         if (detail.token) {
           const fallbackUsername = detail.username ?? loadUsername();
-          updateState(true, fallbackUsername ?? null);
+          updateState(true, fallbackUsername ?? null, detail.token);
         } else {
-          updateState(false, null);
+          updateState(false, null, null);
         }
         return;
       }
@@ -45,9 +63,9 @@ const Header = () => {
 
       if (stored) {
         const fallback = loadUsername();
-        updateState(true, stored.username || fallback || null);
+        updateState(true, stored.username || fallback || null, stored.token);
       } else {
-        updateState(false, null);
+        updateState(false, null, null);
       }
     };
 
@@ -72,12 +90,14 @@ const Header = () => {
   }, []);
 
   const isAuthenticated = authState.isAuthenticated;
+  const isAdmin = authState.isAdmin;
   const displayName = authState.username ?? 'Người dùng';
 
   const handleLogout = () => {
     clearAuth();
-    setAuthState({ isAuthenticated: false, username: null });
+    setAuthState({ isAuthenticated: false, username: null, isAdmin: false });
     setIsOpen(false);
+    setIsProfileOpen(false);
   };
 
   return (
@@ -118,14 +138,48 @@ const Header = () => {
             </ul>
           </nav>
           {isAuthenticated ? (
-            <div className="flex items-center space-x-3">
+            <div className="relative flex items-center gap-3">
               <span className="text-sm font-semibold text-yellow-200">Xin chào, {displayName}</span>
               <button
-                onClick={handleLogout}
-                className="rounded-lg border border-yellow-300 px-4 py-2 text-sm font-semibold text-white transition hover:bg-yellow-500/20"
+                type="button"
+                onClick={() => setIsProfileOpen((prev) => !prev)}
+                className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-yellow-200 transition hover:border-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-300"
+                aria-label="Mở меню tài khoản"
               >
-                Đăng xuất
+                <Image src="/images/7.png" alt="Ảnh đại diện" width={40} height={40} className="h-full w-full object-cover" />
               </button>
+              {isProfileOpen && (
+                <div className="absolute right-0 top-full mt-2 w-52 rounded-lg bg-yellow-400 text-red-900 shadow-lg z-[9999]">
+                  <div className="border-b border-yellow-200 px-4 py-3 text-sm font-semibold">
+                    {displayName}
+                  </div>
+                  <div className="py-2 text-sm">
+                    <Link
+                      href="/profile"
+                      className="block px-4 py-2 font-medium hover:bg-yellow-300"
+                      onClick={() => setIsProfileOpen(false)}
+                    >
+                      Hồ sơ
+                    </Link>
+                    {isAdmin && (
+                      <Link
+                        href="/admin"
+                        className="block px-4 py-2 font-medium hover:bg-yellow-300"
+                        onClick={() => setIsProfileOpen(false)}
+                      >
+                        Quản trị
+                      </Link>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="block w-full px-4 py-2 text-left font-semibold text-red-800 hover:bg-yellow-300"
+                    >
+                      Đăng xuất
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <Link
@@ -138,13 +192,66 @@ const Header = () => {
         </div>
 
         {/* Menu Hamburger (Mobile) */}
-        <div className="relative ml-auto md:hidden">
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="focus:outline-none"
-          >
+        <div className="relative z-50 ml-auto flex items-center gap-2 md:hidden">
+          {isAuthenticated && (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsProfileOpen((prev) => !prev)}
+                className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-yellow-200"
+                aria-label="Mở меню tài khoản"
+              >
+                {/* <Image
+                  src={userAvatarUrl || "/images/default-avatar.png"} // ✅ ảnh theo user
+                  alt="Ảnh đại diện"
+                  width={36}
+                  height={36}
+                  className="h-full w-full object-cover"
+                /> */}
+              </button>
+
+              {isProfileOpen && (
+                // ✅ đổi absolute -> fixed để không bị cha che bởi overflow
+                <div className="fixed right-3 top-14 w-52 rounded-lg bg-yellow-400 text-red-900 shadow-lg z-[9999]">
+                  <div className="border-b border-yellow-200 px-4 py-3 text-sm font-semibold">
+                    {displayName}
+                  </div>
+
+                  <div className="py-2 text-sm">
+                    <Link
+                      href="/profile"
+                      className="block px-4 py-2 font-medium hover:bg-yellow-300"
+                      onClick={() => setIsProfileOpen(false)}
+                    >
+                      Hồ sơ
+                    </Link>
+
+                    {isAdmin && (
+                      <Link
+                        href="/admin"
+                        className="block px-4 py-2 font-medium hover:bg-yellow-300"
+                        onClick={() => setIsProfileOpen(false)}
+                      >
+                        Quản trị
+                      </Link>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="block w-full px-4 py-2 text-left font-semibold text-red-800 hover:bg-yellow-300"
+                    >
+                      Đăng xuất
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          <button onClick={() => setIsOpen(!isOpen)} className="focus:outline-none">
             <svg
-              className="w-6 h-6"
+              className="h-6 w-6"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -158,14 +265,17 @@ const Header = () => {
               />
             </svg>
           </button>
+
           {isOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-yellow-400 text-white p-2 rounded-lg space-y-2 z-10">
+
+            <div className="fixed right-3 top-14 w-48 rounded-lg bg-yellow-400 p-2 text-white space-y-2 z-[9998] shadow-lg">
               <ul>
                 {isAuthenticated && (
                   <li className="px-4 py-2 text-sm font-semibold text-red-900">
                     Xin chào, {displayName}
                   </li>
                 )}
+
                 <li>
                   <Link href="/" className="block px-4 py-2 hover:bg-yellow-800" onClick={() => setIsOpen(false)}>
                     Trang chủ
@@ -191,6 +301,7 @@ const Header = () => {
                     Tin tức
                   </Link>
                 </li>
+
                 {isAuthenticated ? (
                   <li>
                     <button
@@ -212,6 +323,7 @@ const Header = () => {
             </div>
           )}
         </div>
+
       </div>
     </header>
   );

@@ -3,9 +3,12 @@
 import Link from "next/link";
 import { FormEvent, useRef, useState } from "react";
 
+import { loadUserId, TOKEN_KEY } from "@/utils/auth-storage";
+
 import { initialPetitionState, services, type PetitionFormState } from "../data";
 
 const petitionService = services.find((service) => service.id === "kien-nghi");
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
 
 const createEmptyPetitionState = (): PetitionFormState => ({ ...initialPetitionState });
 
@@ -40,13 +43,53 @@ export default function PetitionPage() {
     handlePetitionChange("content", editorRef.current.innerHTML);
   };
 
-  const handlePetitionSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handlePetitionSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    // 1. QUAN TRỌNG NHẤT: Phải có dòng này thì mới không bị reload trang
     event.preventDefault();
 
-    setPetitionStatus("success");
-    setPetitionMessage(
-      "Kiến nghị đã được ghi nhận. Hệ thống sẽ gửi email xác nhận nếu bạn cung cấp địa chỉ email hợp lệ.",
-    );
+    setPetitionMessage("Đang gửi dữ liệu...");
+
+    try {
+      const userId = loadUserId();
+      if (!userId) {
+        throw new Error("Missing user identifier");
+      }
+
+      const formData = new FormData();
+      formData.append("name", petitionState.fullName);
+      formData.append("email", petitionState.email);
+      formData.append("phone", petitionState.phone);
+      formData.append("address", petitionState.address);
+      formData.append("title", petitionState.title);
+      formData.append("description", petitionState.content); 
+      
+      if (petitionState.attachment) {
+        formData.append("file", petitionState.attachment);
+      }
+
+      const token = localStorage.getItem(TOKEN_KEY);
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      // 2. Sửa lại đường dẫn API. 
+      const response = await fetch(`${API_BASE_URL}/feedbacks/${userId}`, { 
+        method: "POST",
+        headers,
+        body: formData, 
+      });
+
+      if (!response.ok) {
+        throw new Error("Lỗi kết nối server");
+      }
+
+      setPetitionStatus("success");
+      setPetitionMessage("Gửi thành công! Phản ánh của bạn đã được ghi nhận.");
+    } catch (error) {
+      setPetitionStatus("error");
+      setPetitionMessage("Đã xảy ra lỗi khi gửi kiến nghị.");
+    }
   };
 
   const handlePetitionReset = () => {
@@ -83,7 +126,7 @@ export default function PetitionPage() {
             <li>Điền đầy đủ thông tin người gửi để thuận tiện xác minh và phản hồi.</li>
             <li>Nhập tiêu đề và nội dung kiến nghị bằng trình soạn thảo hỗ trợ định dạng.</li>
             <li>Đính kèm tài liệu, hình ảnh minh chứng (nếu có).</li>
-            <li>Kiểm tra thông tin và nhấn "Gửi" để hoàn tất.</li>
+            <li>Kiểm tra thông tin và nhấn &ldquo;Gửi&rdquo; để hoàn tất.</li>
             <li>Hệ thống sẽ gửi email xác nhận khi cung cấp địa chỉ liên hệ hợp lệ.</li>
           </ol>
         </section>
