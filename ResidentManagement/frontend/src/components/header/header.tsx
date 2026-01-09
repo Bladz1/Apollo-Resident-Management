@@ -192,7 +192,7 @@ const Header = () => {
         </div>
 
         {/* Menu Hamburger (Mobile) */}
-        <div className="relative ml-auto flex items-center gap-2 md:hidden">
+        <div className="relative z-50 ml-auto flex items-center gap-2 md:hidden">
           {isAuthenticated && (
             <div className="relative">
               <button
@@ -201,13 +201,22 @@ const Header = () => {
                 className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-yellow-200"
                 aria-label="Mở меню tài khoản"
               >
-                <Image src="/images/7.png" alt="Ảnh đại diện" width={36} height={36} className="h-full w-full object-cover" />
+                {/* <Image
+                  src={userAvatarUrl || "/images/default-avatar.png"} // ✅ ảnh theo user
+                  alt="Ảnh đại diện"
+                  width={36}
+                  height={36}
+                  className="h-full w-full object-cover"
+                /> */}
               </button>
+
               {isProfileOpen && (
-                <div className="absolute right-0 top-full mt-2 w-52 rounded-lg bg-yellow-400 text-red-900 shadow-lg">
+                // ✅ đổi absolute -> fixed để không bị cha che bởi overflow
+                <div className="fixed right-3 top-14 w-52 rounded-lg bg-yellow-400 text-red-900 shadow-lg z-[9999]">
                   <div className="border-b border-yellow-200 px-4 py-3 text-sm font-semibold">
                     {displayName}
                   </div>
+
                   <div className="py-2 text-sm">
                     <Link
                       href="/profile"
@@ -216,6 +225,7 @@ const Header = () => {
                     >
                       Hồ sơ
                     </Link>
+
                     {isAdmin && (
                       <Link
                         href="/admin"
@@ -225,6 +235,7 @@ const Header = () => {
                         Quản trị
                       </Link>
                     )}
+
                     <button
                       type="button"
                       onClick={handleLogout}
@@ -237,12 +248,10 @@ const Header = () => {
               )}
             </div>
           )}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="focus:outline-none"
-          >
+
+          <button onClick={() => setIsOpen(!isOpen)} className="focus:outline-none">
             <svg
-              className="w-6 h-6"
+              className="h-6 w-6"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -256,14 +265,17 @@ const Header = () => {
               />
             </svg>
           </button>
+
           {isOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-yellow-400 text-white p-2 rounded-lg space-y-2 z-10">
+            // ✅ fixed + z cao để không bị che
+            <div className="fixed right-3 top-14 w-48 rounded-lg bg-yellow-400 p-2 text-white space-y-2 z-[9998] shadow-lg">
               <ul>
                 {isAuthenticated && (
                   <li className="px-4 py-2 text-sm font-semibold text-red-900">
                     Xin chào, {displayName}
                   </li>
                 )}
+
                 <li>
                   <Link href="/" className="block px-4 py-2 hover:bg-yellow-800" onClick={() => setIsOpen(false)}>
                     Trang chủ
@@ -289,6 +301,7 @@ const Header = () => {
                     Tin tức
                   </Link>
                 </li>
+
                 {isAuthenticated ? (
                   <li>
                     <button
@@ -310,6 +323,7 @@ const Header = () => {
             </div>
           )}
         </div>
+
       </div>
     </header>
   );

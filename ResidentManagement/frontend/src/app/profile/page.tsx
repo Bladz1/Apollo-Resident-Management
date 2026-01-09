@@ -13,51 +13,115 @@ import {
 
 type SensitiveFieldKey = 'personalId' | 'phone';
 
+type UserProfile = {
+  personalId: string;
+  phone: string;
+  gender: string;
+  dob: string; // ví dụ: "12/09/1994" hoặc ISO
+  address: string;
+};
+
 const ProfilePage = () => {
   const router = useRouter();
+
   const [username, setUsername] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [roles, setRoles] = useState<string[]>([]);
-  const [visibleFields, setVisibleFields] = useState<Record<SensitiveFieldKey, boolean>>({
+
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+
+  const [visibleFields, setVisibleFields] = useState<
+    Record<SensitiveFieldKey, boolean>
+  >({
     personalId: false,
     phone: false,
   });
+
   const [isAddressExpanded, setIsAddressExpanded] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const timersRef = useRef<Partial<Record<SensitiveFieldKey, ReturnType<typeof setTimeout>>>>(
-    {},
-  );
 
+  const timersRef = useRef<
+    Partial<Record<SensitiveFieldKey, ReturnType<typeof setTimeout>>>
+  >({});
+
+  // Auto hide toast
   useEffect(() => {
-    const stored = loadAuth();
-    setUsername(loadUsername());
-    setUserId(loadUserId());
-    setRoles(extractRolesFromToken(stored?.token ?? null) ?? []);
-  }, []);
-
-  useEffect(() => {
-    if (!toastMessage) {
-      return undefined;
-    }
-
+    if (!toastMessage) return undefined;
     const timer = setTimeout(() => setToastMessage(null), 2500);
     return () => clearTimeout(timer);
   }, [toastMessage]);
+
+  // Load auth + fetch profile (CÁCH 1)
+  useEffect(() => {
+    const stored = loadAuth();
+    const token = stored?.token ?? null;
+
+    const loadedUsername = loadUsername();
+    const loadedUserId = loadUserId();
+
+    setUsername(loadedUsername);
+    setUserId(loadedUserId);
+    setRoles(extractRolesFromToken(token) ?? []);
+
+    const fetchProfile = async () => {
+      try {
+        setLoadingProfile(true);
+
+        if (!token) {
+          router.push('/login');
+          return;
+        }
+
+        // ✅ Bạn đổi endpoint này theo backend của bạn
+        // Ví dụ: /api/me hoặc `${process.env.NEXT_PUBLIC_API_URL}/me`
+        const res = await fetch('/users/myInfo', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          cache: 'no-store',
+        });
+
+        if (!res.ok) {
+          router.push('/login');
+          return;
+        }
+
+        const data = await res.json();
+        
+        // ✅ Map theo response backend của bạn
+        // Ví dụ backend trả về: { personalId, phone, gender, dob, address }
+        setProfile({
+          personalId: data.personalId ?? loadedUserId ?? '',
+          phone: data.phone ?? '',
+          gender: data.gender ?? '',
+          dob: data.dob ?? '',
+          address: data.address ?? '',
+        });
+      } catch (error) {
+        setToastMessage('Không tải được hồ sơ. Vui lòng thử lại.');
+      } finally {
+        setLoadingProfile(false);
+      }
+    };
+
+    fetchProfile();
+  }, [router]);
 
   const isAdmin = useMemo(
     () => roles.some((role) => role.toUpperCase().includes('ADMIN')),
     [roles],
   );
+
   const roleLabel = isAdmin
     ? 'Quản trị viên'
     : roles.length > 0
       ? roles.join(', ')
       : 'Người dùng';
 
-  const personalIdValue = userId ?? '0362123456789';
-  const phoneValue = '0559123456';
-
   const maskValue = (value: string, visibleCount = 3) => {
+    if (!value) return '—';
     if (value.length <= visibleCount * 2) {
       return `${value.slice(0, visibleCount)}••••`;
     }
@@ -69,31 +133,31 @@ const ProfilePage = () => {
   const handleRevealField = (field: SensitiveFieldKey) => {
     setVisibleFields((prev) => {
       const nextValue = !prev[field];
+
       if (nextValue) {
-        if (timersRef.current[field]) {
-          clearTimeout(timersRef.current[field]);
-        }
+        if (timersRef.current[field]) clearTimeout(timersRef.current[field]);
         timersRef.current[field] = setTimeout(() => {
           setVisibleFields((current) => ({ ...current, [field]: false }));
         }, 60000);
       } else if (timersRef.current[field]) {
         clearTimeout(timersRef.current[field]);
       }
+
       return { ...prev, [field]: nextValue };
     });
   };
 
   const handleToggleSensitive = () => {
     const shouldReveal = !visibleFields.personalId || !visibleFields.phone;
+
     setVisibleFields({
       personalId: shouldReveal,
       phone: shouldReveal,
     });
+
     (['personalId', 'phone'] as SensitiveFieldKey[]).forEach((field) => {
       if (shouldReveal) {
-        if (timersRef.current[field]) {
-          clearTimeout(timersRef.current[field]);
-        }
+        if (timersRef.current[field]) clearTimeout(timersRef.current[field]);
         timersRef.current[field] = setTimeout(() => {
           setVisibleFields((current) => ({ ...current, [field]: false }));
         }, 60000);
@@ -108,6 +172,10 @@ const ProfilePage = () => {
       setToastMessage('Vui lòng bật hiển thị trước khi sao chép.');
       return;
     }
+    if (!value) {
+      setToastMessage('Không có dữ liệu để sao chép.');
+      return;
+    }
     try {
       await navigator.clipboard.writeText(value);
       setToastMessage('Đã sao chép thông tin.');
@@ -116,8 +184,9 @@ const ProfilePage = () => {
     }
   };
 
-  const addressValue =
-    'Số 45, đường Nguyễn Trãi, phường Bến Thành, quận 1, TP. Hồ Chí Minh, Việt Nam';
+  const personalIdValue = profile?.personalId ?? userId ?? '';
+  const phoneValue = profile?.phone ?? '';
+  const addressValue = profile?.address ?? '';
 
   return (
     <div className="min-h-screen bg-[#faf8f5] text-gray-900">
@@ -133,6 +202,7 @@ const ProfilePage = () => {
             </span>
             Thông tin cá nhân
           </button>
+
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -147,6 +217,7 @@ const ProfilePage = () => {
                 />
               </svg>
             </button>
+
             {username ? (
               <div className="hidden items-center gap-2 md:flex">
                 <Image
@@ -182,12 +253,25 @@ const ProfilePage = () => {
             }}
           />
         </div>
+
         <div className="mx-auto flex w-full max-w-[1120px] flex-col justify-center px-4 py-16 sm:px-6 md:py-20">
           <p className="text-xs uppercase tracking-[0.3em] text-[#9b7a4a]">Hồ sơ cá nhân</p>
           <h1 className="mt-3 text-3xl font-bold text-[#3f2a19] md:text-4xl">
             Thông tin tài khoản
           </h1>
-          
+
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-gray-700">
+              {loadingProfile ? 'Đang tải hồ sơ...' : 'Đã tải hồ sơ'}
+            </span>
+            <button
+              type="button"
+              onClick={handleToggleSensitive}
+              className="rounded-full border border-gray-200 bg-white/60 px-3 py-1 text-xs font-semibold text-gray-700 transition hover:bg-white"
+            >
+              {visibleFields.personalId || visibleFields.phone ? 'Ẩn dữ liệu nhạy cảm' : 'Hiện dữ liệu nhạy cảm'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -216,14 +300,11 @@ const ProfilePage = () => {
               <p className="mt-2 text-sm text-gray-500">{roleLabel}</p>
             </div>
 
-            <div className="mt-6 space-y-3">
-              
-  
-            </div>
-
             <div className="mt-6 rounded-xl bg-[#faf8f5] p-4 text-sm text-gray-600">
               <p className="font-medium text-gray-800">Trạng thái</p>
-              <p className="mt-2">Đã xác thực định danh cơ bản.</p>
+              <p className="mt-2">
+                {loadingProfile ? 'Đang kiểm tra hồ sơ...' : 'Đã xác thực định danh cơ bản.'}
+              </p>
             </div>
           </div>
 
@@ -235,68 +316,89 @@ const ProfilePage = () => {
               </div>
 
               <div className="mt-4 divide-y divide-gray-100 text-sm">
+                {/* Personal ID */}
                 <div className="flex flex-col gap-3 py-4 min-[992px]:flex-row min-[992px]:items-center min-[992px]:justify-between">
                   <div className="text-sm text-gray-500">Số định danh cá nhân</div>
                   <div className="flex items-center gap-3 min-[992px]:justify-end">
                     <span className="text-[15px] font-medium text-gray-900">
-                      {visibleFields.personalId ? personalIdValue : maskValue(personalIdValue, 4)}
+                      {personalIdValue
+                        ? visibleFields.personalId
+                          ? personalIdValue
+                          : maskValue(personalIdValue, 4)
+                        : loadingProfile
+                          ? 'Đang tải...'
+                          : '—'}
                     </span>
                     <button
                       type="button"
                       onClick={() => handleRevealField('personalId')}
-                      className="rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-700 transition hover:bg-gray-50"
+                      className="rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      disabled={!personalIdValue}
                     >
                       {visibleFields.personalId ? 'Ẩn' : 'Hiện'}
                     </button>
                     <button
                       type="button"
                       onClick={() => handleCopy('personalId', personalIdValue)}
-                      className="rounded-full border border-gray-200 px-2 py-1 text-xs font-semibold text-gray-700 transition hover:bg-gray-50"
+                      className="rounded-full border border-gray-200 px-2 py-1 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                       aria-label="Sao chép số định danh"
+                      disabled={!personalIdValue}
                     >
                       ⧉
                     </button>
                   </div>
                 </div>
 
+                {/* Gender */}
                 <div className="flex flex-col gap-3 py-4 min-[992px]:flex-row min-[992px]:items-center min-[992px]:justify-between">
                   <div className="text-sm text-gray-500">Giới tính</div>
                   <div className="text-[15px] font-medium text-gray-900 min-[992px]:text-right">
-                    Nam
+                    {profile?.gender || (loadingProfile ? 'Đang tải...' : '—')}
                   </div>
                 </div>
 
+                {/* DOB */}
                 <div className="flex flex-col gap-3 py-4 min-[992px]:flex-row min-[992px]:items-center min-[992px]:justify-between">
                   <div className="text-sm text-gray-500">Ngày sinh</div>
                   <div className="text-[15px] font-medium text-gray-900 min-[992px]:text-right">
-                    12/09/1994
+                    {profile?.dob || (loadingProfile ? 'Đang tải...' : '—')}
                   </div>
                 </div>
 
+                {/* Phone */}
                 <div className="flex flex-col gap-3 py-4 min-[992px]:flex-row min-[992px]:items-center min-[992px]:justify-between">
                   <div className="text-sm text-gray-500">Số điện thoại</div>
                   <div className="flex items-center gap-3 min-[992px]:justify-end">
                     <span className="text-[15px] font-medium text-gray-900">
-                      {visibleFields.phone ? phoneValue : maskValue(phoneValue, 3)}
+                      {phoneValue
+                        ? visibleFields.phone
+                          ? phoneValue
+                          : maskValue(phoneValue, 3)
+                        : loadingProfile
+                          ? 'Đang tải...'
+                          : '—'}
                     </span>
                     <button
                       type="button"
                       onClick={() => handleRevealField('phone')}
-                      className="rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-700 transition hover:bg-gray-50"
+                      className="rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      disabled={!phoneValue}
                     >
                       {visibleFields.phone ? 'Ẩn' : 'Hiện'}
                     </button>
                     <button
                       type="button"
                       onClick={() => handleCopy('phone', phoneValue)}
-                      className="rounded-full border border-gray-200 px-2 py-1 text-xs font-semibold text-gray-700 transition hover:bg-gray-50"
+                      className="rounded-full border border-gray-200 px-2 py-1 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                       aria-label="Sao chép số điện thoại"
+                      disabled={!phoneValue}
                     >
                       ⧉
                     </button>
                   </div>
                 </div>
 
+                {/* Address */}
                 <div className="flex flex-col gap-3 py-4 min-[992px]:flex-row min-[992px]:items-start min-[992px]:justify-between">
                   <div className="text-sm text-gray-500">Nơi thường trú</div>
                   <div className="min-[992px]:max-w-[60%] min-[992px]:text-right">
@@ -305,23 +407,25 @@ const ProfilePage = () => {
                         isAddressExpanded ? '' : 'line-clamp-2'
                       }`}
                     >
-                      {addressValue}
+                      {addressValue || (loadingProfile ? 'Đang tải...' : '—')}
                     </p>
-                    <button
-                      type="button"
-                      onClick={() => setIsAddressExpanded((prev) => !prev)}
-                      className="mt-2 text-xs font-semibold text-red-700 hover:text-red-800"
-                    >  
-                    </button>
+
+                    {addressValue ? (
+                      <button
+                        type="button"
+                        onClick={() => setIsAddressExpanded((prev) => !prev)}
+                        className="mt-2 text-xs font-semibold text-red-700 hover:text-red-800"
+                      >
+                        {isAddressExpanded ? 'Thu gọn' : 'Xem thêm'}
+                      </button>
+                    ) : null}
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-              <h3 className="text-base font-semibold text-[#3f2a19]">
-                Lưu ý bảo mật
-              </h3>
+              <h3 className="text-base font-semibold text-[#3f2a19]">Lưu ý bảo mật</h3>
               <p className="mt-2 text-sm text-gray-600">
                 Dữ liệu nhạy cảm được ẩn mặc định và chỉ hiển thị trong thời gian ngắn sau khi
                 xác nhận.
