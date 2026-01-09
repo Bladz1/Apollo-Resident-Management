@@ -39,6 +39,12 @@ public class User {
 
     String email;
 
+    String address;
+
+    String personalId;
+
+    String phoneNumber;
+
     String avatarUrl;
 
     /** Các vai trò của người dùng trong hệ thống. */

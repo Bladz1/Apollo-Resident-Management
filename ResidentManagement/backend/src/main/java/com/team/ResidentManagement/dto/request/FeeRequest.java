@@ -22,4 +22,5 @@ public class FeeRequest {
     LocalDate dueDate;
     String status;
     String description;
+    String personalId;
 }
