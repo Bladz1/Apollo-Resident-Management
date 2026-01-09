@@ -71,6 +71,12 @@ export default function RegisterPage() {
       return;
     }
 
+    if (formState.nationalId.length !== 12) {
+      setStatus("error");
+      setMessage("Số CCCD phải đủ 12 chữ số.");
+      return;
+    }
+
     if (!passwordsMatch) {
       setStatus("error");
       setMessage("Mật khẩu xác nhận không khớp.");
@@ -135,18 +141,20 @@ export default function RegisterPage() {
                 id="national-id"
                 type="text"
                 inputMode="numeric"
-                pattern="^[0-9]{12}$"
-                title="Số CCCD gồm 12 chữ số"
                 required
+                minLength={12}
+                maxLength={12}
                 value={formState.nationalId}
                 onChange={(e) => {
                   const onlyAsciiDigits = e.target.value.replace(/[^0-9]/g, "");
                   handleChange("nationalId")(onlyAsciiDigits.slice(0, 12));
                 }}
-                maxLength={12}
                 className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
                 autoComplete="off"
               />
+              {formState.nationalId.length > 0 && formState.nationalId.length < 12 && (
+                <p className="mt-2 text-xs text-rose-600">Số CCCD cần đủ 12 chữ số.</p>
+              )}
             </div>
 
             <div>
