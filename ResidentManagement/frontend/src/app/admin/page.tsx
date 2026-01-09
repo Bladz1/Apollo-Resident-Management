@@ -404,10 +404,8 @@ export default function AdminDashboardPage() {
           <div className="w-full rounded-3xl border border-white/10 bg-slate-900/70 shadow-xl shadow-black/40 backdrop-blur">
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 px-8 py-6">
               <div>
-                <h2 className="text-xl font-semibold text-white">Tạo phí cho người dân</h2>
-                <p className="text-xs text-slate-400">
-                  Thiết lập các loại phí, số tiền và hạn nộp cho từng dịch vụ công.
-                </p>
+                <h2 className="text-xl font-semibold text-white"> Thiết lập các loại phí, số tiền và hạn nộp cho từng dịch vụ công</h2>
+                
               </div>
               <span className="rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs font-semibold text-slate-200">
                 Cập nhật mới nhất: {new Date().toLocaleDateString('vi-VN')}
@@ -486,34 +484,7 @@ export default function AdminDashboardPage() {
               </form>
 
               <div className="space-y-4">
-                <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-5">
-                  <h3 className="text-sm font-semibold text-white">Phí đã tạo gần đây</h3>
-                  <p className="mt-1 text-xs text-slate-400">Lưu tối đa 5 lần tạo phí gần nhất.</p>
-
-                  <div className="mt-4 space-y-3">
-                    {feeRecords.length === 0 && (
-                      <div className="rounded-xl border border-dashed border-white/10 p-4 text-center text-xs text-slate-500">
-                        Chưa có phí nào được tạo. Điền form để bắt đầu.
-                      </div>
-                    )}
-                    {feeRecords.map((record) => (
-                      <div key={record.id} className="rounded-xl border border-white/10 bg-white/5 p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-semibold text-white">{record.categoryLabel}</p>
-                            <p className="text-xs text-slate-400">Tạo lúc {record.createdAt}</p>
-                          </div>
-                          <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-200">
-                            {record.amount} VNĐ
-                          </span>
-                        </div>
-                        <div className="mt-3 text-xs text-slate-300">
-                          Hạn nộp: <span className="font-semibold text-white">{record.dueDate}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                
 
                 <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-5 text-xs text-emerald-100">
                   <p className="font-semibold text-emerald-50">Lưu ý vận hành</p>
