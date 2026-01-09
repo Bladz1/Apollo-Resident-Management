@@ -17,11 +17,13 @@ import java.util.Set;
 public class UserResponse {
     String id;
     String username;
-    String firstName;
-    String lastName;
+    String gender;
     LocalDate birthday;
     String email;
     String avatarUrl;
+    String phoneNumber;
+    String address;
+    String password;
     Set<RoleResponse> roles;
     Set<FeeResponse> fees;
     Set<FeedbackResponse> feedbacks;

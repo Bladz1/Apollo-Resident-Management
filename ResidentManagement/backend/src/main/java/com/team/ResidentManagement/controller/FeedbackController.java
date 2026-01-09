@@ -20,7 +20,6 @@ import java.util.List;
 public class FeedbackController {
 
     FeedbackService feedBackService;
-    FeedbackMapper feedBackMapper;
 
     @GetMapping("/{userId}")
     public ApiResponse<List<FeedbackResponse>> getFeedbacks(@PathVariable String userId) {

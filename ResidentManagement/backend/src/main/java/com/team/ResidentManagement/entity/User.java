@@ -11,7 +11,7 @@ import java.util.Set;
  * Thực thể người dùng lưu trữ thông tin cá nhân và liên kết vai trò, khoản phí.
  */
 @Entity
-@Data
+@Getter @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,12 +29,11 @@ public class User {
     @Column(name = "username", unique = true, columnDefinition = "VARCHAR(255) COLLATE utf8mb4_unicode_ci")
     String username;
 
+    String gender;
+
     /** Mật khẩu đã được mã hoá. */
     String password;
-    /** Tên riêng của cư dân. */
-    String firstName;
-    /** Họ của cư dân. */
-    String lastName;
+
     /** Ngày sinh dùng để kiểm tra độ tuổi hợp lệ. */
     LocalDate birthday;
 

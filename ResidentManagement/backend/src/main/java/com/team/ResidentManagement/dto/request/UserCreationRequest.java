@@ -24,11 +24,16 @@ public class UserCreationRequest {
     /** Mật khẩu tối thiểu 8 ký tự. */
     @Size(min = 8, max = 100, message = "PASSWORD_INVALID")
     String password;
-    /** Tên riêng của cư dân. */
-    String firstName;
-    /** Họ của cư dân. */
-    String lastName;
 
+    String email;
+
+    String address;
+
+    String personalId;
+
+    String phoneNumber;
+
+    String gender;
     /** Ngày sinh, yêu cầu đủ 18 tuổi. */
     @BirthdayConstraint(min = 18, message = "INVALID_BIRTHDAY")
     LocalDate birthday;
