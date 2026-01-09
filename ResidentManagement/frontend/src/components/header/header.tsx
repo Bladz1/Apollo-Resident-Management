@@ -309,6 +309,18 @@ const Header = () => {
 
                 {isAuthenticated ? (
                   <li>
+                    <Link
+                      href="/profile"
+                      className="block px-4 py-2 hover:bg-yellow-800"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      Hồ sơ
+                    </Link>
+                  </li>
+                ) : null}
+
+                {isAuthenticated ? (
+                  <li>
                     <button
                       type="button"
                       onClick={handleLogout}
