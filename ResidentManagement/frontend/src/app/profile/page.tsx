@@ -76,9 +76,9 @@ const ProfilePage = () => {
 
         setProfile({
           personalId: data.personalId ?? loadedUserId ?? '',
-          phone: data.phone ?? '',
+          phone: data.phoneNumber ?? data.phone ?? '',
           gender: data.gender ?? '',
-          dob: data.dob ?? '',
+          dob: data.birthday ?? data.dob ?? '',
           address: data.address ?? '',
         });
       } catch (err) {

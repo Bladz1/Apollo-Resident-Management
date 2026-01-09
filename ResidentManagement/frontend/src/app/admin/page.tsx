@@ -114,6 +114,7 @@ export default function AdminDashboardPage() {
   const [feeError, setFeeError] = useState<string | null>(null);
   const [feeDraft, setFeeDraft] = useState({
     categoryId: feeCategories[0]?.id ?? '',
+    personalId: '',
     amount: '',
     dueDate: '',
   });
@@ -187,38 +188,70 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleFeeChange = (field: 'categoryId' | 'amount' | 'dueDate', value: string) => {
+  const handleFeeChange = (field: 'categoryId' | 'personalId' | 'amount' | 'dueDate', value: string) => {
     setFeeDraft((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleFeeSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleFeeSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFeeError(null);
 
-    if (!feeDraft.categoryId || !feeDraft.amount || !feeDraft.dueDate) {
-      setFeeError('Vui lòng nhập đầy đủ loại phí, số tiền và hạn nộp.');
+    if (!feeDraft.categoryId || !feeDraft.amount || !feeDraft.dueDate || !feeDraft.personalId) {
+      setFeeError('Vui lòng nhập đầy đủ CCCD, loại phí, số tiền và hạn nộp.');
       return;
     }
 
     const category = feeCategories.find((item) => item.id === feeDraft.categoryId);
-    const newRecord: FeeRecord = {
-      id: `fee-${Date.now()}`,
-      categoryId: feeDraft.categoryId,
-      categoryLabel: category?.label ?? 'Chưa xác định',
-      amount: feeDraft.amount,
-      dueDate: feeDraft.dueDate,
-      createdAt: new Date().toLocaleString('vi-VN', {
-        dateStyle: 'short',
-        timeStyle: 'short',
-      }),
-    };
+    const token = localStorage.getItem(TOKEN_KEY);
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers.Authorization = `Bearer ${token}`;
 
-    setFeeRecords((prev) => [newRecord, ...prev].slice(0, 5));
-    setFeeDraft({
-      categoryId: feeDraft.categoryId,
-      amount: '',
-      dueDate: '',
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/fees`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          feeType: feeDraft.categoryId,
+          categoryId: feeDraft.categoryId,
+          name: category?.label ?? 'Khoản phí mới',
+          agency: 'Ủy ban nhân dân',
+          amount: Number(feeDraft.amount),
+          dueDate: feeDraft.dueDate,
+          status: 'Chưa nộp',
+          description: `Khoản phí ${category?.label?.toLowerCase() ?? ''}`.trim(),
+          personalId: feeDraft.personalId.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        const detail = await response.text();
+        throw new Error(detail || 'Không thể tạo phí mới.');
+      }
+
+      const data = (await response.json()) as ApiResponse<FeeRecord>;
+      const newRecord: FeeRecord = {
+        id: data.result?.id ?? `fee-${Date.now()}`,
+        categoryId: feeDraft.categoryId,
+        categoryLabel: category?.label ?? 'Chưa xác định',
+        amount: feeDraft.amount,
+        dueDate: feeDraft.dueDate,
+        createdAt: new Date().toLocaleString('vi-VN', {
+          dateStyle: 'short',
+          timeStyle: 'short',
+        }),
+      };
+
+      setFeeRecords((prev) => [newRecord, ...prev].slice(0, 5));
+      setFeeDraft({
+        categoryId: feeDraft.categoryId,
+        personalId: '',
+        amount: '',
+        dueDate: '',
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Không thể tạo phí mới.';
+      setFeeError(message);
+    }
   };
 
   return (
@@ -431,6 +464,19 @@ export default function AdminDashboardPage() {
                   </label>
 
                   <label className="space-y-2 text-sm text-slate-200">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Số CCCD</span>
+                    <input
+                      type="text"
+                      value={feeDraft.personalId}
+                      onChange={(event) => handleFeeChange('personalId', event.target.value)}
+                      placeholder="Nhập số CCCD"
+                      className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400/40"
+                    />
+                  </label>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <label className="space-y-2 text-sm text-slate-200">
                     <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Số tiền (VNĐ)</span>
                     <input
                       type="number"
@@ -441,9 +487,7 @@ export default function AdminDashboardPage() {
                       className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400/40"
                     />
                   </label>
-                </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
                   <label className="space-y-2 text-sm text-slate-200">
                     <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Hạn nộp</span>
                     <input
@@ -454,7 +498,7 @@ export default function AdminDashboardPage() {
                     />
                   </label>
 
-                  <div className="flex items-end">
+                  <div className="flex items-end md:col-span-2">
                     <button
                       type="submit"
                       className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-400"

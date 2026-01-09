@@ -31,7 +31,7 @@ interface Bill {
 
 type PaymentMethod = "bank" | "wallet" | "card";
 
-const API_BASE = "https://name-production-0016.up.railway.app/resident-management";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
 
 async function loadFeeItems(): Promise<FeeItem[]> {
   const userId = loadUserId();
