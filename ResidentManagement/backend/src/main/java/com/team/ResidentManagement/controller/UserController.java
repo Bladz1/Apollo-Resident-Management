@@ -38,6 +38,16 @@ public class UserController {
     }
 
     /**
+     * Đăng ký tài khoản mới cho cư dân.
+     */
+    @PostMapping("/register")
+    public ApiResponse<UserResponse> registerUser(@RequestBody @Valid UserCreationRequest request) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.registerUser(request))
+                .build();
+    }
+
+    /**
      * Lấy danh sách toàn bộ người dùng.
      */
     @GetMapping()
