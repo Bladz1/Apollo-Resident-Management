@@ -17,8 +17,10 @@ function decodeBase64Url(input: string): string | null {
 function parseJwt(token: string): Record<string, unknown> | null {
   const parts = token.split('.');
   if (parts.length < 2) return null;
+
   const payload = decodeBase64Url(parts[1]);
   if (!payload) return null;
+
   try {
     return JSON.parse(payload) as Record<string, unknown>;
   } catch {
@@ -70,7 +72,7 @@ function deriveRolesFromJwt(token: string): string[] {
   const claims = parseJwt(token);
   if (!claims) return [];
 
-  const keys = ['roles', 'role', 'authorities', 'permissions', 'scopes', 'scope'];
+  const keys = ['roles', 'role', 'authorities', 'permissions', 'scopes', 'scope'] as const;
   for (const k of keys) {
     const r = normalizeRoles(claims[k]);
     if (r?.length) return r;
@@ -96,31 +98,46 @@ function deriveRolesFromJwt(token: string): string[] {
 }
 
 export async function GET() {
-  const cookieStore = await cookies();
-const token = cookieStore.get('token')?.value;
+  try {
+    // ✅ PHẢI await
+    const cookieStore = await cookies();
+    const token = cookieStore.get('token')?.value;
 
-  if (!token) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    if (!token) {
+      return NextResponse.json(
+        { message: 'Unauthorized (missing token)' },
+        { status: 401 }
+      );
+    }
+
+    // 1) gọi backend thật
+    const res = await fetch(`${API_BASE_URL}/users/myInfo`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      return NextResponse.json(
+        { message: 'Backend rejected', status: res.status, body: text },
+        { status: res.status }
+      );
+    }
+
+    const data = await res.json();
+
+    // 2) decode roles từ JWT cookie
+    const roles = deriveRolesFromJwt(token);
+
+    // 3) trả về data + roles
+    return NextResponse.json({ ...data, roles });
+  } catch (e) {
+    return NextResponse.json(
+      {
+        message: 'myInfo route error',
+        error: e instanceof Error ? e.message : String(e),
+      },
+      { status: 500 }
+    );
   }
-
-  // 1) gọi backend thật
-  const res = await fetch(`${API_BASE_URL}/users/myInfo`, {
-    headers: { Authorization: `Bearer ${token}` },
-    cache: 'no-store',
-  });
-
-  if (!res.ok) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: res.status });
-  }
-
-  const data = await res.json();
-
-  // 2) decode roles từ JWT cookie
-  const roles = deriveRolesFromJwt(token);
-
-  // 3) trả về data + roles
-  return NextResponse.json({
-    ...data,
-    roles,
-  });
 }

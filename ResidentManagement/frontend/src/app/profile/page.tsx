@@ -57,11 +57,12 @@ const ProfilePage = () => {
       try {
         setLoadingProfile(true);
 
-        const res = await fetch('/api/users/myInfo', {
+        const res = await fetch('/api/auth/users/myInfo', {
           method: 'GET',
           cache: 'no-store',
           signal: controller.signal,
         });
+
 
         if (!res.ok) {
           router.replace('/login?next=/profile');

@@ -3,11 +3,7 @@
 import Link from 'next/link';
 import { FormEvent, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import {
-  extractRolesFromToken,
-  extractUsernameFromToken,
-  saveAuth,
-} from '@/utils/auth-storage';
+import { extractRolesFromToken, extractUsernameFromToken, saveAuth } from '@/utils/auth-storage';
 import styles from './login.module.css';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8080';
@@ -132,6 +128,7 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // ✅ next chỉ dùng khi middleware đá qua login?next=/profile hoặc /admin
   const nextPath = useMemo(() => searchParams.get('next') || '/', [searchParams]);
 
   const [username, setUsername] = useState('');
@@ -191,12 +188,12 @@ export default function LoginPage() {
       const resolvedRoles = rolesFromResponse ?? extractRolesFromToken(tokenFromResponse) ?? [];
       const isAdmin = resolvedRoles.some((role) => role === 'ADMIN' || role === 'ROLE_ADMIN');
 
-      // 2) ✅ QUAN TRỌNG: set cookie httpOnly để middleware đọc được
+      // 2) ✅ set cookie httpOnly để middleware đọc được
       const cookieRes = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: tokenFromResponse }),
-        credentials: 'include', // ⭐ phải có để browser lưu cookie
+        credentials: 'same-origin', // ✅ đủ để lưu cookie cho cùng domain
       });
 
       if (!cookieRes.ok) {
@@ -213,12 +210,13 @@ export default function LoginPage() {
       setStatus('success');
       setMessage('Đăng nhập thành công!');
 
-      // 4) ✅ redirect theo next trước (do middleware đẩy qua login?next=/profile)
-      if (nextPath) {
+      // 4) ✅ ưu tiên next nếu nó là route protected
+      if (nextPath && nextPath !== '/' && (nextPath.startsWith('/profile') || nextPath.startsWith('/admin'))) {
         router.replace(nextPath);
         return;
       }
 
+      // nếu không có next hợp lệ → điều hướng theo role
       router.replace(isAdmin ? '/admin' : '/');
     } catch {
       setStatus('error');
