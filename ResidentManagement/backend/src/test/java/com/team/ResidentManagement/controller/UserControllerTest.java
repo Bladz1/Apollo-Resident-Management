@@ -43,17 +43,17 @@ public class UserControllerTest {
 
         request = UserCreationRequest.builder()
                 .username("John")
-                .firstName("John")
-                .lastName("Smith")
                 .password("22222222q")
+                .email("john.smith@example.com")
+                .gender("MALE")
                 .birthday(date)
                 .build();
 
         userResponse = UserResponse.builder()
                 .id("123456789")
                 .username("John")
-                .firstName("John")
-                .lastName("Smith")
+                .email("john.smith@example.com")
+                .gender("MALE")
                 .birthday(date)
                 .build();
     }
