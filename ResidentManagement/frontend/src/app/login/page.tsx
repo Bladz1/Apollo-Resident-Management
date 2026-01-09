@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, Suspense, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { extractRolesFromToken, extractUsernameFromToken, saveAuth } from '@/utils/auth-storage';
 import styles from './login.module.css';
@@ -124,7 +124,7 @@ function extractAuthDetails(payload: unknown): AuthExtractionResult {
   return result;
 }
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -329,5 +329,15 @@ export default function LoginPage() {
         </section>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={<div className="flex min-h-screen items-center justify-center text-slate-600">Đang tải...</div>}
+    >
+      <LoginPageContent />
+    </Suspense>
   );
 }
