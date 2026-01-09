@@ -1,9 +1,13 @@
-'use client'; // ⚠️ phải ở dòng đầu tiên!
+'use client';
 
 import Link from 'next/link';
-import { FormEvent, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { extractRolesFromToken, extractUsernameFromToken, saveAuth } from '@/utils/auth-storage';
+import { FormEvent, useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import {
+  extractRolesFromToken,
+  extractUsernameFromToken,
+  saveAuth,
+} from '@/utils/auth-storage';
 import styles from './login.module.css';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8080';
@@ -45,6 +49,7 @@ function normalizeRoles(value: unknown): string[] | null {
     if (typeof current === 'object') {
       if (visited.has(current as object)) continue;
       visited.add(current as object);
+
       for (const candidate of Object.values(current as Record<string, unknown>)) {
         queue.push(candidate);
       }
@@ -126,6 +131,10 @@ function extractAuthDetails(payload: unknown): AuthExtractionResult {
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const nextPath = useMemo(() => searchParams.get('next') || '/', [searchParams]);
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -136,10 +145,6 @@ export default function LoginPage() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log("SUBMIT RUN");
-    console.log("API_BASE_URL =", API_BASE_URL);
-    console.log("FETCH TO =", `${API_BASE_URL}/auth/token`);
-
 
     setLoading(true);
     setStatus('idle');
@@ -171,8 +176,17 @@ export default function LoginPage() {
         return;
       }
 
-      const { token: tokenFromResponse, username: usernameFromResponse, roles: rolesFromResponse } =
-        extractAuthDetails(parsed);
+      const {
+        token: tokenFromResponse,
+        username: usernameFromResponse,
+        roles: rolesFromResponse,
+      } = extractAuthDetails(parsed);
+
+      if (!tokenFromResponse) {
+        setStatus('error');
+        setMessage('API không trả về token. Kiểm tra response của /auth/token.');
+        return;
+      }
 
       const resolvedUsername =
         usernameFromResponse ?? extractUsernameFromToken(tokenFromResponse) ?? username;
@@ -180,11 +194,20 @@ export default function LoginPage() {
       const resolvedRoles = rolesFromResponse ?? extractRolesFromToken(tokenFromResponse) ?? [];
       const isAdmin = resolvedRoles.some((role) => role === 'ADMIN' || role === 'ROLE_ADMIN');
 
-      saveAuth(tokenFromResponse ?? null, resolvedUsername);
+      // ✅ QUAN TRỌNG: await để cookie được set trước khi redirect
+      await saveAuth(tokenFromResponse, resolvedUsername);
 
       setStatus('success');
-      setMessage('Đăng nhập thành công! API đã phản hồi thành công.');
-      router.push(isAdmin ? '/admin' : '/');
+      setMessage('Đăng nhập thành công!');
+
+      // Ưu tiên next=... nếu có (khi middleware đá qua /login?next=/profile)
+      if (nextPath && nextPath !== '/') {
+        router.replace(nextPath);
+        return;
+      }
+
+      // Nếu không có next thì điều hướng theo role
+      router.replace(isAdmin ? '/admin' : '/');
     } catch {
       setStatus('error');
       setMessage('Sai thông tin đăng nhập. Vui lòng thử lại !');
@@ -210,7 +233,6 @@ export default function LoginPage() {
       </div>
 
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center justify-center gap-10 px-6 py-0 lg:flex-row lg:items-center lg:justify-center">
-        {/* ✅ LIGHT LOGIN CARD */}
         <section className="w-full max-w-xl space-y-6 rounded-3xl border border-slate-200 bg-white p-10 shadow-xl">
           <h1 className="text-3xl font-black tracking-tight text-slate-900">Đăng nhập hệ thống</h1>
 
@@ -248,28 +270,18 @@ export default function LoginPage() {
 
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={() => setShowPassword((v) => !v)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none"
                   aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                 >
                   {showPassword ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="h-5 w-5"
-                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
                       <path d="M3.53 2.47a.75.75 0 00-1.06 1.06l18 18a.75.75 0 101.06-1.06l-18-18zM22.676 12.553a11.249 11.249 0 01-2.631 4.31l-3.099-3.099a5.25 5.25 0 00-6.71-6.71L7.759 4.577a11.217 11.217 0 014.242-.827c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113z" />
                       <path d="M15.75 12c0 .18-.013.357-.037.53l-4.244-4.243A3.75 3.75 0 0115.75 12zM12.53 15.713l-4.243-4.244a3.75 3.75 0 004.243 4.243z" />
                       <path d="M6.75 12c0-.619.107-1.213.304-1.764l-3.1-3.1a11.25 11.25 0 00-2.63 4.31c-.12.362-.12.752 0 1.114 1.489 4.467 5.704 7.69 10.675 7.69 1.5 0 2.933-.294 4.242-.827l-2.477-2.477A5.25 5.25 0 016.75 12z" />
                     </svg>
                   ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="h-5 w-5"
-                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
                       <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
                       <path
                         fillRule="evenodd"
@@ -312,15 +324,15 @@ export default function LoginPage() {
             </Link>
           </p>
 
-          {/* ✅ LIGHT ALERT BOX */}
           {status !== 'idle' && (
             <div
               role="alert"
               aria-live="polite"
-              className={`w-full rounded-md border px-4 py-3 text-sm ${status === 'error'
+              className={`w-full rounded-md border px-4 py-3 text-sm ${
+                status === 'error'
                   ? 'bg-rose-50 border-rose-300 text-rose-700'
                   : 'bg-emerald-50 border-emerald-300 text-emerald-700'
-                }`}
+              }`}
             >
               <div className="font-semibold">{status === 'error' ? 'Lỗi đăng nhập' : 'Thành công'}</div>
 

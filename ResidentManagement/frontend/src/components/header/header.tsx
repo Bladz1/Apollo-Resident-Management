@@ -93,12 +93,17 @@ const Header = () => {
   const isAdmin = authState.isAdmin;
   const displayName = authState.username ?? 'Người dùng';
 
-  const handleLogout = () => {
-    clearAuth();
-    setAuthState({ isAuthenticated: false, username: null, isAdmin: false });
-    setIsOpen(false);
-    setIsProfileOpen(false);
-  };
+ const handleLogout = async () => {
+  await clearAuth(); // ✅ quan trọng
+  setAuthState({
+    isAuthenticated: false,
+    username: null,
+    isAdmin: false,
+  });
+  setIsOpen(false);
+  setIsProfileOpen(false);
+};
+
 
   return (
     <header className="bg-gradient-to-r from-red-800 via-red-950 to-red-800 text-white shadow-md">

@@ -18,7 +18,6 @@ function isBrowser() {
 
 function dispatchAuthChanged(detail: AuthChangeDetail) {
   if (!isBrowser()) return;
-
   window.dispatchEvent(new CustomEvent<AuthChangeDetail>(AUTH_CHANGE_EVENT, { detail }));
 }
 
@@ -53,14 +52,10 @@ function decodeBase64Url(value: string): string | null {
 
 function parseJwt(token: string): Record<string, unknown> | null {
   const parts = token.split('.');
-  if (parts.length < 2) {
-    return null;
-  }
+  if (parts.length < 2) return null;
 
   const payload = decodeBase64Url(parts[1]);
-  if (!payload) {
-    return null;
-  }
+  if (!payload) return null;
 
   try {
     return JSON.parse(payload) as Record<string, unknown>;
@@ -89,9 +84,7 @@ function splitRoles(value: string): string[] {
 }
 
 function normalizeRoles(value: unknown): string[] | null {
-  if (!value) {
-    return null;
-  }
+  if (!value) return null;
 
   const collected = new Set<string>();
   const queue: unknown[] = [value];
@@ -100,9 +93,7 @@ function normalizeRoles(value: unknown): string[] | null {
   while (queue.length > 0) {
     const current = queue.shift();
 
-    if (!current) {
-      continue;
-    }
+    if (!current) continue;
 
     if (typeof current === 'string') {
       splitRoles(current).forEach((role) => collected.add(role));
@@ -115,10 +106,7 @@ function normalizeRoles(value: unknown): string[] | null {
     }
 
     if (typeof current === 'object') {
-      if (visited.has(current as object)) {
-        continue;
-      }
-
+      if (visited.has(current as object)) continue;
       visited.add(current as object);
 
       for (const candidate of Object.values(current as Record<string, unknown>)) {
@@ -127,22 +115,15 @@ function normalizeRoles(value: unknown): string[] | null {
     }
   }
 
-  if (collected.size === 0) {
-    return null;
-  }
-
+  if (collected.size === 0) return null;
   return Array.from(collected);
 }
 
 function deriveUsernameFromJwt(token: string | null | undefined): string | null {
-  if (!token) {
-    return null;
-  }
+  if (!token) return null;
 
   const claims = parseJwt(token);
-  if (!claims) {
-    return null;
-  }
+  if (!claims) return null;
 
   const username = pickString(claims, [
     'preferred_username',
@@ -156,45 +137,32 @@ function deriveUsernameFromJwt(token: string | null | undefined): string | null 
 }
 
 function deriveIdFromJwt(token: string | null | undefined): string | null {
-  if (!token) {
-    return null;
-  }
+  if (!token) return null;
 
   const claims = parseJwt(token);
-  if (!claims) {
-    return null;
-  }
+  if (!claims) return null;
 
-  const id = pickString(claims, ['uid', 'user_id','id', "userId"]);
-
+  const id = pickString(claims, ['uid', 'user_id', 'id', 'userId']);
   return id ?? null;
 }
 
 function deriveRolesFromJwt(token: string | null | undefined): string[] | null {
-  if (!token) {
-    return null;
-  }
+  if (!token) return null;
 
   const claims = parseJwt(token);
-  if (!claims) {
-    return null;
-  }
+  if (!claims) return null;
 
   const candidateKeys = ['roles', 'role', 'authorities', 'permissions', 'scopes', 'scope'];
 
   for (const key of candidateKeys) {
     const roles = normalizeRoles(claims[key]);
-    if (roles && roles.length > 0) {
-      return roles;
-    }
+    if (roles && roles.length > 0) return roles;
   }
 
   const realmAccess = claims['realm_access'];
   if (realmAccess && typeof realmAccess === 'object') {
     const roles = normalizeRoles((realmAccess as Record<string, unknown>)['roles']);
-    if (roles && roles.length > 0) {
-      return roles;
-    }
+    if (roles && roles.length > 0) return roles;
   }
 
   const resourceAccess = claims['resource_access'];
@@ -202,9 +170,7 @@ function deriveRolesFromJwt(token: string | null | undefined): string[] | null {
     for (const value of Object.values(resourceAccess as Record<string, unknown>)) {
       if (value && typeof value === 'object') {
         const roles = normalizeRoles((value as Record<string, unknown>)['roles']);
-        if (roles && roles.length > 0) {
-          return roles;
-        }
+        if (roles && roles.length > 0) return roles;
       }
     }
   }
@@ -212,7 +178,30 @@ function deriveRolesFromJwt(token: string | null | undefined): string[] | null {
   return null;
 }
 
-export function saveAuth(token: string | null | undefined, username: string | null | undefined) {
+/**
+ * ✅ Đồng bộ cookie token để middleware/server đọc được
+ * - Set cookie qua POST /api/auth/login
+ * - Xoá cookie qua POST /api/auth/logout
+ */
+async function syncCookieToken(token: string | null) {
+  if (!isBrowser()) return;
+
+  try {
+    if (token) {
+      await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+    } else {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    }
+  } catch {
+    // Không throw để tránh phá UI khi network tạm lỗi
+  }
+}
+
+export async function saveAuth(token: string | null | undefined, username: string | null | undefined) {
   if (!isBrowser()) return;
 
   const normalizedToken = token?.trim() ?? null;
@@ -231,6 +220,9 @@ export function saveAuth(token: string | null | undefined, username: string | nu
     window.localStorage.removeItem(USERNAME_KEY);
   }
 
+  // ✅ cookie sync (để vào /profile không bị đá /login)
+  await syncCookieToken(normalizedToken);
+
   dispatchAuthChanged({
     token: normalizedToken,
     username: resolvedUsername ?? null,
@@ -243,9 +235,7 @@ export function loadAuth(): StoredAuth | null {
   const token = window.localStorage.getItem(TOKEN_KEY);
   const storedUsername = window.localStorage.getItem(USERNAME_KEY);
 
-  if (!token) {
-    return null;
-  }
+  if (!token) return null;
 
   const resolvedUsername = storedUsername?.trim() || deriveUsernameFromJwt(token) || '';
 
@@ -255,11 +245,15 @@ export function loadAuth(): StoredAuth | null {
   };
 }
 
-export function clearAuth() {
+export async function clearAuth() {
   if (!isBrowser()) return;
 
   window.localStorage.removeItem(TOKEN_KEY);
   window.localStorage.removeItem(USERNAME_KEY);
+
+  // ✅ xoá cookie
+  await syncCookieToken(null);
+
   dispatchAuthChanged({ token: null, username: null });
 }
 
