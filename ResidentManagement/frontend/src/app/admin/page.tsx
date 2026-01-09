@@ -61,6 +61,24 @@ const automationRules = [
   },
 ];
 
+const feeCategories = [
+  {
+    id: 'health-social',
+    label: 'Phí y tế - xã hội',
+    description: 'Bao gồm quỹ y tế, hỗ trợ xã hội, và chăm sóc cộng đồng.',
+  },
+  {
+    id: 'administrative',
+    label: 'Phí hành chính công',
+    description: 'Lệ phí cấp giấy tờ, đăng ký dịch vụ công và xác thực hồ sơ.',
+  },
+  {
+    id: 'transport',
+    label: 'Phí giao thông',
+    description: 'Phí đường bộ, phương tiện công cộng, và hạ tầng giao thông.',
+  },
+];
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8080';
 
 type FeedbackStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
@@ -75,6 +93,15 @@ type Complaint = {
   title?: string;
 };
 
+type FeeRecord = {
+  id: string;
+  categoryId: string;
+  categoryLabel: string;
+  amount: string;
+  dueDate: string;
+  createdAt: string;
+};
+
 type ApiResponse<T> = {
   result: T;
 };
@@ -83,6 +110,13 @@ export default function AdminDashboardPage() {
   const [localComplaints, setLocalComplaints] = useState<Complaint[]>([]);
   const [loadingComplaints, setLoadingComplaints] = useState(true);
   const [complaintError, setComplaintError] = useState<string | null>(null);
+  const [feeRecords, setFeeRecords] = useState<FeeRecord[]>([]);
+  const [feeError, setFeeError] = useState<string | null>(null);
+  const [feeDraft, setFeeDraft] = useState({
+    categoryId: feeCategories[0]?.id ?? '',
+    amount: '',
+    dueDate: '',
+  });
 
   const loadComplaints = async () => {
     setLoadingComplaints(true);
@@ -151,6 +185,40 @@ export default function AdminDashboardPage() {
       const message = error instanceof Error ? error.message : 'Cập nhật trạng thái thất bại.';
       setComplaintError(message);
     }
+  };
+
+  const handleFeeChange = (field: 'categoryId' | 'amount' | 'dueDate', value: string) => {
+    setFeeDraft((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleFeeSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setFeeError(null);
+
+    if (!feeDraft.categoryId || !feeDraft.amount || !feeDraft.dueDate) {
+      setFeeError('Vui lòng nhập đầy đủ loại phí, số tiền và hạn nộp.');
+      return;
+    }
+
+    const category = feeCategories.find((item) => item.id === feeDraft.categoryId);
+    const newRecord: FeeRecord = {
+      id: `fee-${Date.now()}`,
+      categoryId: feeDraft.categoryId,
+      categoryLabel: category?.label ?? 'Chưa xác định',
+      amount: feeDraft.amount,
+      dueDate: feeDraft.dueDate,
+      createdAt: new Date().toLocaleString('vi-VN', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+      }),
+    };
+
+    setFeeRecords((prev) => [newRecord, ...prev].slice(0, 5));
+    setFeeDraft({
+      categoryId: feeDraft.categoryId,
+      amount: '',
+      dueDate: '',
+    });
   };
 
   return (
@@ -327,6 +395,135 @@ export default function AdminDashboardPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 3 */}
+        <section className="w-full">
+          <div className="w-full rounded-3xl border border-white/10 bg-slate-900/70 shadow-xl shadow-black/40 backdrop-blur">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 px-8 py-6">
+              <div>
+                <h2 className="text-xl font-semibold text-white">Tạo phí cho người dân</h2>
+                <p className="text-xs text-slate-400">
+                  Thiết lập các loại phí, số tiền và hạn nộp cho từng dịch vụ công.
+                </p>
+              </div>
+              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs font-semibold text-slate-200">
+                Cập nhật mới nhất: {new Date().toLocaleDateString('vi-VN')}
+              </span>
+            </div>
+
+            <div className="grid gap-8 px-8 py-8 lg:grid-cols-[1.2fr,0.8fr]">
+              <form onSubmit={handleFeeSubmit} className="space-y-5">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <label className="space-y-2 text-sm text-slate-200">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Loại phí</span>
+                    <select
+                      value={feeDraft.categoryId}
+                      onChange={(event) => handleFeeChange('categoryId', event.target.value)}
+                      className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-400/40"
+                    >
+                      {feeCategories.map((category) => (
+                        <option key={category.id} value={category.id} className="bg-slate-950">
+                          {category.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="space-y-2 text-sm text-slate-200">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Số tiền (VNĐ)</span>
+                    <input
+                      type="number"
+                      min={0}
+                      value={feeDraft.amount}
+                      onChange={(event) => handleFeeChange('amount', event.target.value)}
+                      placeholder="Ví dụ: 250000"
+                      className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400/40"
+                    />
+                  </label>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <label className="space-y-2 text-sm text-slate-200">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Hạn nộp</span>
+                    <input
+                      type="date"
+                      value={feeDraft.dueDate}
+                      onChange={(event) => handleFeeChange('dueDate', event.target.value)}
+                      className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-400/40"
+                    />
+                  </label>
+
+                  <div className="flex items-end">
+                    <button
+                      type="submit"
+                      className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-400"
+                    >
+                      Tạo phí mới
+                    </button>
+                  </div>
+                </div>
+
+                {feeError && (
+                  <div className="rounded-2xl border border-rose-400/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+                    {feeError}
+                  </div>
+                )}
+
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Gợi ý loại phí</p>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                    {feeCategories.map((category) => (
+                      <div key={category.id} className="rounded-xl border border-white/10 bg-slate-950/60 p-3">
+                        <p className="text-sm font-semibold text-white">{category.label}</p>
+                        <p className="mt-1 text-xs text-slate-400">{category.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </form>
+
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-5">
+                  <h3 className="text-sm font-semibold text-white">Phí đã tạo gần đây</h3>
+                  <p className="mt-1 text-xs text-slate-400">Lưu tối đa 5 lần tạo phí gần nhất.</p>
+
+                  <div className="mt-4 space-y-3">
+                    {feeRecords.length === 0 && (
+                      <div className="rounded-xl border border-dashed border-white/10 p-4 text-center text-xs text-slate-500">
+                        Chưa có phí nào được tạo. Điền form để bắt đầu.
+                      </div>
+                    )}
+                    {feeRecords.map((record) => (
+                      <div key={record.id} className="rounded-xl border border-white/10 bg-white/5 p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-semibold text-white">{record.categoryLabel}</p>
+                            <p className="text-xs text-slate-400">Tạo lúc {record.createdAt}</p>
+                          </div>
+                          <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-200">
+                            {record.amount} VNĐ
+                          </span>
+                        </div>
+                        <div className="mt-3 text-xs text-slate-300">
+                          Hạn nộp: <span className="font-semibold text-white">{record.dueDate}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-5 text-xs text-emerald-100">
+                  <p className="font-semibold text-emerald-50">Lưu ý vận hành</p>
+                  <ul className="mt-3 space-y-2">
+                    <li>• Kiểm tra lại hạn nộp để tránh trùng lặp kỳ thu.</li>
+                    <li>• Cân đối số tiền theo quy định phí địa phương.</li>
+                    <li>• Thông báo cho người dân qua hệ thống thông báo khi đã tạo phí.</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </section>
