@@ -38,7 +38,7 @@ public class UserController {
                 .result(userService.createUser(request))
                 .build();
     }
-    @GetMapping("/{userId}")
+    @PutMapping("/status/{userId}")
     public ApiResponse<UserResponse> updateUser(@PathVariable String userId, @RequestBody UpdateUserStatusRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.updateUserStatus(userId,request))

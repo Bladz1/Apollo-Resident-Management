@@ -47,6 +47,8 @@ public class User {
 
     String avatarUrl;
 
+    String status;
+
     /** Các vai trò của người dùng trong hệ thống. */
     @ManyToMany
     Set<Role> roles;
