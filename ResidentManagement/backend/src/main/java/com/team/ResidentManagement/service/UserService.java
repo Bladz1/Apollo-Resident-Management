@@ -34,7 +34,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -139,7 +138,7 @@ public class UserService {
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
-    @Cacheable(value = "users", key = "#UserId")
+    @Cacheable(value = "users", key = "#userId")
     public UserResponse updateUserStatus(String userId, UpdateUserStatusRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
