@@ -28,6 +28,7 @@ public enum ErrorCode {
     ONLY_FILE_ALLOW(1015, "Only File Allowed ", HttpStatus.BAD_REQUEST),
     UPLOAD_FAILED(1016, "Upload Failed", HttpStatus.INTERNAL_SERVER_ERROR),
     FEEDBACK_NOT_FOUND(1017, "Feedback Not Found", HttpStatus.NOT_FOUND),
+    USER_NOT_ACCEPT(1018, "User Not Accepted", HttpStatus.FORBIDDEN),
     ;
 
     /** Mã số lỗi nội bộ phục vụ phân loại. */

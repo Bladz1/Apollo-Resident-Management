@@ -1,5 +1,6 @@
 package com.team.ResidentManagement.controller;
 
+import com.team.ResidentManagement.dto.request.UpdateUserStatusRequest;
 import com.team.ResidentManagement.dto.response.ApiResponse;
 import com.team.ResidentManagement.dto.request.UserCreationRequest;
 import com.team.ResidentManagement.dto.request.UserUpdateRequest;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Controller quản lý người dùng: tạo, cập nhật, xem thông tin.
@@ -34,6 +36,12 @@ public class UserController {
     public ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.createUser(request))
+                .build();
+    }
+    @GetMapping("/{userId}")
+    public ApiResponse<UserResponse> updateUser(@PathVariable String userId, @RequestBody UpdateUserStatusRequest request) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.updateUserStatus(userId,request))
                 .build();
     }
 

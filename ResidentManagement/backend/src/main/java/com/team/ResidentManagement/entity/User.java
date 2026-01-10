@@ -39,6 +39,8 @@ public class User {
 
     String email;
 
+    String status;
+
     String avatarUrl;
 
     /** Các vai trò của người dùng trong hệ thống. */

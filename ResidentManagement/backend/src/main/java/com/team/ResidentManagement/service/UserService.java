@@ -3,6 +3,7 @@ package com.team.ResidentManagement.service;
 import com.team.ResidentManagement.Mapper.FeedbackMapper;
 import com.team.ResidentManagement.Mapper.UserMapper;
 import com.team.ResidentManagement.constant.PredefinedRole;
+import com.team.ResidentManagement.dto.request.UpdateUserStatusRequest;
 import com.team.ResidentManagement.dto.request.UserCreationRequest;
 import com.team.ResidentManagement.dto.request.UserUpdateRequest;
 import com.team.ResidentManagement.dto.response.FeedbackResponse;
@@ -85,6 +86,7 @@ public class UserService {
         } catch (DataIntegrityViolationException exception){
             throw new AppException(ErrorCode.USER_EXISTED);
         }
+        user.setStatus("PENDING");
 
         return userMapper.toUserResponse(user);
     }
@@ -123,6 +125,15 @@ public class UserService {
 
         var fees = feeRepository.findAllById(request.getFees());
         user.setFees(new HashSet<>(fees));
+
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
+    @Cacheable(value = "users", key = "#UserId")
+    public UserResponse updateUserStatus(String userId, UpdateUserStatusRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setStatus(request.isUpdate() ? "ACCEPTED" : "REJECTED");
 
         return userMapper.toUserResponse(userRepository.save(user));
     }

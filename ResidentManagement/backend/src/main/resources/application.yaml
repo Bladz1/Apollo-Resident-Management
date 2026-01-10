@@ -1,7 +1,7 @@
 jwt:
   signerKey: "FtnneCAPzaRwuVV6JBy1OgtRhoq08Fp/JYu5OFdCj+zPqDyn8+1VlXtwBcX8u4CJ"
-  valid-duration: 3600
-  refreshable-duration: 7200
+  valid-duration: 86400
+  refreshable-duration: 604800
 
 server:
   port: 8080

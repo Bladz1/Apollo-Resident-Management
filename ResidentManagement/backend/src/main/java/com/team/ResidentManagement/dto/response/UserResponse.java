@@ -24,6 +24,7 @@ public class UserResponse {
     String phoneNumber;
     String address;
     String password;
+    String status;
     Set<RoleResponse> roles;
     Set<FeeResponse> fees;
     Set<FeedbackResponse> feedbacks;

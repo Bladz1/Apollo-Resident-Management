@@ -85,7 +85,6 @@ public class AuthenticationService {
      * Xác thực người dùng bằng username/password và phát hành JWT mới.
      */
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        log.info("SignKey: {}", SIGNER_KEY);
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         var user = userRepository.findByUsername(request.getUsername())
@@ -96,7 +95,9 @@ public class AuthenticationService {
         if (!authenticated) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
-
+        if (user.getStatus().equals("PENDING") || user.getStatus().equals("REJECTED")){
+            throw new AppException(ErrorCode.USER_NOT_ACCEPT);
+        }
 
         var token = generateToken(user);
 
