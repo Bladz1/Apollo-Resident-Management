@@ -20,6 +20,7 @@ public class UserResponse {
     String gender;
     LocalDate birthday;
     String email;
+    String personalId;
     String avatarUrl;
     String phoneNumber;
     String address;

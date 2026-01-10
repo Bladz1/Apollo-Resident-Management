@@ -4,12 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  extractRolesFromToken,
-  loadAuth,
-  loadUserId,
-  loadUsername,
-} from '@/utils/auth-storage';
+import { loadUserId, loadUsername } from '@/utils/auth-storage';
 
 type SensitiveFieldKey = 'personalId' | 'phone';
 
@@ -17,7 +12,7 @@ type UserProfile = {
   personalId: string;
   phone: string;
   gender: string;
-  dob: string; // ví dụ: "12/09/1994" hoặc ISO
+  dob: string;
   address: string;
 };
 
@@ -31,9 +26,7 @@ const ProfilePage = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
 
-  const [visibleFields, setVisibleFields] = useState<
-    Record<SensitiveFieldKey, boolean>
-  >({
+  const [visibleFields, setVisibleFields] = useState<Record<SensitiveFieldKey, boolean>>({
     personalId: false,
     phone: false,
   });
@@ -41,9 +34,7 @@ const ProfilePage = () => {
   const [isAddressExpanded, setIsAddressExpanded] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const timersRef = useRef<
-    Partial<Record<SensitiveFieldKey, ReturnType<typeof setTimeout>>>
-  >({});
+  const timersRef = useRef<Partial<Record<SensitiveFieldKey, ReturnType<typeof setTimeout>>>>({});
 
   // Auto hide toast
   useEffect(() => {
@@ -52,54 +43,47 @@ const ProfilePage = () => {
     return () => clearTimeout(timer);
   }, [toastMessage]);
 
-  // Load auth + fetch profile (CÁCH 1)
+  // ✅ Load username/userId (local) + fetch profile (server đọc cookie)
   useEffect(() => {
-    const stored = loadAuth();
-    const token = stored?.token ?? null;
-
     const loadedUsername = loadUsername();
     const loadedUserId = loadUserId();
 
     setUsername(loadedUsername);
     setUserId(loadedUserId);
-    setRoles(extractRolesFromToken(token) ?? []);
+
+    const controller = new AbortController();
 
     const fetchProfile = async () => {
       try {
         setLoadingProfile(true);
 
-        if (!token) {
-          router.push('/login');
-          return;
-        }
-
-        // ✅ Bạn đổi endpoint này theo backend của bạn
-        // Ví dụ: /api/me hoặc `${process.env.NEXT_PUBLIC_API_URL}/me`
-        const res = await fetch('/users/myInfo', {
+        const res = await fetch('/api/auth/users/myInfo', {
           method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
           cache: 'no-store',
+          signal: controller.signal,
         });
 
+
         if (!res.ok) {
-          router.push('/login');
+          router.replace('/login?next=/profile');
           return;
         }
 
         const data = await res.json();
-        
-        // ✅ Map theo response backend của bạn
-        // Ví dụ backend trả về: { personalId, phone, gender, dob, address }
+
+        // ✅ lấy roles từ API proxy (đã decode từ cookie token ở server)
+        setRoles(Array.isArray(data.roles) ? data.roles : []);
+
         setProfile({
           personalId: data.personalId ?? loadedUserId ?? '',
-          phone: data.phone ?? '',
+          phone: data.phoneNumber ?? data.phone ?? '',
           gender: data.gender ?? '',
-          dob: data.dob ?? '',
+          dob: data.birthday ?? data.dob ?? '',
           address: data.address ?? '',
         });
-      } catch (error) {
+      } catch (err) {
+        // Abort thì im lặng
+        if (err instanceof DOMException && err.name === 'AbortError') return;
         setToastMessage('Không tải được hồ sơ. Vui lòng thử lại.');
       } finally {
         setLoadingProfile(false);
@@ -107,10 +91,12 @@ const ProfilePage = () => {
     };
 
     fetchProfile();
+
+    return () => controller.abort();
   }, [router]);
 
   const isAdmin = useMemo(
-    () => roles.some((role) => role.toUpperCase().includes('ADMIN')),
+    () => roles.some((role) => String(role).toUpperCase().includes('ADMIN')),
     [roles],
   );
 
@@ -122,12 +108,8 @@ const ProfilePage = () => {
 
   const maskValue = (value: string, visibleCount = 3) => {
     if (!value) return '—';
-    if (value.length <= visibleCount * 2) {
-      return `${value.slice(0, visibleCount)}••••`;
-    }
-    return `${value.slice(0, visibleCount)}${'•'.repeat(
-      Math.max(value.length - visibleCount * 2, 4),
-    )}${value.slice(-visibleCount)}`;
+    if (value.length <= visibleCount * 2) return `${value.slice(0, visibleCount)}••••`;
+    return `${value.slice(0, visibleCount)}${'•'.repeat(Math.max(value.length - visibleCount * 2, 4))}${value.slice(-visibleCount)}`;
   };
 
   const handleRevealField = (field: SensitiveFieldKey) => {
@@ -179,7 +161,7 @@ const ProfilePage = () => {
     try {
       await navigator.clipboard.writeText(value);
       setToastMessage('Đã sao chép thông tin.');
-    } catch (error) {
+    } catch {
       setToastMessage('Không thể sao chép, vui lòng thử lại.');
     }
   };
@@ -197,9 +179,7 @@ const ProfilePage = () => {
             onClick={() => router.back()}
             className="flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-black/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
           >
-            <span aria-hidden className="text-lg">
-              ←
-            </span>
+            <span aria-hidden className="text-lg">←</span>
             Thông tin cá nhân
           </button>
 
@@ -256,9 +236,7 @@ const ProfilePage = () => {
 
         <div className="mx-auto flex w-full max-w-[1120px] flex-col justify-center px-4 py-16 sm:px-6 md:py-20">
           <p className="text-xs uppercase tracking-[0.3em] text-[#9b7a4a]">Hồ sơ cá nhân</p>
-          <h1 className="mt-3 text-3xl font-bold text-[#3f2a19] md:text-4xl">
-            Thông tin tài khoản
-          </h1>
+          <h1 className="mt-3 text-3xl font-bold text-[#3f2a19] md:text-4xl">Thông tin tài khoản</h1>
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-gray-700">
@@ -280,31 +258,24 @@ const ProfilePage = () => {
           <div className="rounded-2xl bg-white p-6 shadow-md">
             <div className="-mt-16 flex flex-col items-center text-center">
               <div className="h-24 w-24 overflow-hidden rounded-full border-4 border-white shadow-md md:h-24 md:w-24">
-                <Image
-                  src="/images/7.png"
-                  alt="Ảnh đại diện"
-                  width={96}
-                  height={96}
-                  className="h-full w-full object-cover"
-                />
+                <Image src="/images/7.png" alt="Ảnh đại diện" width={96} height={96} className="h-full w-full object-cover" />
               </div>
+
               <h2 className="mt-4 text-2xl font-semibold uppercase tracking-[0.05em] text-[#3f2a19]">
                 {username ?? 'Khách truy cập'}
               </h2>
+
               <div className="mt-2 inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-sm text-gray-600">
                 Định danh mức 1
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-yellow-100 text-yellow-700">
-                  ✓
-                </span>
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-yellow-100 text-yellow-700">✓</span>
               </div>
+
               <p className="mt-2 text-sm text-gray-500">{roleLabel}</p>
             </div>
 
             <div className="mt-6 rounded-xl bg-[#faf8f5] p-4 text-sm text-gray-600">
               <p className="font-medium text-gray-800">Trạng thái</p>
-              <p className="mt-2">
-                {loadingProfile ? 'Đang kiểm tra hồ sơ...' : 'Đã xác thực định danh cơ bản.'}
-              </p>
+              <p className="mt-2">{loadingProfile ? 'Đang kiểm tra hồ sơ...' : 'Đã xác thực định danh cơ bản.'}</p>
             </div>
           </div>
 
@@ -402,11 +373,7 @@ const ProfilePage = () => {
                 <div className="flex flex-col gap-3 py-4 min-[992px]:flex-row min-[992px]:items-start min-[992px]:justify-between">
                   <div className="text-sm text-gray-500">Nơi thường trú</div>
                   <div className="min-[992px]:max-w-[60%] min-[992px]:text-right">
-                    <p
-                      className={`text-[15px] font-medium text-gray-900 ${
-                        isAddressExpanded ? '' : 'line-clamp-2'
-                      }`}
-                    >
+                    <p className={`text-[15px] font-medium text-gray-900 ${isAddressExpanded ? '' : 'line-clamp-2'}`}>
                       {addressValue || (loadingProfile ? 'Đang tải...' : '—')}
                     </p>
 
@@ -427,8 +394,7 @@ const ProfilePage = () => {
             <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
               <h3 className="text-base font-semibold text-[#3f2a19]">Lưu ý bảo mật</h3>
               <p className="mt-2 text-sm text-gray-600">
-                Dữ liệu nhạy cảm được ẩn mặc định và chỉ hiển thị trong thời gian ngắn sau khi
-                xác nhận.
+                Dữ liệu nhạy cảm được ẩn mặc định và chỉ hiển thị trong thời gian ngắn sau khi xác nhận.
               </p>
               <div className="mt-4 flex flex-wrap gap-3">
                 <Link

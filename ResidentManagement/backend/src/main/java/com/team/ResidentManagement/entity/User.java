@@ -39,7 +39,11 @@ public class User {
 
     String email;
 
-    String status;
+    String address;
+
+    String personalId;
+
+    String phoneNumber;
 
     String avatarUrl;
 

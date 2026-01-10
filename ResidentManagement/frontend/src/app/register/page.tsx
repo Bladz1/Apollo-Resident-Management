@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
+
 const PASSWORD_REQUIREMENTS = [
   "Ít nhất 8 ký tự",
   "Bao gồm chữ hoa",
@@ -31,6 +33,7 @@ function validatePassword(password: string) {
 export default function RegisterPage() {
   const [formState, setFormState] = useState({
     nationalId: "",
+    username: "",
     fullName: "",
     address: "",
     phone: "",
@@ -45,6 +48,7 @@ export default function RegisterPage() {
 
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [message, setMessage] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
   const passwordValidation = useMemo(
     () => validatePassword(formState.password),
@@ -62,34 +66,85 @@ export default function RegisterPage() {
       }));
     };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (loading) return;
+    setLoading(true);
 
     if (!passwordValidation.isValid) {
       setStatus("error");
       setMessage("Mật khẩu chưa đáp ứng đủ tiêu chuẩn bảo mật.");
+      setLoading(false);
+      return;
+    }
+
+    if (formState.nationalId.length !== 12) {
+      setStatus("error");
+      setMessage("Số CCCD phải đủ 12 chữ số.");
+      setLoading(false);
       return;
     }
 
     if (!passwordsMatch) {
       setStatus("error");
       setMessage("Mật khẩu xác nhận không khớp.");
+      setLoading(false);
       return;
     }
 
     if (!formState.agree) {
       setStatus("error");
       setMessage("Bạn cần đồng ý với điều khoản sử dụng và chính sách chia sẻ thông tin.");
+      setLoading(false);
       return;
     }
 
-    setStatus("success");
-    setMessage("Thông tin đăng ký đã được ghi nhận. Hệ thống sẽ gửi email xác nhận nếu bạn cung cấp địa chỉ email.");
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: formState.username.trim(),
+          password: formState.password,
+          email: formState.email.trim() || null,
+          address: formState.address.trim(),
+          personalId: formState.nationalId,
+          phoneNumber: formState.phone.trim(),
+          gender: formState.gender,
+          birthday: formState.dob,
+        }),
+      });
+
+      const responseBody = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        setStatus("error");
+        setMessage(
+          responseBody?.message ??
+            `Đăng ký thất bại (HTTP ${response.status}). Vui lòng kiểm tra lại thông tin.`,
+        );
+        return;
+      }
+
+      setStatus("success");
+      setMessage("Tạo tài khoản thành công. Bạn có thể đăng nhập ngay.");
+      setFormState((prev) => ({
+        ...prev,
+        password: "",
+        confirmPassword: "",
+      }));
+    } catch (error) {
+      setStatus("error");
+      setMessage("Không thể kết nối đến máy chủ. Vui lòng thử lại sau.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleReset = () => {
     setFormState({
       nationalId: "",
+      username: "",
       fullName: "",
       address: "",
       phone: "",
@@ -138,14 +193,37 @@ export default function RegisterPage() {
                 id="national-id"
                 type="text"
                 inputMode="numeric"
-                pattern="\\d{12}"
-                title="Số CCCD gồm 12 chữ số"
                 required
+                minLength={12}
+                maxLength={12}
                 value={formState.nationalId}
-                onChange={(event) => handleChange("nationalId")(event.target.value)}
+                onChange={(e) => {
+                  const onlyAsciiDigits = e.target.value.replace(/[^0-9]/g, "");
+                  handleChange("nationalId")(onlyAsciiDigits.slice(0, 12));
+                }}
+                className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
+                autoComplete="off"
+              />
+              {formState.nationalId.length > 0 && formState.nationalId.length < 12 && (
+                <p className="mt-2 text-xs text-rose-600">Số CCCD cần đủ 12 chữ số.</p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="username" className="text-sm font-semibold text-slate-700">
+                Tên đăng nhập <span className="text-red-900">*</span>
+              </label>
+              <input
+                id="username"
+                type="text"
+                required
+                minLength={3}
+                maxLength={50}
+                value={formState.username}
+                onChange={(event) => handleChange("username")(event.target.value)}
                 className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
                 placeholder=""
-                autoComplete="off"
+                autoComplete="username"
               />
             </div>
 
@@ -239,10 +317,12 @@ export default function RegisterPage() {
                 onChange={(event) => handleChange("gender")(event.target.value)}
                 className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
               >
-
+                <option value="" disabled>
+                  Chọn giới tính
+                </option>
                 <option value="Nam">Nam</option>
                 <option value="Nữ">Nữ</option>
- 
+
               </select>
             </div>
           </div>
@@ -278,11 +358,10 @@ export default function RegisterPage() {
                   return (
                     <li key={requirement} className="flex items-center gap-2">
                       <span
-                        className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-[10px] ${
-                          isMet
-                            ? "border-emerald-300 bg-emerald-500/20 text-emerald-700"
-                            : "border-slate-200 bg-slate-50 text-slate-500"
-                        }`}
+                        className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-[10px] ${isMet
+                          ? "border-emerald-300 bg-emerald-500/20 text-emerald-700"
+                          : "border-slate-200 bg-slate-50 text-slate-500"
+                          }`}
                       >
                         {isMet ? "✓" : "•"}
                       </span>
@@ -336,13 +415,12 @@ export default function RegisterPage() {
 
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs">
               <p
-                className={`font-semibold ${
-                  status === "success"
-                    ? "text-emerald-700"
-                    : status === "error"
-                      ? "text-rose-700"
-                      : "text-slate-700"
-                }`}
+                className={`font-semibold ${status === "success"
+                  ? "text-emerald-700"
+                  : status === "error"
+                    ? "text-rose-700"
+                    : "text-slate-700"
+                  }`}
               >
                 {status === "idle" ? "Vui lòng điền đầy đủ thông tin trước khi gửi đăng ký." : message}
               </p>
@@ -351,12 +429,13 @@ export default function RegisterPage() {
             <div className="flex flex-wrap items-center gap-3">
               <button
                 type="submit"
+                disabled={loading}
                 className="inline-flex flex-1 items-center justify-center rounded-full bg-gradient-to-r from-amber-300 via-amber-400 to-amber-200 px-6 py-3 text-sm font-semibold text-red-900 shadow-lg shadow-amber-500/30 transition hover:-translate-y-0.5 md:flex-none md:px-8"
               >
-                Gửi đăng ký
+                {loading ? "Đang gửi..." : "Gửi đăng ký"}
               </button>
 
-             
+
               <Link
                 href="/login"
                 className="inline-flex items-center justify-center rounded-full border border-amber-300 px-6 py-3 text-sm font-semibold text-amber-700 transition hover:border-amber-200 hover:text-amber-600"

@@ -114,6 +114,7 @@ export default function AdminDashboardPage() {
   const [feeError, setFeeError] = useState<string | null>(null);
   const [feeDraft, setFeeDraft] = useState({
     categoryId: feeCategories[0]?.id ?? '',
+    personalId: '',
     amount: '',
     dueDate: '',
   });
@@ -187,38 +188,70 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleFeeChange = (field: 'categoryId' | 'amount' | 'dueDate', value: string) => {
+  const handleFeeChange = (field: 'categoryId' | 'personalId' | 'amount' | 'dueDate', value: string) => {
     setFeeDraft((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleFeeSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleFeeSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFeeError(null);
 
-    if (!feeDraft.categoryId || !feeDraft.amount || !feeDraft.dueDate) {
-      setFeeError('Vui lòng nhập đầy đủ loại phí, số tiền và hạn nộp.');
+    if (!feeDraft.categoryId || !feeDraft.amount || !feeDraft.dueDate || !feeDraft.personalId) {
+      setFeeError('Vui lòng nhập đầy đủ CCCD, loại phí, số tiền và hạn nộp.');
       return;
     }
 
     const category = feeCategories.find((item) => item.id === feeDraft.categoryId);
-    const newRecord: FeeRecord = {
-      id: `fee-${Date.now()}`,
-      categoryId: feeDraft.categoryId,
-      categoryLabel: category?.label ?? 'Chưa xác định',
-      amount: feeDraft.amount,
-      dueDate: feeDraft.dueDate,
-      createdAt: new Date().toLocaleString('vi-VN', {
-        dateStyle: 'short',
-        timeStyle: 'short',
-      }),
-    };
+    const token = localStorage.getItem(TOKEN_KEY);
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers.Authorization = `Bearer ${token}`;
 
-    setFeeRecords((prev) => [newRecord, ...prev].slice(0, 5));
-    setFeeDraft({
-      categoryId: feeDraft.categoryId,
-      amount: '',
-      dueDate: '',
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/fees`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          feeType: feeDraft.categoryId,
+          categoryId: feeDraft.categoryId,
+          name: category?.label ?? 'Khoản phí mới',
+          agency: 'Ủy ban nhân dân',
+          amount: Number(feeDraft.amount),
+          dueDate: feeDraft.dueDate,
+          status: 'Chưa nộp',
+          description: `Khoản phí ${category?.label?.toLowerCase() ?? ''}`.trim(),
+          personalId: feeDraft.personalId.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        const detail = await response.text();
+        throw new Error(detail || 'Không thể tạo phí mới.');
+      }
+
+      const data = (await response.json()) as ApiResponse<FeeRecord>;
+      const newRecord: FeeRecord = {
+        id: data.result?.id ?? `fee-${Date.now()}`,
+        categoryId: feeDraft.categoryId,
+        categoryLabel: category?.label ?? 'Chưa xác định',
+        amount: feeDraft.amount,
+        dueDate: feeDraft.dueDate,
+        createdAt: new Date().toLocaleString('vi-VN', {
+          dateStyle: 'short',
+          timeStyle: 'short',
+        }),
+      };
+
+      setFeeRecords((prev) => [newRecord, ...prev].slice(0, 5));
+      setFeeDraft({
+        categoryId: feeDraft.categoryId,
+        personalId: '',
+        amount: '',
+        dueDate: '',
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Không thể tạo phí mới.';
+      setFeeError(message);
+    }
   };
 
   return (
@@ -404,10 +437,8 @@ export default function AdminDashboardPage() {
           <div className="w-full rounded-3xl border border-white/10 bg-slate-900/70 shadow-xl shadow-black/40 backdrop-blur">
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 px-8 py-6">
               <div>
-                <h2 className="text-xl font-semibold text-white">Tạo phí cho người dân</h2>
-                <p className="text-xs text-slate-400">
-                  Thiết lập các loại phí, số tiền và hạn nộp cho từng dịch vụ công.
-                </p>
+                <h2 className="text-xl font-semibold text-white"> Thiết lập các loại phí, số tiền và hạn nộp cho từng dịch vụ công</h2>
+                
               </div>
               <span className="rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs font-semibold text-slate-200">
                 Cập nhật mới nhất: {new Date().toLocaleDateString('vi-VN')}
@@ -433,6 +464,19 @@ export default function AdminDashboardPage() {
                   </label>
 
                   <label className="space-y-2 text-sm text-slate-200">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Số CCCD</span>
+                    <input
+                      type="text"
+                      value={feeDraft.personalId}
+                      onChange={(event) => handleFeeChange('personalId', event.target.value)}
+                      placeholder="Nhập số CCCD"
+                      className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400/40"
+                    />
+                  </label>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <label className="space-y-2 text-sm text-slate-200">
                     <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Số tiền (VNĐ)</span>
                     <input
                       type="number"
@@ -443,9 +487,7 @@ export default function AdminDashboardPage() {
                       className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-400/40"
                     />
                   </label>
-                </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
                   <label className="space-y-2 text-sm text-slate-200">
                     <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Hạn nộp</span>
                     <input
@@ -456,7 +498,7 @@ export default function AdminDashboardPage() {
                     />
                   </label>
 
-                  <div className="flex items-end">
+                  <div className="flex items-end md:col-span-2">
                     <button
                       type="submit"
                       className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-400"
@@ -486,34 +528,7 @@ export default function AdminDashboardPage() {
               </form>
 
               <div className="space-y-4">
-                <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-5">
-                  <h3 className="text-sm font-semibold text-white">Phí đã tạo gần đây</h3>
-                  <p className="mt-1 text-xs text-slate-400">Lưu tối đa 5 lần tạo phí gần nhất.</p>
-
-                  <div className="mt-4 space-y-3">
-                    {feeRecords.length === 0 && (
-                      <div className="rounded-xl border border-dashed border-white/10 p-4 text-center text-xs text-slate-500">
-                        Chưa có phí nào được tạo. Điền form để bắt đầu.
-                      </div>
-                    )}
-                    {feeRecords.map((record) => (
-                      <div key={record.id} className="rounded-xl border border-white/10 bg-white/5 p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-semibold text-white">{record.categoryLabel}</p>
-                            <p className="text-xs text-slate-400">Tạo lúc {record.createdAt}</p>
-                          </div>
-                          <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-200">
-                            {record.amount} VNĐ
-                          </span>
-                        </div>
-                        <div className="mt-3 text-xs text-slate-300">
-                          Hạn nộp: <span className="font-semibold text-white">{record.dueDate}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                
 
                 <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-5 text-xs text-emerald-100">
                   <p className="font-semibold text-emerald-50">Lưu ý vận hành</p>

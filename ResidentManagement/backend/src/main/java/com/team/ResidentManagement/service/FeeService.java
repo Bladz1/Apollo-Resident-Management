@@ -16,7 +16,9 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import jakarta.transaction.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -38,11 +40,23 @@ public class FeeService {
      * Tạo khoản phí mới (chỉ dành cho admin).
      */
     @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     public FeeResponse create(FeeRequest request){
 
         Fee fee = feeMapper.toFee(request);
+        Fee savedFee = feeRepository.save(fee);
 
-        return feeMapper.toFeeResponse(feeRepository.save(fee));
+        if (request.getPersonalId() != null && !request.getPersonalId().isBlank()) {
+            User user = userRepository.findByPersonalId(request.getPersonalId())
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+            HashSet<Fee> fees = user.getFees() == null ? new HashSet<>() : new HashSet<>(user.getFees());
+            fees.add(savedFee);
+            user.setFees(fees);
+            userRepository.save(user);
+        }
+
+        return feeMapper.toFeeResponse(savedFee);
     }
 
     /**

@@ -73,6 +73,17 @@ public class UserService {
      */
     @PreAuthorize("hasRole('ADMIN')")
     public UserResponse createUser(UserCreationRequest request) {
+        return createUserInternal(request);
+    }
+
+    /**
+     * Đăng ký tài khoản mới cho cư dân (không yêu cầu quyền admin).
+     */
+    public UserResponse registerUser(UserCreationRequest request) {
+        return createUserInternal(request);
+    }
+
+    private UserResponse createUserInternal(UserCreationRequest request) {
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
@@ -81,9 +92,9 @@ public class UserService {
 
         user.setRoles(roles);
 
-        try{
+        try {
             user = userRepository.save(user);
-        } catch (DataIntegrityViolationException exception){
+        } catch (DataIntegrityViolationException exception) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
         user.setStatus("PENDING");
