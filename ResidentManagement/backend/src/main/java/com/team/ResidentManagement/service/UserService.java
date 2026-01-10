@@ -123,7 +123,7 @@ public class UserService {
     /**
      * Cập nhật thông tin, vai trò và các khoản phí của người dùng.
      */
-    @Cacheable(value = "users", key = "#UserId")
+    @CacheEvict(value = "users", key = "#UserId")
     public UserResponse updateUser(String UserId, UserUpdateRequest request) {
         User user = userRepository.findById(UserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));

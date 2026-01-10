@@ -4,10 +4,7 @@ import com.team.ResidentManagement.dto.request.UserCreationRequest;
 import com.team.ResidentManagement.dto.request.UserUpdateRequest;
 import com.team.ResidentManagement.dto.response.UserResponse;
 import com.team.ResidentManagement.entity.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.Mappings;
+import org.mapstruct.*;
 
 /**
  * Mapper chuyển đổi dữ liệu liên quan đến User.
@@ -20,6 +17,7 @@ public interface UserMapper {
     /** Chuyển entity User thành DTO trả về cho client. */
     UserResponse toUserResponse(User user);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mappings({
             @Mapping(target = "roles", ignore = true),
             @Mapping(target = "fees", ignore = true)

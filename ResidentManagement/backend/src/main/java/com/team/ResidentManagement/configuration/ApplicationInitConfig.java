@@ -69,6 +69,7 @@ public class ApplicationInitConfig {
                        .username(ADMIN_USER_NAME)
                        .roles(roles)
                        .password(passwordEncoder.encode(ADMIN_PASSWORD))
+                       .status("ACCEPTED")
                        .build();
 
                userRepository.save(user);

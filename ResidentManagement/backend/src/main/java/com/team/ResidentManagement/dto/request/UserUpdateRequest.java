@@ -17,8 +17,11 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserUpdateRequest {
     String password;
-    String firstName;
-    String lastName;
+    String gender;
+    String email;
+    String address;
+    String personalId;
+    String phoneNumber;
 
     @BirthdayConstraint(min = 18, message = "INVALID_BIRTHDAY")
     LocalDate birthday;
