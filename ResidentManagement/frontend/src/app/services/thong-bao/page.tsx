@@ -1,8 +1,6 @@
 import Link from "next/link";
 
-import { notifications, services } from "../data";
-
-const notificationService = services.find((service) => service.id === "thong-bao");
+import { notifications, notificationService } from "../data";
 
 export default function NotificationServicePage() {
   return (
@@ -68,7 +66,7 @@ export default function NotificationServicePage() {
             </li>
             <li className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
               <p className="font-semibold text-red-700">SMS</p>
-              <p className="mt-2 text-slate-600">Nhận tin nhắn khẩn cấp về cư trú, truy nã hoặc thiên tai.</p>
+              <p className="mt-2 text-slate-600">Nhận tin nhắn khẩn cấp về cư trú hoặc thiên tai.</p>
             </li>
             <li className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
               <p className="font-semibold text-red-700">Ứng dụng di động</p>
