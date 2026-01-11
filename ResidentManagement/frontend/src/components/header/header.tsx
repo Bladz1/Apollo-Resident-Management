@@ -138,7 +138,7 @@ const Header = () => {
                 <SupportButton></SupportButton>
               </li>
               <li>
-                <Link href="/services/thong-bao" className="hover:text-yellow-200">Tin tức</Link>
+                <Link href="/news" className="hover:text-yellow-200">Tin tức</Link>
               </li>
             </ul>
           </nav>
@@ -302,11 +302,7 @@ const Header = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    href="/services/thong-bao"
-                    className="block px-4 py-2 hover:bg-yellow-800"
-                    onClick={() => setIsOpen(false)}
-                  >
+                  <Link href="/news" className="block px-4 py-2 hover:bg-yellow-800" onClick={() => setIsOpen(false)}>
                     Tin tức
                   </Link>
                 </li>

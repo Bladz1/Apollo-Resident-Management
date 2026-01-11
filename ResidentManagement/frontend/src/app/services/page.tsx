@@ -17,7 +17,8 @@ export default function ServicesPage() {
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-amber-200">Dịch vụ trực tuyến</p>
           <h1 className="mt-4 text-3xl font-bold text-white md:text-4xl">Cổng thông tin dịch vụ công dân</h1>
           <p className="mt-3 max-w-2xl text-base text-slate-200 md:text-lg">
-            Truy cập nhanh các dịch vụ hồ sơ sức khỏe, thanh toán, tiếp nhận kiến nghị phản ánh và tra cứu thông tin cư trú.
+            Truy cập nhanh các dịch vụ hồ sơ sức khỏe, thông báo cư trú, tiếp nhận kiến nghị phản ánh và tra cứu thông tin truy
+            nã.
           </p>
         </div>
       </section>

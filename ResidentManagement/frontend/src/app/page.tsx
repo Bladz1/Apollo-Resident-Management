@@ -6,6 +6,7 @@ import ScrollToTop from "@/utils/scroll_to_top";
 import styles from "./custom_css/css.module.css";
 import Image from "next/image";
 import alerts from "./data/alerts_data";
+import news from "./data/news_data";
 import steps from "./data/steps_data";
 import UserWelcome from "@/components/auth/UserWelcome";
 
@@ -155,6 +156,35 @@ export default function Home() {
                       </div>
                       <p className="mt-3 text-sm leading-relaxed text-gray-700">
                         {alert.content}
+                      </p>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            <section className="relative bg-white border-white">
+              <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+                <h2 className={styles["section-title"]}>
+                  <span className={styles["section-icon"]}>📰</span>
+                  Tin tức và cập nhật hệ thống
+                </h2>
+
+                <div className="grid gap-6 lg:grid-cols-3">
+                  {news.map((item, index) => (
+                    <article
+                      key={item.title}
+                      className="group rounded-2xl border border-red-300 bg-white p-6 transition duration-500 hover:-translate-y-1 hover:border-red-500"
+                      style={{ animationDelay: `${index * 0.12}s` }}
+                    >
+                      <p className="text-xs font-semibold uppercase text-gray-500">
+                        {item.date}
+                      </p>
+                      <h3 className="mt-3 text-lg font-semibold text-black">
+                        {item.title}
+                      </h3>
+                      <p className="mt-3 text-sm leading-relaxed text-gray-700">
+                        {item.description}
                       </p>
                     </article>
                   ))}
