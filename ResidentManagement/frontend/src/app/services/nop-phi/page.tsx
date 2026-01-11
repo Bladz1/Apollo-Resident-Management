@@ -2,7 +2,8 @@
 
 import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
-import { loadUserId, TOKEN_KEY } from "@/utils/auth-storage";
+import { clearAuth, loadUserId, setAccessToken, TOKEN_KEY } from "@/utils/auth-storage";
+import api from "@/utils/axios";
 
 type FeeStatus = "Chưa nộp" | "Đã nộp" | "Đang xử lý";
 
@@ -31,27 +32,34 @@ interface Bill {
 
 type PaymentMethod = "bank" | "wallet" | "card";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
-
 async function loadFeeItems(): Promise<FeeItem[]> {
   const userId = loadUserId();
   if (!userId) throw new Error("Missing user identifier");
 
-  const token = localStorage.getItem(TOKEN_KEY);
+  try {
+    const res = await api.get(`/fees/${userId}`);
+    return res.data.result as FeeItem[];
+  } catch (err: any) {
+  // 1️⃣ Server responded (4xx / 5xx)
+  if (err.response) {
+    const status = err.response.status;
+    const message =
+      typeof err.response.data === "string"
+        ? err.response.data
+        : JSON.stringify(err.response.data);
 
-  const headers: Record<string, string> = { Accept: "application/json" };
-  if (token) headers.Authorization = `Bearer ${token}`; // token rỗng thì đừng gửi
+    throw new Error(`HTTP ${status}: ${message}`);
+  }
 
-  const res = await fetch(`${API_BASE}/fees/${userId}`, {
-    method: "GET",
-    headers,
-  });
+  // 2️⃣ Request was sent but no response (network / CORS / redirect)
+  if (err.request) {
+    throw new Error("Network error or server not reachable");
+  }
 
-  const text = await res.text();               // giúp thấy lỗi thật
-  if (!res.ok) throw new Error(`HTTP ${res.status}: ${text}`);
+  // 3️⃣ Something else
+  throw new Error(err.message || "Unknown error");
+}
 
-  const data = JSON.parse(text);
-  return data.result as FeeItem[];
 }
 
 const feeCategories: FeeCategory[] = [
@@ -180,11 +188,24 @@ export default function FeeDetailPage() {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    loadFeeItems()
-      .then(setFeeItems)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
+  let cancelled = false;
+
+  (async () => {
+    try {
+      const data = await loadFeeItems();
+      if (!cancelled) setFeeItems(data);
+    } catch (err: any) {
+      if (!cancelled) setError(err.message ?? "Unknown error");
+    } finally {
+      if (!cancelled) setLoading(false);
+    }
+  })();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
+
 
   console.log(feeItems);
 
