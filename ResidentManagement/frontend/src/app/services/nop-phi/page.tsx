@@ -31,6 +31,7 @@ interface Bill {
 }
 
 type PaymentMethod = "bank" | "wallet" | "card";
+type PaymentStep = "ready" | "qr" | "success";
 
 async function loadFeeItems(): Promise<FeeItem[]> {
   const userId = loadUserId();
@@ -181,7 +182,7 @@ export default function FeeDetailPage() {
   const [agencyFilter, setAgencyFilter] = useState("all");
   const [selectedFee, setSelectedFee] = useState<FeeItem | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("bank");
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [paymentStep, setPaymentStep] = useState<PaymentStep>("ready");
 
   const [feeItems, setFeeItems] = useState<FeeItem[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -265,7 +266,7 @@ export default function FeeDetailPage() {
   const handleSelectCategory = (category: FeeCategory) => {
     setSelectedCategory(category);
     setSelectedFee(null);
-    setPaymentSuccess(false);
+    setPaymentStep("ready");
     setSearchTerm("");
     setStatusFilter("all");
     setAgencyFilter("all");
@@ -273,12 +274,16 @@ export default function FeeDetailPage() {
 
   const handleSelectFee = (fee: FeeItem) => {
     setSelectedFee(fee);
-    setPaymentSuccess(false);
+    setPaymentStep("ready");
     setPaymentMethod("bank");
   };
 
   const handleConfirmPayment = () => {
-    setPaymentSuccess(true);
+    setPaymentStep("qr");
+  };
+
+  const handlePaymentCompleted = () => {
+    setPaymentStep("success");
   };
 
   if (loading) {
@@ -563,7 +568,7 @@ export default function FeeDetailPage() {
 
                 <div className="space-y-3 rounded-2xl bg-slate-50 p-4">
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Xác nhận &amp; biên lai</p>
-                  {!paymentSuccess ? (
+                  {paymentStep === "ready" ? (
                     <>
                       <p className="text-sm text-slate-600">
                         Sau khi nhấn thanh toán, hệ thống sẽ chuyển tới cổng thanh toán tương ứng để xác nhận giao dịch.
@@ -576,6 +581,46 @@ export default function FeeDetailPage() {
                         Xác nhận thanh toán
                       </button>
                     </>
+                  ) : paymentStep === "qr" ? (
+                    <div className="space-y-3 text-sm text-slate-700">
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Mã QR thanh toán</p>
+                        <div className="mt-3 flex flex-col items-center gap-3">
+                          <div className="flex h-44 w-44 items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-sm">
+                            <svg viewBox="0 0 120 120" className="h-36 w-36" aria-label="QR thanh toán">
+                              <rect width="120" height="120" fill="white" />
+                              <rect x="6" y="6" width="34" height="34" fill="black" />
+                              <rect x="12" y="12" width="22" height="22" fill="white" />
+                              <rect x="16" y="16" width="14" height="14" fill="black" />
+                              <rect x="80" y="6" width="34" height="34" fill="black" />
+                              <rect x="86" y="12" width="22" height="22" fill="white" />
+                              <rect x="90" y="16" width="14" height="14" fill="black" />
+                              <rect x="6" y="80" width="34" height="34" fill="black" />
+                              <rect x="12" y="86" width="22" height="22" fill="white" />
+                              <rect x="16" y="90" width="14" height="14" fill="black" />
+                              <rect x="52" y="52" width="10" height="10" fill="black" />
+                              <rect x="66" y="48" width="8" height="8" fill="black" />
+                              <rect x="48" y="66" width="8" height="8" fill="black" />
+                              <rect x="70" y="66" width="6" height="6" fill="black" />
+                              <rect x="54" y="76" width="6" height="6" fill="black" />
+                              <rect x="78" y="54" width="6" height="6" fill="black" />
+                              <rect x="40" y="46" width="6" height="6" fill="black" />
+                              <rect x="44" y="58" width="6" height="6" fill="black" />
+                            </svg>
+                          </div>
+                          <p className="text-center text-sm text-slate-600">
+                            Quét mã để thanh toán {selectedFee.amount.toLocaleString("vi-VN")}₫ cho {selectedFee.name}.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handlePaymentCompleted}
+                        className="inline-flex w-full items-center justify-center rounded-full bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-700"
+                      >
+                        Tôi đã thanh toán
+                      </button>
+                    </div>
                   ) : (
                     <div className="space-y-3 text-sm text-slate-700">
                       <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-emerald-700">

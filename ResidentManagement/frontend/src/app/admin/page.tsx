@@ -94,7 +94,7 @@ type Complaint = {
   content?: string;
 };
 
-type UserRegisterStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+type UserRegisterStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
 
 type PendingUser = {
   id: string;
@@ -107,6 +107,16 @@ type PendingUser = {
 
   // (giữ lại nếu backend vẫn trả email, nhưng UI không hiển thị)
   email?: string;
+};
+
+type UserResponse = {
+  id: string;
+  username: string;
+  personalId?: string;
+  phoneNumber?: string;
+  address?: string;
+  createdAt?: string;
+  status?: UserRegisterStatus;
 };
 
 type FeeRecord = {
@@ -221,16 +231,27 @@ export default function AdminDashboardPage() {
     try {
       const headers = buildAuthHeaders({ Accept: 'application/json' });
 
-      // ✅ TODO: đổi cho đúng backend của bạn
-      const response = await fetch(`${API_BASE_URL}/feedbacks `, { headers });
+      const response = await fetch(`${API_BASE_URL}/users`, { headers });
 
       if (!response.ok) {
         const detail = await response.text();
         throw new Error(detail || 'Không thể tải danh sách đăng ký chờ duyệt.');
       }
 
-      const data = (await response.json()) as ApiResponse<PendingUser[]>;
-      setPendingUsers(data.result ?? []);
+      const data = (await response.json()) as ApiResponse<UserResponse[]>;
+      const normalized = (data.result ?? [])
+        .filter((user) => user.status === 'PENDING')
+        .map((user) => ({
+          id: user.id,
+          personalId: user.personalId ?? '',
+          fullName: user.username,
+          phone: user.phoneNumber,
+          address: user.address,
+          createdAt: user.createdAt,
+          status: user.status ?? 'PENDING',
+        }));
+
+      setPendingUsers(normalized);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Không thể tải danh sách đăng ký chờ duyệt.';
       setUserError(message);
@@ -240,12 +261,12 @@ export default function AdminDashboardPage() {
   };
 
   const approveUser = async (id: string) => {
-    const headers = buildAuthHeaders({ Accept: 'application/json' });
+    const headers = buildAuthHeaders({ Accept: 'application/json', 'Content-Type': 'application/json' });
 
-    // ✅ TODO: đổi cho đúng backend của bạn
-    const response = await fetch(`${API_BASE_URL}/users/status/{userId}`, {
+    const response = await fetch(`${API_BASE_URL}/users/status/${id}`, {
       method: 'PUT',
       headers,
+      body: JSON.stringify({ update: true }),
     });
 
     if (!response.ok) {
@@ -257,12 +278,12 @@ export default function AdminDashboardPage() {
   };
 
   const rejectUser = async (id: string) => {
-    const headers = buildAuthHeaders({ Accept: 'application/json' });
+    const headers = buildAuthHeaders({ Accept: 'application/json', 'Content-Type': 'application/json' });
 
-    // ✅ TODO: đổi cho đúng backend của bạn
-    const response = await fetch(`${API_BASE_URL}/feedbacks/{userId}`, {
+    const response = await fetch(`${API_BASE_URL}/users/status/${id}`, {
       method: 'PUT',
       headers,
+      body: JSON.stringify({ update: false }),
     });
 
     if (!response.ok) {
