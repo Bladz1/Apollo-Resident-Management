@@ -8,7 +8,7 @@ export type Service = {
 export type WantedPerson = {
   id: string;
   name: string;
-  alias: string;
+  alias?: string;
   crime: string;
   bounty?: string;
   lastSeen: string;
@@ -74,30 +74,24 @@ export const services: Service[] = [
 export const wantedPersons: WantedPerson[] = [
   {
     id: "wp-01",
-    name: "Nguyễn Văn Hùng",
-    alias: "Hùng \"Đồng Nai\"",
-    crime: "Liên quan đến vụ án cướp tài sản có vũ trang tại Đồng Nai (2024)",
-    bounty: "Thưởng 200.000.000đ cho thông tin xác thực",
-    lastSeen: "Xuất hiện lần cuối tại khu vực chợ đêm Đà Nẵng (04/2025)",
-    imageUrl: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80",
+    name: "Lò Văn Viên (SN 1986)",
+    crime: "Công an tỉnh Thái Nguyên truy nã về tội sử dụng trái phép chất ma túy theo quyết định truy nã ngày 12/12/2025.",
+    lastSeen: "xã Gia Hội, tỉnh Lào Cai",
+    imageUrl: "/images/wanted/1.jpg",
   },
   {
     id: "wp-02",
-    name: "Trần Thị Mỹ Dung",
-    alias: "Dung \"Hoa Hồng\"",
-    crime: "Cầm đầu đường dây lừa đảo tài chính xuyên quốc gia",
-    bounty: "Thưởng 150.000.000đ cho thông tin giúp bắt giữ",
-    lastSeen: "Nghi vấn di chuyển qua cửa khẩu Mộc Bài (03/2025)",
-    imageUrl: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80",
+    name: "Nguyễn Văn Mạnh  (SN 1982)",
+    crime: "Công an thành phố Hà Nội đang xác minh đơn tố giác Nguyễn Văn Mạnh có hành vi lừa đảo chiếm đoạt tài sản.",
+    lastSeen: " xã Nội Bài, TP Hà Nội",
+    imageUrl: "/images/wanted/12.jpg",
   },
   {
     id: "wp-03",
-    name: "Phạm Quốc Đạt",
-    alias: "Đạt \"X\"",
-    crime: "Tổ chức sản xuất ma túy tổng hợp với quy mô lớn",
-    bounty: "Thưởng 300.000.000đ và bảo mật danh tính người cung cấp",
-    lastSeen: "Phát hiện di chuyển tại tuyến cao tốc Hà Nội - Lào Cai (05/2025)",
-    imageUrl: "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=400&q=80",
+    name: "Nguyễn Ngọc Tuấn (SN 1993)",
+    crime: "TCông an thành phố Hà Nội đang xác minh đơn tố giác Nguyễn Văn Mạnh có hành vi lừa đảo chiếm đoạt tài sản.",
+    lastSeen: "phường Sầm Sơn, tỉnh Thanh Hóa",
+    imageUrl: "/images/wanted/21.jpg",
   },
 ];
 
