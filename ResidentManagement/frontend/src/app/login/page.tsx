@@ -141,87 +141,87 @@ function LoginPageContent() {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-  event.preventDefault();
+    event.preventDefault();
 
-  setLoading(true);
-  setStatus("idle");
-  setMessage(null);
-  setResponseBody(null);
+    setLoading(true);
+    setStatus("idle");
+    setMessage(null);
+    setResponseBody(null);
 
-  try {
-    // 1️⃣ LOGIN → get JWT
-    const loginRes = await publicApi.post("/auth/token", {
-      username,
-      password,
-    });
+    try {
+      // 1️⃣ LOGIN → get JWT
+      const loginRes = await publicApi.post("/auth/token", {
+        username,
+        password,
+      });
 
-    const parsed = loginRes.data;
-    setResponseBody(JSON.stringify(parsed, null, 2));
+      const parsed = loginRes.data;
+      setResponseBody(JSON.stringify(parsed, null, 2));
 
-    const {
-      token: tokenFromResponse,
-      username: usernameFromResponse,
-      roles: rolesFromResponse,
-    } = extractAuthDetails(parsed);
+      const {
+        token: tokenFromResponse,
+        username: usernameFromResponse,
+        roles: rolesFromResponse,
+      } = extractAuthDetails(parsed);
 
-    if (!tokenFromResponse) {
+      if (!tokenFromResponse) {
+        setStatus("error");
+        setMessage("API không trả về token. Kiểm tra response của /auth/token.");
+        return;
+      }
+
+      const resolvedUsername =
+        usernameFromResponse ??
+        extractUsernameFromToken(tokenFromResponse) ??
+        username;
+
+      const resolvedRoles =
+        rolesFromResponse ?? extractRolesFromToken(tokenFromResponse) ?? [];
+
+      const isAdmin = resolvedRoles.some(
+        (role) => role === "ADMIN" || role === "ROLE_ADMIN"
+      );
+
+      // 3️⃣ SAVE LOCAL STORAGE (for UI)
+      saveAuth(tokenFromResponse, resolvedUsername);
+
+      setStatus("success");
+      setMessage("Đăng nhập thành công!");
+
+      // 4️⃣ REDIRECT
+      if (
+        nextPath &&
+        nextPath !== "/" &&
+        (nextPath.startsWith("/profile") || nextPath.startsWith("/admin"))
+      ) {
+        router.replace(nextPath);
+        return;
+      }
+
+      router.replace(isAdmin ? "/admin" : "/");
+    } catch (err: any) {
+      console.error("Login error:", err);
+
+      const statusCode = err.response?.status;
+      const errorMsg =
+        err.response?.data?.message ||
+        err.message ||
+        "Sai thông tin đăng nhập";
+
       setStatus("error");
-      setMessage("API không trả về token. Kiểm tra response của /auth/token.");
-      return;
+      setMessage(
+        statusCode
+          ? `Đăng nhập thất bại (HTTP ${statusCode})`
+          : errorMsg
+      );
+
+      if (err.response?.data) {
+        setResponseBody(JSON.stringify(err.response.data, null, 2));
+      }
+    } finally {
+      setLoading(false);
     }
-
-    const resolvedUsername =
-      usernameFromResponse ??
-      extractUsernameFromToken(tokenFromResponse) ??
-      username;
-
-    const resolvedRoles =
-      rolesFromResponse ?? extractRolesFromToken(tokenFromResponse) ?? [];
-
-    const isAdmin = resolvedRoles.some(
-      (role) => role === "ADMIN" || role === "ROLE_ADMIN"
-    );
-
-    // 3️⃣ SAVE LOCAL STORAGE (for UI)
-    saveAuth(tokenFromResponse, resolvedUsername);
-
-    setStatus("success");
-    setMessage("Đăng nhập thành công!");
-
-    // 4️⃣ REDIRECT
-    if (
-      nextPath &&
-      nextPath !== "/" &&
-      (nextPath.startsWith("/profile") || nextPath.startsWith("/admin"))
-    ) {
-      router.replace(nextPath);
-      return;
-    }
-
-    router.replace(isAdmin ? "/admin" : "/");
-  } catch (err: any) {
-    console.error("Login error:", err);
-
-    const statusCode = err.response?.status;
-    const errorMsg =
-      err.response?.data?.message ||
-      err.message ||
-      "Sai thông tin đăng nhập";
-
-    setStatus("error");
-    setMessage(
-      statusCode
-        ? `Đăng nhập thất bại (HTTP ${statusCode})`
-        : errorMsg
-    );
-
-    if (err.response?.data) {
-      setResponseBody(JSON.stringify(err.response.data, null, 2));
-    }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
 
   return (

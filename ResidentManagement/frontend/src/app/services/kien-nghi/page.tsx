@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FormEvent, useRef, useState } from "react";
 
 import { loadUserId, TOKEN_KEY } from "@/utils/auth-storage";
+import api from "@/utils/axios";
 
 import { initialPetitionState, services, type PetitionFormState } from "../data";
 
@@ -44,53 +45,50 @@ export default function PetitionPage() {
   };
 
   const handlePetitionSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    // 1. QUAN TRỌNG NHẤT: Phải có dòng này thì mới không bị reload trang
-    event.preventDefault();
+  // ❗️BẮT BUỘC: chặn reload trang
+  event.preventDefault();
 
-    setPetitionMessage("Đang gửi dữ liệu...");
+  setPetitionMessage("Đang gửi dữ liệu...");
 
-    try {
-      const userId = loadUserId();
-      if (!userId) {
-        throw new Error("Missing user identifier");
-      }
-
-      const formData = new FormData();
-      formData.append("name", petitionState.fullName);
-      formData.append("email", petitionState.email);
-      formData.append("phone", petitionState.phone);
-      formData.append("address", petitionState.address);
-      formData.append("title", petitionState.title);
-      formData.append("description", petitionState.content); 
-      
-      if (petitionState.attachment) {
-        formData.append("file", petitionState.attachment);
-      }
-
-      const token = localStorage.getItem(TOKEN_KEY);
-      const headers: Record<string, string> = {};
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
-      }
-
-      // 2. Sửa lại đường dẫn API. 
-      const response = await fetch(`${API_BASE_URL}/feedbacks/${userId}`, { 
-        method: "POST",
-        headers,
-        body: formData, 
-      });
-
-      if (!response.ok) {
-        throw new Error("Lỗi kết nối server");
-      }
-
-      setPetitionStatus("success");
-      setPetitionMessage("Gửi thành công! Phản ánh của bạn đã được ghi nhận.");
-    } catch (error) {
-      setPetitionStatus("error");
-      setPetitionMessage("Đã xảy ra lỗi khi gửi kiến nghị.");
+  try {
+    const userId = loadUserId();
+    if (!userId) {
+      throw new Error("Missing user identifier");
     }
-  };
+
+    const formData = new FormData();
+    formData.append("name", petitionState.fullName);
+    formData.append("email", petitionState.email);
+    formData.append("phone", petitionState.phone);
+    formData.append("address", petitionState.address);
+    formData.append("title", petitionState.title);
+    formData.append("description", petitionState.content);
+
+    if (petitionState.attachment) {
+      formData.append("file", petitionState.attachment);
+    }
+
+    // 🚫 KHÔNG set Content-Type cho FormData
+    // axios sẽ tự set multipart/form-data + boundary
+    await api.post(`/feedbacks/${userId}`, formData);
+
+    setPetitionStatus("success");
+    setPetitionMessage("Gửi thành công! Phản ánh của bạn đã được ghi nhận.");
+  } catch (error: any) {
+    let message = "Đã xảy ra lỗi khi gửi kiến nghị.";
+
+    if (error.response?.data) {
+      message =
+        typeof error.response.data === "string"
+          ? error.response.data
+          : JSON.stringify(error.response.data);
+    }
+
+    setPetitionStatus("error");
+    setPetitionMessage(message);
+  }
+};
+
 
   const handlePetitionReset = () => {
     setPetitionState(createEmptyPetitionState());

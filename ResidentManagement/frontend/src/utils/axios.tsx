@@ -36,13 +36,10 @@ async function refreshToken(): Promise<string> {
         setAccessToken(newToken);
         return newToken;
       })
-      .catch(() => {
-        // ❗ IMPORTANT: stop promise chain BEFORE redirect
+      .catch((err) => {
         removeAccessToken();
         window.location.href = "/login";
-
-        // Never reject → prevents Uncaught (in promise)
-        return new Promise<string>(() => {});
+        return Promise.reject(err); // ✅ QUAN TRỌNG
       })
       .finally(() => {
         refreshPromise = null;
@@ -51,6 +48,7 @@ async function refreshToken(): Promise<string> {
 
   return refreshPromise;
 }
+
 
 /* -------------------------------------------------- */
 /* REQUEST INTERCEPTOR                                 */
@@ -81,10 +79,8 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       removeAccessToken();
       window.location.href = "/login";
-      return new Promise(() => {}); // stop chain
     }
-    return Promise.reject(error);
+    return Promise.reject(error); // ✅ KHÔNG TREO
   }
 );
-
 export default api;

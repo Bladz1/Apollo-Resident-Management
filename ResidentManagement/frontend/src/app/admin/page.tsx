@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import api from '@/utils/axios';
 
 import { TOKEN_KEY } from '@/utils/auth-storage';
 
@@ -163,27 +164,37 @@ export default function AdminDashboardPage() {
 
   // ========== Complaints ==========
   const loadComplaints = async () => {
-    setLoadingComplaints(true);
-    setComplaintError(null);
+  setLoadingComplaints(true);
+  setComplaintError(null);
 
-    try {
-      const headers = buildAuthHeaders({ Accept: 'application/json' });
+  try {
+    const res = await api.get<ApiResponse<Complaint[]>>('/feedbacks', {
+      headers: {
+        Accept: 'application/json',
+      },
+    });
 
-      const response = await fetch(`${API_BASE_URL}/feedbacks`, { headers });
-      if (!response.ok) {
-        const detail = await response.text();
-        throw new Error(detail || 'Không thể tải danh sách phản ánh.');
-      }
+    setLocalComplaints(res.data.result ?? []);
+  } catch (error: any) {
+    let message = 'Không thể tải danh sách phản ánh.';
 
-      const data = (await response.json()) as ApiResponse<Complaint[]>;
-      setLocalComplaints(data.result ?? []);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Không thể tải danh sách phản ánh.';
-      setComplaintError(message);
-    } finally {
-      setLoadingComplaints(false);
+    if (error.response) {
+      // server trả về lỗi
+      message =
+        typeof error.response.data === 'string'
+          ? error.response.data
+          : JSON.stringify(error.response.data);
+    } else if (error.message) {
+      // network / axios error
+      message = error.message;
     }
-  };
+
+    setComplaintError(message);
+  } finally {
+    setLoadingComplaints(false);
+  }
+};
+
 
   const handleViewComplaint = (item: Complaint) => {
     setSelectedComplaint(item);
