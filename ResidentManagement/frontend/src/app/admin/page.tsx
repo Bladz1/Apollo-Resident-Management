@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import api from '@/utils/axios';
 
 import { TOKEN_KEY } from '@/utils/auth-storage';
 
@@ -91,6 +92,32 @@ type Complaint = {
   address: string;
   status: FeedbackStatus;
   title?: string;
+  content?: string;
+};
+
+type UserRegisterStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
+
+type PendingUser = {
+  id: string;
+  personalId: string; // ✅ CCCD
+  fullName: string;
+  phone?: string;
+  address?: string;
+  createdAt?: string;
+  status: UserRegisterStatus;
+
+  // (giữ lại nếu backend vẫn trả email, nhưng UI không hiển thị)
+  email?: string;
+};
+
+type UserResponse = {
+  id: string;
+  username: string;
+  personalId?: string;
+  phoneNumber?: string;
+  address?: string;
+  createdAt?: string;
+  status?: UserRegisterStatus;
 };
 
 type FeeRecord = {
@@ -107,9 +134,18 @@ type ApiResponse<T> = {
 };
 
 export default function AdminDashboardPage() {
+  // SECTION 2 - complaints
   const [localComplaints, setLocalComplaints] = useState<Complaint[]>([]);
   const [loadingComplaints, setLoadingComplaints] = useState(true);
   const [complaintError, setComplaintError] = useState<string | null>(null);
+  const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
+
+  // SECTION NEW - pending users
+  const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(true);
+  const [userError, setUserError] = useState<string | null>(null);
+
+  // SECTION 3 - fees
   const [feeRecords, setFeeRecords] = useState<FeeRecord[]>([]);
   const [feeError, setFeeError] = useState<string | null>(null);
   const [feeDraft, setFeeDraft] = useState({
@@ -119,75 +155,182 @@ export default function AdminDashboardPage() {
     dueDate: '',
   });
 
-  const loadComplaints = async () => {
-    setLoadingComplaints(true);
-    setComplaintError(null);
-
-    try {
-      const token = localStorage.getItem(TOKEN_KEY);
-      const headers: Record<string, string> = { Accept: 'application/json' };
-      if (token) headers.Authorization = `Bearer ${token}`;
-
-      const response = await fetch(`${API_BASE_URL}/feedbacks`, { headers });
-      if (!response.ok) {
-        const detail = await response.text();
-        throw new Error(detail || 'Không thể tải danh sách phản ánh.');
-      }
-
-      const data = (await response.json()) as ApiResponse<Complaint[]>;
-      setLocalComplaints(data.result ?? []);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Không thể tải danh sách phản ánh.';
-      setComplaintError(message);
-    } finally {
-      setLoadingComplaints(false);
-    }
+  const buildAuthHeaders = (base: Record<string, string>) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null;
+    const headers: Record<string, string> = { ...base };
+    if (token) headers.Authorization = `Bearer ${token}`;
+    return headers;
   };
 
-  useEffect(() => {
-    void loadComplaints();
-  }, []);
+  // ========== Complaints ==========
+  const loadComplaints = async () => {
+  setLoadingComplaints(true);
+  setComplaintError(null);
 
-  const updateStatus = async (id: string, status: FeedbackStatus) => {
-    const token = localStorage.getItem(TOKEN_KEY);
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers.Authorization = `Bearer ${token}`;
+  try {
+    const res = await api.get<ApiResponse<Complaint[]>>('/feedbacks', {
+      headers: {
+        Accept: 'application/json',
+      },
+    });
 
-    const response = await fetch(`${API_BASE_URL}/feedbacks/${id}/status`, {
-      method: 'PUT',
+    setLocalComplaints(res.data.result ?? []);
+  } catch (error: any) {
+    let message = 'Không thể tải danh sách phản ánh.';
+
+    if (error.response) {
+      // server trả về lỗi
+      message =
+        typeof error.response.data === 'string'
+          ? error.response.data
+          : JSON.stringify(error.response.data);
+    } else if (error.message) {
+      // network / axios error
+      message = error.message;
+    }
+
+    setComplaintError(message);
+  } finally {
+    setLoadingComplaints(false);
+  }
+};
+
+
+  const handleViewComplaint = (item: Complaint) => {
+    setSelectedComplaint(item);
+  };
+
+  const closeComplaintModal = () => setSelectedComplaint(null);
+
+  const deleteComplaint = async (id: string) => {
+    const headers = buildAuthHeaders({ Accept: 'application/json' });
+
+    const response = await fetch(`${API_BASE_URL}/feedbacks/${id}`, {
+      method: 'DELETE',
       headers,
-      body: JSON.stringify({ status }),
     });
 
     if (!response.ok) {
       const detail = await response.text();
-      throw new Error(detail || 'Cập nhật trạng thái thất bại.');
+      throw new Error(detail || 'Không thể xóa phản ánh.');
     }
 
-    const data = (await response.json()) as ApiResponse<Complaint>;
-    return data.result;
+    return true;
   };
 
-  const handleAccept = async (id: string) => {
+  const handleDeleteComplaint = async (id: string) => {
     try {
-      const updated = await updateStatus(id, 'ACCEPTED');
-      setLocalComplaints((prev) => prev.map((c) => (c.id === id ? { ...c, status: updated.status } : c)));
+      setComplaintError(null);
+      const ok = window.confirm('Bạn có chắc muốn từ chối và xóa phản ánh này không?');
+      if (!ok) return;
+
+      await deleteComplaint(id);
+
+      setLocalComplaints((prev) => prev.filter((c) => c.id !== id));
+      setSelectedComplaint((prev) => (prev?.id === id ? null : prev));
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Cập nhật trạng thái thất bại.';
+      const message = error instanceof Error ? error.message : 'Không thể xóa phản ánh.';
       setComplaintError(message);
     }
   };
 
-  const handleReject = async (id: string) => {
+  // ========== Pending Users (NEW SECTION) ==========
+  const loadPendingUsers = async () => {
+    setLoadingUsers(true);
+    setUserError(null);
+
     try {
-      const updated = await updateStatus(id, 'REJECTED');
-      setLocalComplaints((prev) => prev.map((c) => (c.id === id ? { ...c, status: updated.status } : c)));
+      const headers = buildAuthHeaders({ Accept: 'application/json' });
+
+      const response = await fetch(`${API_BASE_URL}/users`, { headers });
+
+      if (!response.ok) {
+        const detail = await response.text();
+        throw new Error(detail || 'Không thể tải danh sách đăng ký chờ duyệt.');
+      }
+
+      const data = (await response.json()) as ApiResponse<UserResponse[]>;
+      const normalized = (data.result ?? [])
+        .filter((user) => user.status === 'PENDING')
+        .map((user) => ({
+          id: user.id,
+          personalId: user.personalId ?? '',
+          fullName: user.username,
+          phone: user.phoneNumber,
+          address: user.address,
+          createdAt: user.createdAt,
+          status: user.status ?? 'PENDING',
+        }));
+
+      setPendingUsers(normalized);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Cập nhật trạng thái thất bại.';
-      setComplaintError(message);
+      const message = error instanceof Error ? error.message : 'Không thể tải danh sách đăng ký chờ duyệt.';
+      setUserError(message);
+    } finally {
+      setLoadingUsers(false);
     }
   };
 
+  const approveUser = async (id: string) => {
+    const headers = buildAuthHeaders({ Accept: 'application/json', 'Content-Type': 'application/json' });
+
+    const response = await fetch(`${API_BASE_URL}/users/status/${id}`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({ update: true }),
+    });
+
+    if (!response.ok) {
+      const detail = await response.text();
+      throw new Error(detail || 'Duyệt tài khoản thất bại.');
+    }
+
+    return true;
+  };
+
+  const rejectUser = async (id: string) => {
+    const headers = buildAuthHeaders({ Accept: 'application/json', 'Content-Type': 'application/json' });
+
+    const response = await fetch(`${API_BASE_URL}/users/status/${id}`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({ update: false }),
+    });
+
+    if (!response.ok) {
+      const detail = await response.text();
+      throw new Error(detail || 'Từ chối tài khoản thất bại.');
+    }
+
+    return true;
+  };
+
+  const handleApproveUser = async (id: string) => {
+    try {
+      setUserError(null);
+      await approveUser(id);
+      setPendingUsers((prev) => prev.filter((u) => u.id !== id));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Duyệt tài khoản thất bại.';
+      setUserError(message);
+    }
+  };
+
+  const handleRejectUser = async (id: string) => {
+    try {
+      setUserError(null);
+      const ok = window.confirm('Bạn có chắc muốn từ chối tài khoản này không?');
+      if (!ok) return;
+
+      await rejectUser(id);
+      setPendingUsers((prev) => prev.filter((u) => u.id !== id));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Từ chối tài khoản thất bại.';
+      setUserError(message);
+    }
+  };
+
+  // ========== Fees ==========
   const handleFeeChange = (field: 'categoryId' | 'personalId' | 'amount' | 'dueDate', value: string) => {
     setFeeDraft((prev) => ({ ...prev, [field]: value }));
   };
@@ -202,9 +345,7 @@ export default function AdminDashboardPage() {
     }
 
     const category = feeCategories.find((item) => item.id === feeDraft.categoryId);
-    const token = localStorage.getItem(TOKEN_KEY);
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers.Authorization = `Bearer ${token}`;
+    const headers = buildAuthHeaders({ 'Content-Type': 'application/json' });
 
     try {
       const response = await fetch(`${API_BASE_URL}/fees`, {
@@ -253,6 +394,12 @@ export default function AdminDashboardPage() {
       setFeeError(message);
     }
   };
+
+  useEffect(() => {
+    void loadComplaints();
+    void loadPendingUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
@@ -339,7 +486,7 @@ export default function AdminDashboardPage() {
           </div>
         </section>
 
-        {/* SECTION 2 */}
+        {/* SECTION 2 - Complaints */}
         <section className="w-full">
           <div className="w-full rounded-3xl border border-white/10 bg-slate-900/70 shadow-xl shadow-black/40 backdrop-blur">
             <div className="flex items-center justify-between border-b border-white/5 px-8 py-6">
@@ -363,7 +510,7 @@ export default function AdminDashboardPage() {
                     <th className="w-[150px] px-4 py-3 text-left">SĐT</th>
                     <th className="px-4 py-3 text-left">Email</th>
                     <th className="px-4 py-3 text-left">Địa chỉ liên hệ</th>
-                    <th className="w-[260px] px-4 py-3 text-left">Trạng thái</th>
+                    <th className="w-[260px] px-4 py-3 text-left">Thao tác</th>
                   </tr>
                 </thead>
 
@@ -382,6 +529,7 @@ export default function AdminDashboardPage() {
                       </td>
                     </tr>
                   )}
+
                   {localComplaints.map((item) => (
                     <tr key={item.id} className="transition hover:bg-white/5">
                       <td className="px-8 py-4 font-semibold text-white">{item.name}</td>
@@ -389,39 +537,156 @@ export default function AdminDashboardPage() {
                       <td className="px-4 py-4 text-slate-300">{item.email}</td>
                       <td className="px-4 py-4 text-slate-400">{item.address}</td>
 
-                      {/* ✅ When rejected: hide accept button, center the remaining badge */}
                       <td className="px-4 py-4">
                         <div className="flex min-w-[260px] justify-center">
-                          {item.status === 'PENDING' && (
+                          {item.status === 'PENDING' ? (
                             <div className="flex gap-2">
                               <button
                                 type="button"
-                                onClick={() => handleAccept(item.id)}
-                                className="w-32 rounded-md bg-amber-500 px-3 py-1 text-xs font-semibold text-white hover:bg-amber-400"
+                                onClick={() => handleViewComplaint(item)}
+                                className="w-32 rounded-md bg-sky-500 px-3 py-1 text-xs font-semibold text-white hover:bg-sky-400"
                               >
-                                Xác nhận
+                                Xem nội dung
                               </button>
                               <button
                                 type="button"
-                                onClick={() => handleReject(item.id)}
+                                onClick={() => void handleDeleteComplaint(item.id)}
                                 className="w-32 rounded-md border border-rose-400 px-3 py-1 text-xs font-semibold text-rose-200 hover:bg-rose-400/10"
                               >
                                 Từ chối
                               </button>
                             </div>
-                          )}
-
-                          {item.status === 'ACCEPTED' && (
-                            <span className="w-32 rounded-md bg-emerald-500 px-3 py-1 text-center text-xs font-semibold text-white">
+                          ) : item.status === 'ACCEPTED' ? (
+                            <span className="w-40 rounded-md bg-emerald-500 px-3 py-1 text-center text-xs font-semibold text-white">
                               Đã tiếp nhận
                             </span>
-                          )}
-
-                          {item.status === 'REJECTED' && (
-                            <span className="w-32 rounded-md bg-rose-500 px-3 py-1 text-center text-xs font-semibold text-white">
+                          ) : (
+                            <span className="w-40 rounded-md bg-rose-500 px-3 py-1 text-center text-xs font-semibold text-white">
                               Đã từ chối
                             </span>
                           )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {selectedComplaint && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+              <div className="w-full max-w-xl rounded-2xl border border-white/10 bg-slate-900 p-6 shadow-2xl">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">Nội dung phản ánh</h3>
+                    <p className="mt-1 text-xs text-slate-400">
+                      {selectedComplaint.name} • {selectedComplaint.phone}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={closeComplaintModal}
+                    className="rounded-lg border border-white/10 px-3 py-1 text-xs font-semibold text-slate-200 hover:bg-white/5"
+                  >
+                    Đóng
+                  </button>
+                </div>
+
+                <div className="mt-4 rounded-xl bg-white/5 p-4 text-sm text-slate-200">
+                  {selectedComplaint.content?.trim()
+                    ? selectedComplaint.content
+                    : 'Chưa có nội dung phản ánh (backend chưa trả field content).'}
+                </div>
+
+                <div className="mt-4 text-xs text-slate-400">
+                  Email: {selectedComplaint.email || '—'} • Địa chỉ: {selectedComplaint.address || '—'}
+                </div>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* SECTION NEW - Pending user registrations (CCCD trước Họ & tên) */}
+        <section className="w-full">
+          <div className="w-full rounded-3xl border border-white/10 bg-slate-900/70 shadow-xl shadow-black/40 backdrop-blur">
+            <div className="flex items-center justify-between border-b border-white/5 px-8 py-6">
+              <div>
+                <h2 className="text-xl font-semibold text-white">Đăng ký tài khoản chờ duyệt</h2>
+                <p className="text-xs text-slate-400">Danh sách người dùng mới đăng ký cần admin phê duyệt</p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => void loadPendingUsers()}
+                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10"
+              >
+                Làm mới
+              </button>
+            </div>
+
+            {userError && (
+              <div className="border-b border-white/5 px-8 py-4 text-sm text-rose-200">
+                {userError}
+              </div>
+            )}
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full table-fixed divide-y divide-white/10 text-sm">
+                <thead className="bg-white/5 text-xs uppercase tracking-wide text-slate-300">
+                  <tr>
+                    <th className="w-[200px] px-8 py-3 text-left">CCCD</th>
+                    <th className="px-4 py-3 text-left">Họ và tên</th>
+                    <th className="w-[170px] px-4 py-3 text-left">SĐT</th>
+                    <th className="px-4 py-3 text-left">Địa chỉ</th>
+                    <th className="w-[260px] px-4 py-3 text-left">Thao tác</th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-white/5 text-slate-200">
+                  {loadingUsers && (
+                    <tr>
+                      <td colSpan={5} className="px-8 py-6 text-center text-sm text-slate-400">
+                        Đang tải danh sách đăng ký...
+                      </td>
+                    </tr>
+                  )}
+
+                  {!loadingUsers && pendingUsers.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-8 py-6 text-center text-sm text-slate-400">
+                        Không có đăng ký mới.
+                      </td>
+                    </tr>
+                  )}
+
+                  {pendingUsers.map((u) => (
+                    <tr key={u.id} className="transition hover:bg-white/5">
+                      <td className="px-8 py-4 font-semibold text-white">{u.personalId || '—'}</td>
+                      <td className="px-4 py-4">{u.fullName}</td>
+                      <td className="px-4 py-4 text-slate-300">{u.phone || '—'}</td>
+                      <td className="px-4 py-4 text-slate-400">{u.address || '—'}</td>
+
+                      <td className="px-4 py-4">
+                        <div className="flex min-w-[260px] justify-center">
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => void handleApproveUser(u.id)}
+                              className="w-32 rounded-md bg-emerald-500 px-3 py-1 text-xs font-semibold text-white hover:bg-emerald-400"
+                            >
+                              Chấp nhận
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => void handleRejectUser(u.id)}
+                              className="w-32 rounded-md border border-rose-400 px-3 py-1 text-xs font-semibold text-rose-200 hover:bg-rose-400/10"
+                            >
+                              Từ chối
+                            </button>
+                          </div>
                         </div>
                       </td>
                     </tr>
@@ -438,7 +703,6 @@ export default function AdminDashboardPage() {
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 px-8 py-6">
               <div>
                 <h2 className="text-xl font-semibold text-white"> Thiết lập các loại phí, số tiền và hạn nộp cho từng dịch vụ công</h2>
-                
               </div>
               <span className="rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs font-semibold text-slate-200">
                 Cập nhật mới nhất: {new Date().toLocaleDateString('vi-VN')}
@@ -528,8 +792,6 @@ export default function AdminDashboardPage() {
               </form>
 
               <div className="space-y-4">
-                
-
                 <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-5 text-xs text-emerald-100">
                   <p className="font-semibold text-emerald-50">Lưu ý vận hành</p>
                   <ul className="mt-3 space-y-2">

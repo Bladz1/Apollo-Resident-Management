@@ -2,7 +2,8 @@
 
 import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
-import { loadUserId, TOKEN_KEY } from "@/utils/auth-storage";
+import { clearAuth, loadUserId, setAccessToken, TOKEN_KEY } from "@/utils/auth-storage";
+import api from "@/utils/axios";
 
 type FeeStatus = "Chưa nộp" | "Đã nộp" | "Đang xử lý";
 
@@ -30,28 +31,36 @@ interface Bill {
 }
 
 type PaymentMethod = "bank" | "wallet" | "card";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
+type PaymentStep = "ready" | "qr" | "success";
 
 async function loadFeeItems(): Promise<FeeItem[]> {
   const userId = loadUserId();
   if (!userId) throw new Error("Missing user identifier");
 
-  const token = localStorage.getItem(TOKEN_KEY);
+  try {
+    const res = await api.get(`/fees/${userId}`);
+    return res.data.result as FeeItem[];
+  } catch (err: any) {
+  // 1️⃣ Server responded (4xx / 5xx)
+  if (err.response) {
+    const status = err.response.status;
+    const message =
+      typeof err.response.data === "string"
+        ? err.response.data
+        : JSON.stringify(err.response.data);
 
-  const headers: Record<string, string> = { Accept: "application/json" };
-  if (token) headers.Authorization = `Bearer ${token}`; // token rỗng thì đừng gửi
+    throw new Error(`HTTP ${status}: ${message}`);
+  }
 
-  const res = await fetch(`${API_BASE}/fees/${userId}`, {
-    method: "GET",
-    headers,
-  });
+  // 2️⃣ Request was sent but no response (network / CORS / redirect)
+  if (err.request) {
+    throw new Error("Network error or server not reachable");
+  }
 
-  const text = await res.text();               // giúp thấy lỗi thật
-  if (!res.ok) throw new Error(`HTTP ${res.status}: ${text}`);
+  // 3️⃣ Something else
+  throw new Error(err.message || "Unknown error");
+}
 
-  const data = JSON.parse(text);
-  return data.result as FeeItem[];
 }
 
 const feeCategories: FeeCategory[] = [
@@ -173,18 +182,31 @@ export default function FeeDetailPage() {
   const [agencyFilter, setAgencyFilter] = useState("all");
   const [selectedFee, setSelectedFee] = useState<FeeItem | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("bank");
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [paymentStep, setPaymentStep] = useState<PaymentStep>("ready");
 
   const [feeItems, setFeeItems] = useState<FeeItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    loadFeeItems()
-      .then(setFeeItems)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
+  let cancelled = false;
+
+  (async () => {
+    try {
+      const data = await loadFeeItems();
+      if (!cancelled) setFeeItems(data);
+    } catch (err: any) {
+      if (!cancelled) setError(err.message ?? "Unknown error");
+    } finally {
+      if (!cancelled) setLoading(false);
+    }
+  })();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
+
 
   console.log(feeItems);
 
@@ -244,7 +266,7 @@ export default function FeeDetailPage() {
   const handleSelectCategory = (category: FeeCategory) => {
     setSelectedCategory(category);
     setSelectedFee(null);
-    setPaymentSuccess(false);
+    setPaymentStep("ready");
     setSearchTerm("");
     setStatusFilter("all");
     setAgencyFilter("all");
@@ -252,12 +274,16 @@ export default function FeeDetailPage() {
 
   const handleSelectFee = (fee: FeeItem) => {
     setSelectedFee(fee);
-    setPaymentSuccess(false);
+    setPaymentStep("ready");
     setPaymentMethod("bank");
   };
 
   const handleConfirmPayment = () => {
-    setPaymentSuccess(true);
+    setPaymentStep("qr");
+  };
+
+  const handlePaymentCompleted = () => {
+    setPaymentStep("success");
   };
 
   if (loading) {
@@ -542,7 +568,7 @@ export default function FeeDetailPage() {
 
                 <div className="space-y-3 rounded-2xl bg-slate-50 p-4">
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Xác nhận &amp; biên lai</p>
-                  {!paymentSuccess ? (
+                  {paymentStep === "ready" ? (
                     <>
                       <p className="text-sm text-slate-600">
                         Sau khi nhấn thanh toán, hệ thống sẽ chuyển tới cổng thanh toán tương ứng để xác nhận giao dịch.
@@ -555,6 +581,46 @@ export default function FeeDetailPage() {
                         Xác nhận thanh toán
                       </button>
                     </>
+                  ) : paymentStep === "qr" ? (
+                    <div className="space-y-3 text-sm text-slate-700">
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Mã QR thanh toán</p>
+                        <div className="mt-3 flex flex-col items-center gap-3">
+                          <div className="flex h-44 w-44 items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-sm">
+                            <svg viewBox="0 0 120 120" className="h-36 w-36" aria-label="QR thanh toán">
+                              <rect width="120" height="120" fill="white" />
+                              <rect x="6" y="6" width="34" height="34" fill="black" />
+                              <rect x="12" y="12" width="22" height="22" fill="white" />
+                              <rect x="16" y="16" width="14" height="14" fill="black" />
+                              <rect x="80" y="6" width="34" height="34" fill="black" />
+                              <rect x="86" y="12" width="22" height="22" fill="white" />
+                              <rect x="90" y="16" width="14" height="14" fill="black" />
+                              <rect x="6" y="80" width="34" height="34" fill="black" />
+                              <rect x="12" y="86" width="22" height="22" fill="white" />
+                              <rect x="16" y="90" width="14" height="14" fill="black" />
+                              <rect x="52" y="52" width="10" height="10" fill="black" />
+                              <rect x="66" y="48" width="8" height="8" fill="black" />
+                              <rect x="48" y="66" width="8" height="8" fill="black" />
+                              <rect x="70" y="66" width="6" height="6" fill="black" />
+                              <rect x="54" y="76" width="6" height="6" fill="black" />
+                              <rect x="78" y="54" width="6" height="6" fill="black" />
+                              <rect x="40" y="46" width="6" height="6" fill="black" />
+                              <rect x="44" y="58" width="6" height="6" fill="black" />
+                            </svg>
+                          </div>
+                          <p className="text-center text-sm text-slate-600">
+                            Quét mã để thanh toán {selectedFee.amount.toLocaleString("vi-VN")}₫ cho {selectedFee.name}.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handlePaymentCompleted}
+                        className="inline-flex w-full items-center justify-center rounded-full bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-700"
+                      >
+                        Tôi đã thanh toán
+                      </button>
+                    </div>
                   ) : (
                     <div className="space-y-3 text-sm text-slate-700">
                       <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-emerald-700">

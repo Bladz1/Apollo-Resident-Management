@@ -5,6 +5,7 @@ import { FormEvent, Suspense, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { extractRolesFromToken, extractUsernameFromToken, saveAuth } from '@/utils/auth-storage';
 import styles from './login.module.css';
+import publicApi from '@/utils/publicApi';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8080';
 
@@ -143,88 +144,85 @@ function LoginPageContent() {
     event.preventDefault();
 
     setLoading(true);
-    setStatus('idle');
+    setStatus("idle");
     setMessage(null);
     setResponseBody(null);
 
     try {
-      // 1) ✅ gọi backend thật để lấy token
-      const response = await fetch(`${API_BASE_URL}/auth/token`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+      // 1️⃣ LOGIN → get JWT
+      const loginRes = await publicApi.post("/auth/token", {
+        username,
+        password,
       });
 
-      const text = await response.text();
-      let parsed: unknown = null;
+      const parsed = loginRes.data;
+      setResponseBody(JSON.stringify(parsed, null, 2));
 
-      try {
-        parsed = JSON.parse(text);
-      } catch {
-        parsed = null;
-      }
-
-      const formattedResponse = parsed ? JSON.stringify(parsed, null, 2) : text;
-      setResponseBody(formattedResponse || '');
-
-      if (!response.ok) {
-        setStatus('error');
-        setMessage(`Đăng nhập thất bại (HTTP ${response.status}). Vui lòng kiểm tra API.`);
-        return;
-      }
-
-      const { token: tokenFromResponse, username: usernameFromResponse, roles: rolesFromResponse } =
-        extractAuthDetails(parsed);
+      const {
+        token: tokenFromResponse,
+        username: usernameFromResponse,
+        roles: rolesFromResponse,
+      } = extractAuthDetails(parsed);
 
       if (!tokenFromResponse) {
-        setStatus('error');
-        setMessage('API không trả về token. Kiểm tra response của /auth/token.');
+        setStatus("error");
+        setMessage("API không trả về token. Kiểm tra response của /auth/token.");
         return;
       }
 
       const resolvedUsername =
-        usernameFromResponse ?? extractUsernameFromToken(tokenFromResponse) ?? username;
+        usernameFromResponse ??
+        extractUsernameFromToken(tokenFromResponse) ??
+        username;
 
-      const resolvedRoles = rolesFromResponse ?? extractRolesFromToken(tokenFromResponse) ?? [];
-      const isAdmin = resolvedRoles.some((role) => role === 'ADMIN' || role === 'ROLE_ADMIN');
+      const resolvedRoles =
+        rolesFromResponse ?? extractRolesFromToken(tokenFromResponse) ?? [];
 
-      // 2) ✅ set cookie httpOnly để middleware đọc được
-      const cookieRes = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: tokenFromResponse }),
-        credentials: 'same-origin', // ✅ đủ để lưu cookie cho cùng domain
-      });
+      const isAdmin = resolvedRoles.some(
+        (role) => role === "ADMIN" || role === "ROLE_ADMIN"
+      );
 
-      if (!cookieRes.ok) {
-        const errText = await cookieRes.text().catch(() => '');
-        setStatus('error');
-        setMessage(`Không set được cookie đăng nhập. (HTTP ${cookieRes.status})`);
-        setResponseBody(errText || formattedResponse || '');
-        return;
-      }
-
-      // 3) ✅ lưu localStorage để header hiển thị
+      // 3️⃣ SAVE LOCAL STORAGE (for UI)
       saveAuth(tokenFromResponse, resolvedUsername);
 
-      setStatus('success');
-      setMessage('Đăng nhập thành công!');
+      setStatus("success");
+      setMessage("Đăng nhập thành công!");
 
-      // 4) ✅ ưu tiên next nếu nó là route protected
-      if (nextPath && nextPath !== '/' && (nextPath.startsWith('/profile') || nextPath.startsWith('/admin'))) {
+      // 4️⃣ REDIRECT
+      if (
+        nextPath &&
+        nextPath !== "/" &&
+        (nextPath.startsWith("/profile") || nextPath.startsWith("/admin"))
+      ) {
         router.replace(nextPath);
         return;
       }
 
-      // nếu không có next hợp lệ → điều hướng theo role
-      router.replace(isAdmin ? '/admin' : '/');
-    } catch {
-      setStatus('error');
-      setMessage('Sai thông tin đăng nhập. Vui lòng thử lại !');
+      router.replace(isAdmin ? "/admin" : "/");
+    } catch (err: any) {
+      console.error("Login error:", err);
+
+      const statusCode = err.response?.status;
+      const errorMsg =
+        err.response?.data?.message ||
+        err.message ||
+        "Sai thông tin đăng nhập";
+
+      setStatus("error");
+      setMessage(
+        statusCode
+          ? `Đăng nhập thất bại (HTTP ${statusCode})`
+          : errorMsg
+      );
+
+      if (err.response?.data) {
+        setResponseBody(JSON.stringify(err.response.data, null, 2));
+      }
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div

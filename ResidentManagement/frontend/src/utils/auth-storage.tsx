@@ -1,3 +1,5 @@
+import { jwtDecode } from "node_modules/jwt-decode/build/cjs";
+
 export const TOKEN_KEY = 'resident-management.authToken';
 export const USERNAME_KEY = 'resident-management.username';
 export const AUTH_CHANGE_EVENT = 'resident-management:auth-changed';
@@ -10,6 +12,10 @@ export type StoredAuth = {
 export type AuthChangeDetail = {
   token: string | null;
   username: string | null;
+};
+export type JwtPayload = {
+  exp: number;
+  iat?: number;
 };
 
 function isBrowser() {
@@ -62,6 +68,33 @@ function parseJwt(token: string): Record<string, unknown> | null {
   } catch {
     return null;
   }
+}
+export function getAccessToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export function setAccessToken(token: string) {
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function removeAccessToken() {
+  localStorage.removeItem(TOKEN_KEY);
+}
+export function isTokenExpired(token: string): boolean {
+  try {
+    const { exp } = jwtDecode<JwtPayload>(token);
+    return Date.now() >= exp * 1000;
+  } catch {
+    return true;
+  }
+}
+
+export function willExpireSoon(
+  token: string,
+  thresholdSeconds = 60
+): boolean {
+  const { exp } = jwtDecode<JwtPayload>(token);
+  return exp * 1000 - Date.now() < thresholdSeconds * 1000;
 }
 
 function pickString(source: Record<string, unknown>, keys: string[]): string | null {
