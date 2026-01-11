@@ -22,8 +22,6 @@ import java.util.List;
 @RequestMapping("/wanted")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@Slf4j
-
 public class WantedController {
 
     /** Service nghiệp vụ truy nã. */
