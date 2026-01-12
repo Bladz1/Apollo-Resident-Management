@@ -7,6 +7,7 @@ import com.team.ResidentManagement.dto.request.UpdateUserStatusRequest;
 import com.team.ResidentManagement.dto.request.UserCreationRequest;
 import com.team.ResidentManagement.dto.request.UserUpdateRequest;
 import com.team.ResidentManagement.dto.response.FeedbackResponse;
+import com.team.ResidentManagement.dto.response.PendingUserResponse;
 import com.team.ResidentManagement.dto.response.UserResponse;
 import com.team.ResidentManagement.entity.User;
 import com.team.ResidentManagement.entity.Role;
@@ -91,6 +92,7 @@ public class UserService {
         roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
 
         user.setRoles(roles);
+        user.setStatus("PENDING");
 
         try {
             user = userRepository.save(user);
@@ -184,6 +186,20 @@ public class UserService {
     public List<UserResponse> getUsers() {
         return userRepository.findAll().stream()
                 .map(userMapper::toUserResponse)
+                .toList();
+    }
+    @Cacheable(value = "users", key = "'pending'")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<PendingUserResponse> getPendingUsers() {
+        return userRepository.findByStatus("PENDING").stream()
+                .map(user -> PendingUserResponse.builder()
+                        .id(user.getId())
+                        .username(user.getUsername())
+                        .personalId(user.getPersonalId())
+                        .phoneNumber(user.getPhoneNumber())
+                        .address(user.getAddress())
+                        .status(user.getStatus())
+                        .build())
                 .toList();
     }
 
