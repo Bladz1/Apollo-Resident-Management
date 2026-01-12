@@ -61,24 +61,31 @@ export default function PetitionPage() {
         attachmentUrl = await uploadFeedbackFile(petitionState.attachment);
       }
 
-      const formData = new FormData();
-      formData.append("name", petitionState.fullName);
-      formData.append("email", petitionState.email);
-      formData.append("phone", petitionState.phone);
-      formData.append("address", petitionState.address);
-      formData.append("title", petitionState.title);
-      formData.append("description", petitionState.content);
+      // ✅ Build JSON payload (NOT FormData)
+      const payload = {
+        name: petitionState.fullName,
+        email: petitionState.email,
+        phone: petitionState.phone,
+        address: petitionState.address,
+        title: petitionState.title,
+        description: petitionState.content,
+        attachmentUrl, // ✅ this is the ONLY thing sent for the file
+      };
 
-      if (attachmentUrl) {
-        formData.append("attachmentUrl", attachmentUrl);
-      }
+      const token =
+        typeof window !== "undefined"
+          ? window.localStorage.getItem(TOKEN_KEY)
+          : null;
 
-      const token = typeof window !== "undefined" ? window.localStorage.getItem(TOKEN_KEY) : null;
       const response = await fetch(`${API_BASE_URL}/feedbacks/${userId}`, {
         method: "POST",
-        body: formData,
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(payload),
       });
+
 
       if (!response.ok) {
         const contentType = response.headers.get("content-type") ?? "";
