@@ -137,7 +137,6 @@ function LoginPageContent() {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState<string | null>(null);
-  const [responseBody, setResponseBody] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -146,7 +145,6 @@ function LoginPageContent() {
     setLoading(true);
     setStatus("idle");
     setMessage(null);
-    setResponseBody(null);
 
     try {
       // 1️⃣ LOGIN → get JWT
@@ -156,8 +154,6 @@ function LoginPageContent() {
       });
 
       const parsed = loginRes.data;
-      setResponseBody(JSON.stringify(parsed, null, 2));
-
       const {
         token: tokenFromResponse,
         username: usernameFromResponse,
@@ -166,7 +162,7 @@ function LoginPageContent() {
 
       if (!tokenFromResponse) {
         setStatus("error");
-        setMessage("API không trả về token. Kiểm tra response của /auth/token.");
+        setMessage("Không thể đăng nhập. Vui lòng thử lại sau.");
         return;
       }
 
@@ -202,22 +198,13 @@ function LoginPageContent() {
     } catch (err: any) {
       console.error("Login error:", err);
 
-      const statusCode = err.response?.status;
       const errorMsg =
         err.response?.data?.message ||
         err.message ||
         "Sai thông tin đăng nhập";
 
       setStatus("error");
-      setMessage(
-        statusCode
-          ? `Đăng nhập thất bại (HTTP ${statusCode})`
-          : errorMsg
-      );
-
-      if (err.response?.data) {
-        setResponseBody(JSON.stringify(err.response.data, null, 2));
-      }
+      setMessage(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -316,12 +303,6 @@ function LoginPageContent() {
               <div className="font-semibold">{status === 'error' ? 'Lỗi đăng nhập' : 'Thành công'}</div>
 
               {message && <div className="mt-1">{message}</div>}
-
-              {responseBody && (
-                <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap text-[11px] font-mono text-slate-700">
-                  {responseBody}
-                </pre>
-              )}
             </div>
           )}
         </section>
