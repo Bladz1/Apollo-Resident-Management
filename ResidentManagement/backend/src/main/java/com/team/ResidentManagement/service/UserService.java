@@ -78,9 +78,11 @@ public class UserService {
     /**
      * Đăng ký tài khoản mới cho cư dân (không yêu cầu quyền admin).
      */
+    @CacheEvict(value = "users", key = "'pending'")
     public UserResponse registerUser(UserCreationRequest request) {
         return createUserInternal(request);
     }
+
 
     private UserResponse createUserInternal(UserCreationRequest request) {
         User user = userMapper.toUser(request);
@@ -139,7 +141,8 @@ public class UserService {
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
-    @Cacheable(value = "users", key = "#userId")
+
+    @CacheEvict(value = "users", key = "'pending'")
     public UserResponse updateUserStatus(String userId, UpdateUserStatusRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -187,7 +190,7 @@ public class UserService {
                 .map(userMapper::toUserResponse)
                 .toList();
     }
-    @Cacheable(value = "users", key = "'pending'")
+    //@Cacheable(value = "users", key = "'pending'")
     @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> getPendingUsers() {
         return userRepository.findAll().stream()
