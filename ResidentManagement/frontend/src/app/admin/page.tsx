@@ -306,7 +306,7 @@ export default function AdminDashboardPage() {
     const response = await fetch(`${API_BASE_URL}/users/status/${id}`, {
       method: 'PUT',
       headers,
-      body: JSON.stringify({ update: true }),
+      body: JSON.stringify({ status: 'ACCEPTED' }),
     });
 
     if (!response.ok) {
