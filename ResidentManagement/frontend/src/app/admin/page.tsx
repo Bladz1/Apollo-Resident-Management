@@ -90,6 +90,7 @@ type Complaint = {
   address: string;
   status: FeedbackStatus;
   title?: string;
+  description?: string;
   content?: string;
 };
 
@@ -620,9 +621,9 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <div className="mt-4 rounded-xl bg-white/5 p-4 text-sm text-slate-200">
-                  {selectedComplaint.content?.trim()
-                    ? selectedComplaint.content
-                    : 'Chưa có nội dung phản ánh (backend chưa trả field content).'}
+                  {selectedComplaint.description?.trim() || selectedComplaint.content?.trim()
+                    ? selectedComplaint.description?.trim() || selectedComplaint.content?.trim()
+                    : 'Chưa có nội dung phản ánh.'}
                 </div>
 
                 <div className="mt-4 text-xs text-slate-400">
