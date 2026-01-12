@@ -10,7 +10,7 @@ import { initialPetitionState, services, type PetitionFormState } from "../data"
 import { form } from "framer-motion/client";
 
 const petitionService = services.find((service) => service.id === "kien-nghi");
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080/resident-management";
 
 const createEmptyPetitionState = (): PetitionFormState => ({ ...initialPetitionState });
 

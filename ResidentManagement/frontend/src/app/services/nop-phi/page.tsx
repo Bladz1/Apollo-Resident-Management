@@ -3,7 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { clearAuth, loadUserId, setAccessToken, TOKEN_KEY } from "@/utils/auth-storage";
-import api from "@/utils/axios";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
 
 type FeeStatus = "Chưa nộp" | "Đã nộp" | "Đang xử lý";
 
@@ -35,33 +35,52 @@ type PaymentStep = "ready" | "qr" | "success";
 
 async function loadFeeItems(): Promise<FeeItem[]> {
   const userId = loadUserId();
-  if (!userId) throw new Error("Bạn hãy vui lòng đăng nhập trước khi xem mục này");
+  if (!userId) {
+    throw new Error("Bạn hãy vui lòng đăng nhập trước khi xem mục này");
+  }
 
   try {
-    const res = await api.get(`/fees/${userId}`);
-    return res.data.result as FeeItem[];
+    const res = await fetch(`${API_BASE_URL}/fees/${userId}`, {
+      method: "GET",
+      headers: {
+        "Accept": "application/json",
+        // add Authorization if your backend requires it
+        ...(typeof window !== "undefined" && localStorage.getItem(TOKEN_KEY)
+          ? { Authorization: `Bearer ${localStorage.getItem(TOKEN_KEY)}` }
+          : {}),
+      },
+    });
+
+    // 1️⃣ Server responded (4xx / 5xx)
+    if (!res.ok) {
+      const contentType = res.headers.get("content-type") || "";
+      let message = "Request failed";
+
+      if (contentType.includes("application/json")) {
+        const data = await res.json();
+        message = typeof data === "string" ? data : JSON.stringify(data);
+      } else {
+        const text = await res.text();
+        if (text.trim()) message = text;
+      }
+
+      throw new Error(`HTTP ${res.status}: ${message}`);
+    }
+
+    // 2️⃣ Successful response
+    const data = await res.json();
+    return data.result as FeeItem[];
+
   } catch (err: any) {
-  // 1️⃣ Server responded (4xx / 5xx)
-  if (err.response) {
-    const status = err.response.status;
-    const message =
-      typeof err.response.data === "string"
-        ? err.response.data
-        : JSON.stringify(err.response.data);
+    // 3️⃣ Network error / CORS / fetch failure
+    if (err instanceof TypeError) {
+      throw new Error("Network error or server not reachable");
+    }
 
-    throw new Error(`HTTP ${status}: ${message}`);
+    throw new Error(err.message || "Unknown error");
   }
-
-  // 2️⃣ Request was sent but no response (network / CORS / redirect)
-  if (err.request) {
-    throw new Error("Network error or server not reachable");
-  }
-
-  // 3️⃣ Something else
-  throw new Error(err.message || "Unknown error");
 }
 
-}
 
 const feeCategories: FeeCategory[] = [
   {
