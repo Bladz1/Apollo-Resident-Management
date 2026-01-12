@@ -147,7 +147,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        user.setStatus(request.isUpdate() ? "ACCEPTED" : "REJECTED");
+        user.setStatus(request.getStatus());
 
         return userMapper.toUserResponse(userRepository.save(user));
     }

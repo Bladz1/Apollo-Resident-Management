@@ -167,6 +167,10 @@
         background-attachment: scroll;
     }
 
+    .hero-spotlight1 {
+        background-attachment: scroll;
+    }
+
     .hero-orb {
         width: 220px;
         height: 220px;
@@ -211,5 +215,43 @@
         width: 2.5rem;
         height: 2.5rem;
         font-size: 1.35rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-grid {
+        background-size: 28px 28px;
+    }
+
+    .hero-orb {
+        width: 180px;
+        height: 180px;
+        filter: blur(50px);
+    }
+
+    .feature-card {
+        padding: 1.25rem;
+        border-radius: 20px;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        gap: 0.5rem;
+    }
+
+    .section-icon {
+        width: 2.25rem;
+        height: 2.25rem;
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .hero-spotlight {
+        background-position: center top;
+    }
+
+    .feature-card {
+        padding: 1rem;
     }
 }

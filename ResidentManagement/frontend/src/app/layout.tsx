@@ -30,7 +30,7 @@ export default function RootLayout({
         <main>
           {children}
         </main>
-        <footer className="bg-gray-800 text-white text-center p-4">
+        <footer className="bg-gray-800 p-4 text-center text-xs text-white sm:text-sm">
           <p>&copy; 2025 Hệ thống Quản lý Dân cư. Hotline: 1800 1096</p>
         </footer>
       </body>

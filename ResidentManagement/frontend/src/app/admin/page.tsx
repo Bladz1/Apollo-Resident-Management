@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import api from '@/utils/axios';
-
 import { TOKEN_KEY } from '@/utils/auth-storage';
 
 const overviewStats = [
@@ -31,7 +29,6 @@ const systemAlerts = [
     description: 'Phát hiện 2 lần đăng nhập thất bại liên tiếp từ tài khoản quản trị cấp huyện.',
     severity: 'critical',
   },
-  { title: 'Giám sát dịch vụ', description: 'API đồng bộ nhân khẩu phản hồi chậm hơn 35% so với bình thường.', severity: 'warning' },
   { title: 'Sao lưu dữ liệu', description: 'Phiên sao lưu định kỳ 06:00 đã hoàn thành và được lưu tại DC-HN-03.', severity: 'info' },
 ];
 
@@ -92,6 +89,7 @@ type Complaint = {
   address: string;
   status: FeedbackStatus;
   title?: string;
+  description?: string;
   content?: string;
 };
 
@@ -162,31 +160,30 @@ export default function AdminDashboardPage() {
   };
 
   // ========== Complaints ==========
- const loadComplaints = async () => {
-  setLoadingComplaints(true);
-  setComplaintError(null);
+  const loadComplaints = async () => {
+    setLoadingComplaints(true);
+    setComplaintError(null);
 
-  try {
-    const res = await api.get<ApiResponse<Complaint[]>>('/feedbacks', {
-      method: 'GET',
-      headers: buildAuthHeaders({
-        Accept: 'application/json',
-        authentication: `Bearer ${localStorage.getItem(TOKEN_KEY)}`,
-      }),
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/feedbacks`, {
+        method: 'GET',
+        headers: buildAuthHeaders({ Accept: 'application/json' }),
+      });
 
-    setLocalComplaints(res.data.result ?? []);
-  } catch (error: any) {
-    const message =
-      error?.response?.data?.message ||
-      error?.response?.data ||
-      error?.message ||
-      'Không thể tải danh sách phản ánh.';
-    setComplaintError(message);
-  } finally {
-    setLoadingComplaints(false);
-  }
-};
+      if (!response.ok) {
+        const detail = await response.text();
+        throw new Error(detail || 'Không thể tải danh sách phản ánh.');
+      }
+
+      const data = (await response.json()) as ApiResponse<Complaint[]>;
+      setLocalComplaints(data.result ?? []);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Không thể tải danh sách phản ánh.';
+      setComplaintError(message);
+    } finally {
+      setLoadingComplaints(false);
+    }
+  };
 
 
 
@@ -220,7 +217,7 @@ export default function AdminDashboardPage() {
 
       await deleteComplaint(id);
 
-      setLocalComplaints((prev) => prev.filter((c) => c.id !== id));
+      await loadComplaints();
       setSelectedComplaint((prev) => (prev?.id === id ? null : prev));
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Không thể xóa phản ánh.';
@@ -232,7 +229,7 @@ export default function AdminDashboardPage() {
     const headers = buildAuthHeaders({ Accept: 'application/json', 'Content-Type': 'application/json' });
 
     // Try to update status on the server; endpoint may vary depending on backend
-    const response = await fetch(`${API_BASE_URL}/feedbacks/status/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/feedbacks/${id}/status`, {
       method: 'PUT',
       headers,
       body: JSON.stringify({ status: 'ACCEPTED' }),
@@ -306,7 +303,7 @@ export default function AdminDashboardPage() {
     const response = await fetch(`${API_BASE_URL}/users/status/${id}`, {
       method: 'PUT',
       headers,
-      body: JSON.stringify({ update: true }),
+      body: JSON.stringify({ status: 'ACCEPTED' }),
     });
 
     if (!response.ok) {
@@ -623,9 +620,9 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <div className="mt-4 rounded-xl bg-white/5 p-4 text-sm text-slate-200">
-                  {selectedComplaint.content?.trim()
-                    ? selectedComplaint.content
-                    : 'Chưa có nội dung phản ánh (backend chưa trả field content).'}
+                  {selectedComplaint.description?.trim() || selectedComplaint.content?.trim()
+                    ? selectedComplaint.description?.trim() || selectedComplaint.content?.trim()
+                    : 'Chưa có nội dung phản ánh.'}
                 </div>
 
                 <div className="mt-4 text-xs text-slate-400">

@@ -59,27 +59,27 @@ export default function Home() {
                 <div className={`${styles["hero-orb"]} ${styles["orb-2"]}`} aria-hidden />
               </div>
 
-              <div className="relative z-10 mx-auto grid max-w-6xl gap-10 px-4 pb-16 pt-20 sm:px-6 sm:pb-20 sm:pt-24 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+              <div className="relative z-10 mx-auto grid max-w-6xl gap-10 px-4 pb-14 pt-16 sm:px-6 sm:pb-20 sm:pt-24 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
                 <div className={`space-y-6 text-center lg:text-left ${styles["animate-fade-in"]}`}>
                   <span className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-red-200 backdrop-blur">
                     Hệ thống Quản lý dân cư quốc gia
                   </span>
-                  <h1 className="text-3xl md:text-5xl leading-tight text-balance">
+                  <h1 className="text-2xl leading-snug text-balance sm:text-3xl md:text-5xl">
                     Tiện lợi, an toàn và minh bạch trong mọi thủ tục cư trú
                   </h1>
-                  <p className="mx-auto max-w-2xl text-base text-slate-200 md:text-lg lg:mx-0">
+                  <p className="mx-auto max-w-2xl text-sm text-slate-200 sm:text-base md:text-lg lg:mx-0">
                     Cổng thông tin chính thức hỗ trợ người dân thực hiện thủ tục hộ khẩu, tạm trú, khai báo tạm vắng và tra cứu thông tin dân cư nhanh chóng.
                   </p>
-                  <UserWelcome className="mx-auto text-base text-amber-200 md:text-lg lg:mx-0" />
+                  <UserWelcome className="mx-auto text-sm text-amber-200 sm:text-base md:text-lg lg:mx-0" />
                   <div className="flex flex-wrap justify-center gap-4 sm:justify-start">
                     <LoginCtaButton />
                   </div>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
                     {[{ label: 'Hồ sơ xử lý trong ngày', value: '4.512' }, { label: 'Tỷ lệ đúng hạn', value: '98%' }, { label: 'Hotline hỗ trợ', value: '1800 1096' }].map(
                       (stat) => (
-                        <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center backdrop-blur transition hover:border-white/40 hover:bg-white/10 sm:text-left">
+                        <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/5 p-5 text-center backdrop-blur transition hover:border-white/40 hover:bg-white/10 sm:p-6 sm:text-left">
                           <p className="text-xs uppercase tracking-wide text-slate-300">{stat.label}</p>
-                          <p className="mt-2 text-2xl font-bold text-white">{stat.value}</p>
+                          <p className="mt-2 text-xl font-bold text-white sm:text-2xl">{stat.value}</p>
                         </div>
                       ),
                     )}
@@ -99,8 +99,7 @@ export default function Home() {
                         alt="Tích hợp đa dạng tiện ích"
                         width={280}
                         height={180}
-                        className="rounded-xl  object-contain"
-                        style={{ maxWidth: '280px', height: 'auto' }}
+                        className="w-full max-w-[220px] rounded-xl object-contain sm:max-w-[280px]"
                       />
                     </div>
                   </div>
@@ -112,8 +111,7 @@ export default function Home() {
                         alt="Đơn giản hóa mọi thủ tục hành chính"
                         width={180}
                         height={180}
-                        className="rounded-xl object-cover flex-shrink-0"
-                        style={{ width: '180px', height: '140px' }}
+                        className="h-auto w-32 flex-shrink-0 rounded-xl object-cover sm:h-[140px] sm:w-[180px]"
                       />
                       <div className="flex flex-1 flex-col justify-center text-center sm:h-[140px] sm:text-left">
                         <p className="font-semibold text-lg text-red-200 mb-3">Đơn giản hóa</p>
@@ -225,13 +223,13 @@ export default function Home() {
                   </div>
 
                   <div className="grid gap-4 text-sm text-black">
-                    <div className="flex items-center justify-between rounded-2xl border border-gray-300 p-4">
+                    <div className="flex flex-col items-start gap-2 rounded-2xl border border-gray-300 p-4 sm:flex-row sm:items-center sm:justify-between">
                       <span className="font-medium">Hotline phản ánh</span>
                       <strong className="text-lg">1800 1096</strong>
                     </div>
-                    <div className="flex items-center justify-between rounded-2xl border border-gray-300 p-4">
+                    <div className="flex flex-col items-start gap-2 rounded-2xl border border-gray-300 p-4 sm:flex-row sm:items-center sm:justify-between">
                       <span className="font-medium">Email hỗ trợ</span>
-                      <strong className="text-lg">
+                      <strong className="text-lg break-words">
                         hotro@quanlycuutru.gov.vn
                       </strong>
                     </div>
