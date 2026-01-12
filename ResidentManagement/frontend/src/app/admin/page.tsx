@@ -80,7 +80,7 @@ const feeCategories = [
   },
 ];
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8080/resident-management';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8080';
 
 type FeedbackStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
 
@@ -318,10 +318,9 @@ export default function AdminDashboardPage() {
   const rejectUser = async (id: string) => {
     const headers = buildAuthHeaders({ Accept: 'application/json', 'Content-Type': 'application/json' });
 
-    const response = await fetch(`${API_BASE_URL}/users/status/${id}`, {
-      method: 'PUT',
+    const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+      method: 'DELETE',
       headers,
-      body: JSON.stringify({ update: false }),
     });
 
     if (!response.ok) {

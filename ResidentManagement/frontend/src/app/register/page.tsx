@@ -4,6 +4,8 @@ import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
+const VN_PHONE_REGEX = /^(0[3|5|7|8|9][0-9]{8}|\+84[3|5|7|8|9][0-9]{8})$/;
+
 
 const PASSWORD_REQUIREMENTS = [
   "Ít nhất 8 ký tự",
@@ -70,6 +72,14 @@ export default function RegisterPage() {
     event.preventDefault();
     if (loading) return;
     setLoading(true);
+    if (!VN_PHONE_REGEX.test(formState.phone)) {
+      setStatus("error");
+      setMessage(
+        "Số điện thoại không hợp lệ. Vui lòng nhập số Việt Nam (VD: 0901234567 hoặc +84901234567)."
+      );
+      setLoading(false);
+      return;
+    }
 
     if (!passwordValidation.isValid) {
       setStatus("error");
@@ -106,7 +116,7 @@ export default function RegisterPage() {
         body: JSON.stringify({
           username: formState.username.trim(),
           password: formState.password,
-          email: formState.email.trim() || null,
+          email: formState.email.trim(),
           address: formState.address.trim(),
           personalId: formState.nationalId,
           phoneNumber: formState.phone.trim(),
@@ -121,7 +131,7 @@ export default function RegisterPage() {
         setStatus("error");
         setMessage(
           responseBody?.message ??
-            "Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.",
+          "Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.",
         );
         return;
       }
@@ -266,7 +276,7 @@ export default function RegisterPage() {
               <input
                 id="phone"
                 type="tel"
-                pattern="(0|\\+84)[0-9]{9,10}"
+                
                 required
                 value={formState.phone}
                 onChange={(event) => handleChange("phone")(event.target.value)}

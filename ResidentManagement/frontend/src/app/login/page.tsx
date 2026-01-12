@@ -129,7 +129,7 @@ function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // ✅ next chỉ dùng khi middleware đá qua login?next=/profile hoặc /admin
+  
   const nextPath = useMemo(() => searchParams.get('next') || '/', [searchParams]);
 
   const [username, setUsername] = useState('');
