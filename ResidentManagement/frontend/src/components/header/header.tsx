@@ -112,7 +112,7 @@ const Header = () => {
         <div className="flex min-w-0 items-center gap-3">
           <Image
             className="h-9 w-9 rounded-md bg-transparent sm:h-10 sm:w-10"
-            src="/images/PicturePlaceholder.png" // Thay bằng đường dẫn ảnh quốc kỳ trong public/
+            src="/images/logo.png" // Thay bằng đường dẫn ảnh quốc kỳ trong public/
             alt="Quốc kỳ Việt Nam"
             width={40}
             height={40}
@@ -149,7 +149,7 @@ const Header = () => {
                 type="button"
                 onClick={() => setIsProfileOpen((prev) => !prev)}
                 className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-yellow-200 transition hover:border-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-300"
-                aria-label="Mở меню tài khoản"
+                aria-label="Mở menu tài khoản"
               >
                 <Image src="/images/PicturePlaceholder.png" alt="Ảnh đại diện" width={40} height={40} className="h-full w-full object-cover" />
               </button>
@@ -204,7 +204,7 @@ const Header = () => {
                 type="button"
                 onClick={() => setIsProfileOpen((prev) => !prev)}
                 className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-yellow-200"
-                aria-label="Mở меню tài khoản"
+                aria-label="Mở меnu tài khoản"
               >
                 <Image
                   src="/images/PicturePlaceholder.png"
