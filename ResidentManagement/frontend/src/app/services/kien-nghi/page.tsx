@@ -7,9 +7,10 @@ import { loadUserId, TOKEN_KEY } from "@/utils/auth-storage";
 import { uploadFeedbackFile } from "@/utils/supabase";
 
 import { initialPetitionState, services, type PetitionFormState } from "../data";
+import { form } from "framer-motion/client";
 
 const petitionService = services.find((service) => service.id === "kien-nghi");
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080/resident-management";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
 
 const createEmptyPetitionState = (): PetitionFormState => ({ ...initialPetitionState });
 
@@ -54,10 +55,10 @@ export default function PetitionPage() {
         throw new Error("Missing user identifier");
       }
 
-      let fileUrl: string | null = null;
+      let attachmentUrl: string | null = null;
 
       if (petitionState.attachment) {
-        fileUrl = await uploadFeedbackFile(petitionState.attachment);
+        attachmentUrl = await uploadFeedbackFile(petitionState.attachment);
       }
 
       const formData = new FormData();
@@ -68,9 +69,9 @@ export default function PetitionPage() {
       formData.append("title", petitionState.title);
       formData.append("description", petitionState.content);
 
-      if (fileUrl) {
-      formData.append("fileUrl", fileUrl);
-}
+      if (attachmentUrl) {
+        formData.append("attachmentUrl", attachmentUrl);
+      }
 
       const token = typeof window !== "undefined" ? window.localStorage.getItem(TOKEN_KEY) : null;
       const response = await fetch(`${API_BASE_URL}/feedbacks/${userId}`, {

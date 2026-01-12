@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { TOKEN_KEY } from '@/utils/auth-storage';
+import Image from 'next/image';
 
 const overviewStats = [
   { label: 'Hồ sơ chờ duyệt', value: '128', trend: '+12', trendLabel: 'so với hôm qua' },
@@ -91,6 +92,7 @@ type Complaint = {
   title?: string;
   description?: string;
   content?: string;
+  attachmentUrl?: string;
 };
 
 type UserRegisterStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
@@ -624,6 +626,31 @@ export default function AdminDashboardPage() {
                     ? selectedComplaint.description?.trim() || selectedComplaint.content?.trim()
                     : 'Chưa có nội dung phản ánh.'}
                 </div>
+
+                {selectedComplaint.attachmentUrl && (
+                  <div className="mt-4">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      Tệp đính kèm
+                    </p>
+
+                    <Image
+                      src={selectedComplaint.attachmentUrl}
+                      alt="Ảnh đính kèm"
+                      width={800}
+                      height={600}
+                      className="max-h-[300px] w-full rounded-lg border border-white/10 object-contain"
+                    />
+
+                    <a
+                      href={selectedComplaint.attachmentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-block text-xs text-sky-400 hover:underline"
+                    >
+                      Mở ảnh trong tab mới
+                    </a>
+                  </div>
+                )}
 
                 <div className="mt-4 text-xs text-slate-400">
                   Email: {selectedComplaint.email || '—'} • Địa chỉ: {selectedComplaint.address || '—'}
