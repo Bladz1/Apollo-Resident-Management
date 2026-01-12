@@ -206,13 +206,13 @@ const Header = () => {
                 className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-yellow-200"
                 aria-label="Mở меню tài khoản"
               >
-                {/* <Image
-                  src={userAvatarUrl || "/images/default-avatar.png"} // ✅ ảnh theo user
+                <Image
+                  src="/images/hen.png"
                   alt="Ảnh đại diện"
-                  width={36}
+                  width={36}  
                   height={36}
                   className="h-full w-full object-cover"
-                /> */}
+                />
               </button>
 
               {isProfileOpen && (

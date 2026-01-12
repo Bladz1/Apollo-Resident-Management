@@ -127,7 +127,7 @@ export default function RegisterPage() {
       }
 
       setStatus("success");
-      setMessage("Tạo tài khoản thành công. Bạn có thể đăng nhập ngay.");
+      setMessage("Đã đăng kí thành công ! Xin bạn vui lòng đợi đợi xác minh.");
       setFormState((prev) => ({
         ...prev,
         password: "",

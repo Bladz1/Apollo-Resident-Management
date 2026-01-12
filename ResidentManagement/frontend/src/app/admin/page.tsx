@@ -276,6 +276,7 @@ export default function AdminDashboardPage() {
       const data = (await response.json()) as ApiResponse<UserResponse[]>;
       const normalized = (data.result ?? [])
         .filter((user) => user.status === 'PENDING')
+        .filter((user) => user.status === 'PENDING')
         .map((user) => ({
           id: user.id,
           personalId: user.personalId ?? '',
