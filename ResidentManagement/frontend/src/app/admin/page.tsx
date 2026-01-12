@@ -264,9 +264,15 @@ export default function AdminDashboardPage() {
     setUserError(null);
 
     try {
-      const headers = buildAuthHeaders({ Accept: 'application/json' });
+      const token = localStorage.getItem(TOKEN_KEY);
 
-      const response = await fetch(`${API_BASE_URL}/users/pending`, { headers });
+      const response = await fetch(`${API_BASE_URL}/users/pending`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
 
       if (!response.ok) {
         const detail = await response.text();
