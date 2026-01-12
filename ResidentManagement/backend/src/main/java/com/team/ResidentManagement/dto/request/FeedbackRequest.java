@@ -17,5 +17,5 @@ public class FeedbackRequest {
     String title;
     String description;
 
-    MultipartFile file;
+    String fileUrl;
 }

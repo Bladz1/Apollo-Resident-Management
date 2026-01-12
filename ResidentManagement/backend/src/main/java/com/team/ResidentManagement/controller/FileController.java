@@ -34,7 +34,7 @@ public class FileController {
     ProfileImageUploadService profileImageUploadService;
     FileStorageService fileStorageService;
     UserRepository userRepository;
-    private final UserMapper userMapper;
+    UserMapper userMapper;
 
     @PostMapping("/upload-file")
     public ApiResponse<FileUploadResponse> uploadAvatar (@RequestParam("file") MultipartFile file, @RequestHeader("UserId") String userId) {
