@@ -2,6 +2,7 @@ package com.team.ResidentManagement.controller;
 
 import com.team.ResidentManagement.dto.request.UpdateUserStatusRequest;
 import com.team.ResidentManagement.dto.response.ApiResponse;
+import com.team.ResidentManagement.dto.response.PendingUserResponse;
 import com.team.ResidentManagement.dto.request.UserCreationRequest;
 import com.team.ResidentManagement.dto.request.UserUpdateRequest;
 import com.team.ResidentManagement.dto.response.UserResponse;
@@ -74,8 +75,8 @@ public class UserController {
                 .build();
     }
     @GetMapping("/pending")
-    ApiResponse<List<UserResponse>> getPendingUser(){
-        return ApiResponse.<List<UserResponse>>builder()
+    ApiResponse<List<PendingUserResponse>> getPendingUser(){
+        return ApiResponse.<List<PendingUserResponse>>builder()
                 .result(userService.getPendingUsers())
                 .build();
     }

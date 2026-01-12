@@ -121,7 +121,7 @@ export default function RegisterPage() {
         setStatus("error");
         setMessage(
           responseBody?.message ??
-            `Đăng ký thất bại (HTTP ${response.status}). Vui lòng kiểm tra lại thông tin.`,
+            "Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.",
         );
         return;
       }
