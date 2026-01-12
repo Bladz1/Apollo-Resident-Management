@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080/resident-management";
 
 const PASSWORD_REQUIREMENTS = [
   "Ít nhất 8 ký tự",
@@ -106,7 +106,7 @@ export default function RegisterPage() {
         body: JSON.stringify({
           username: formState.username.trim(),
           password: formState.password,
-          email: formState.email.trim() || null,
+          email: formState.email.trim(),
           address: formState.address.trim(),
           personalId: formState.nationalId,
           phoneNumber: formState.phone.trim(),
