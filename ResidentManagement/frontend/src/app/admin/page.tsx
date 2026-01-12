@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import api from '@/utils/axios';
-
 import { TOKEN_KEY } from '@/utils/auth-storage';
 
 const overviewStats = [
@@ -162,31 +160,30 @@ export default function AdminDashboardPage() {
   };
 
   // ========== Complaints ==========
- const loadComplaints = async () => {
-  setLoadingComplaints(true);
-  setComplaintError(null);
+  const loadComplaints = async () => {
+    setLoadingComplaints(true);
+    setComplaintError(null);
 
-  try {
-    const res = await api.get<ApiResponse<Complaint[]>>('/feedbacks', {
-      method: 'GET',
-      headers: buildAuthHeaders({
-        Accept: 'application/json',
-        authentication: `Bearer ${localStorage.getItem(TOKEN_KEY)}`,
-      }),
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/feedbacks`, {
+        method: 'GET',
+        headers: buildAuthHeaders({ Accept: 'application/json' }),
+      });
 
-    setLocalComplaints(res.data.result ?? []);
-  } catch (error: any) {
-    const message =
-      error?.response?.data?.message ||
-      error?.response?.data ||
-      error?.message ||
-      'Không thể tải danh sách phản ánh.';
-    setComplaintError(message);
-  } finally {
-    setLoadingComplaints(false);
-  }
-};
+      if (!response.ok) {
+        const detail = await response.text();
+        throw new Error(detail || 'Không thể tải danh sách phản ánh.');
+      }
+
+      const data = (await response.json()) as ApiResponse<Complaint[]>;
+      setLocalComplaints(data.result ?? []);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Không thể tải danh sách phản ánh.';
+      setComplaintError(message);
+    } finally {
+      setLoadingComplaints(false);
+    }
+  };
 
 
 
@@ -232,7 +229,7 @@ export default function AdminDashboardPage() {
     const headers = buildAuthHeaders({ Accept: 'application/json', 'Content-Type': 'application/json' });
 
     // Try to update status on the server; endpoint may vary depending on backend
-    const response = await fetch(`${API_BASE_URL}/feedbacks/status/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/feedbacks/${id}/status`, {
       method: 'PUT',
       headers,
       body: JSON.stringify({ status: 'ACCEPTED' }),
