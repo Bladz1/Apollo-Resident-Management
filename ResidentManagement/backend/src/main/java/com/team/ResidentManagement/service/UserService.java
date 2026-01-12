@@ -90,13 +90,13 @@ public class UserService {
         roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
 
         user.setRoles(roles);
+        user.setStatus("PENDING");
 
         try {
             user = userRepository.save(user);
         } catch (DataIntegrityViolationException exception) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
-        user.setStatus("PENDING");
 
         return userMapper.toUserResponse(user);
     }
