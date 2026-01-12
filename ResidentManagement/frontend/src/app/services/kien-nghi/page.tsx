@@ -59,7 +59,6 @@ export default function PetitionPage() {
 
       if (petitionState.attachment) {
         attachmentUrl = await uploadFeedbackFile(petitionState.attachment);
-        console.log("UPLOAD RESULT:", attachmentUrl);
       }
 
       const formData = new FormData();
@@ -77,7 +76,7 @@ export default function PetitionPage() {
       const token = typeof window !== "undefined" ? window.localStorage.getItem(TOKEN_KEY) : null;
       const response = await fetch(`${API_BASE_URL}/feedbacks/${userId}`, {
         method: "POST",
-        body: JSON.stringify(formData),
+        body: formData,
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
 
