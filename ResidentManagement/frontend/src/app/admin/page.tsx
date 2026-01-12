@@ -168,8 +168,10 @@ export default function AdminDashboardPage() {
 
   try {
     const res = await api.get<ApiResponse<Complaint[]>>('/feedbacks', {
+      method: 'GET',
       headers: buildAuthHeaders({
         Accept: 'application/json',
+        authentication: `Bearer ${localStorage.getItem(TOKEN_KEY)}`,
       }),
     });
 
@@ -694,7 +696,7 @@ export default function AdminDashboardPage() {
                       <td className="px-4 py-4 text-slate-400">{u.address || '—'}</td>
 
                       <td className="px-4 py-4">
-                        <div className="flex min-w-[260px] justify-center">
+                        <div className="flex justify-center">
                           <div className="flex gap-2">
                             <button
                               type="button"
