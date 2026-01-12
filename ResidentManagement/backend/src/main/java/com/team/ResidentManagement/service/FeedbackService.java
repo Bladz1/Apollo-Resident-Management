@@ -40,7 +40,7 @@ public class FeedbackService {
                 .email(request.getEmail())
                 .status(FeedbackStatus.PENDING)
                 .user(user)
-                .attachmentUrl(request.getFileUrl())
+                .attachmentUrl(request.getAttachmentUrl())
                 .build();
 
         feedbackRepository.save(feedback);
