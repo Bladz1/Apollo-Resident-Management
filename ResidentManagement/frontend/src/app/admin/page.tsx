@@ -116,7 +116,6 @@ type UserResponse = {
   personalId?: string;
   phoneNumber?: string;
   address?: string;
-  createdAt?: string;
   status?: UserRegisterStatus;
 };
 
@@ -276,14 +275,12 @@ export default function AdminDashboardPage() {
       const data = (await response.json()) as ApiResponse<UserResponse[]>;
       const normalized = (data.result ?? [])
         .filter((user) => user.status === 'PENDING')
-        .filter((user) => user.status === 'PENDING')
         .map((user) => ({
           id: user.id,
           personalId: user.personalId ?? '',
           fullName: user.username,
           phone: user.phoneNumber,
           address: user.address,
-          createdAt: user.createdAt,
           status: user.status ?? 'PENDING',
         }));
 
@@ -316,7 +313,7 @@ export default function AdminDashboardPage() {
   const rejectUser = async (id: string) => {
     const headers = buildAuthHeaders({ Accept: 'application/json', 'Content-Type': 'application/json' });
 
-    const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/users/status/${id}`, {
       method: 'PUT',
       headers,
       body: JSON.stringify({ update: false }),
