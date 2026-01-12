@@ -111,14 +111,14 @@ const Header = () => {
         {/* Logo và Tiêu đề */}
         <div className="flex min-w-0 items-center gap-3">
           <Image
-            className="rounded-md bg-transparent"
+            className="h-9 w-9 rounded-md bg-transparent sm:h-10 sm:w-10"
             src="/images/PicturePlaceholder.png" // Thay bằng đường dẫn ảnh quốc kỳ trong public/
             alt="Quốc kỳ Việt Nam"
             width={40}
             height={40}
 
           />
-          <h1 className="text-sm font-semibold leading-tight text-balance sm:text-base md:text-lg">
+          <h1 className="max-w-[180px] text-xs font-semibold leading-snug text-balance sm:max-w-none sm:text-sm md:text-lg">
             <Link href="/">Hệ thống Quản lý Dân cư và Hộ khẩu</Link>
           </h1>
         </div>
@@ -217,7 +217,7 @@ const Header = () => {
 
               {isProfileOpen && (
                 // ✅ đổi absolute -> fixed để không bị cha che bởi overflow
-                <div className="fixed right-3 top-14 w-52 rounded-lg bg-yellow-400 text-red-900 shadow-lg z-[9999]">
+                <div className="fixed right-3 top-14 w-[calc(100vw-1.5rem)] max-w-[13rem] rounded-lg bg-yellow-400 text-red-900 shadow-lg z-[9999]">
                   <div className="border-b border-yellow-200 px-4 py-3 text-sm font-semibold">
                     {displayName}
                   </div>
@@ -273,7 +273,7 @@ const Header = () => {
 
           {isOpen && (
 
-            <div className="fixed right-3 top-14 w-48 rounded-lg bg-yellow-400 p-2 text-white space-y-2 z-[9998] shadow-lg">
+            <div className="fixed right-3 top-14 w-[calc(100vw-1.5rem)] max-w-[12rem] rounded-lg bg-yellow-400 p-2 text-white space-y-2 z-[9998] shadow-lg">
               <ul>
                 {isAuthenticated && (
                   <li className="px-4 py-2 text-sm font-semibold text-red-900">
