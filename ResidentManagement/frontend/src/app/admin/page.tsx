@@ -299,7 +299,7 @@ export default function AdminDashboardPage() {
   };
 
   const approveUser = async (id: string) => {
-    const headers = buildAuthHeaders({ Accept: 'application/json', 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem(TOKEN_KEY)}`, });
+    const headers = buildAuthHeaders({ Accept: 'application/json', 'Content-Type': 'application/json' });
 
     const response = await fetch(`${API_BASE_URL}/users/status/${id}`, {
       method: 'PUT',
