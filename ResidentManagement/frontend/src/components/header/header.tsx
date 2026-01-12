@@ -151,7 +151,7 @@ const Header = () => {
                 className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-yellow-200 transition hover:border-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-300"
                 aria-label="Mở меню tài khoản"
               >
-                <Image src="/images/7.png" alt="Ảnh đại diện" width={40} height={40} className="h-full w-full object-cover" />
+                <Image src="/images/PicturePlaceholder.png" alt="Ảnh đại diện" width={40} height={40} className="h-full w-full object-cover" />
               </button>
               {isProfileOpen && (
                 <div className="absolute right-0 top-full mt-2 w-52 rounded-lg bg-yellow-400 text-red-900 shadow-lg z-[9999]">
