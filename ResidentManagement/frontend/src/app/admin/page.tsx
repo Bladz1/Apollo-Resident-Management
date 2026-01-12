@@ -80,7 +80,7 @@ const feeCategories = [
   },
 ];
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8080';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8080/resident-management';
 
 type FeedbackStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
 
@@ -694,7 +694,7 @@ export default function AdminDashboardPage() {
                       <td className="px-4 py-4 text-slate-400">{u.address || '—'}</td>
 
                       <td className="px-4 py-4">
-                        <div className="flex min-w-[260px] justify-center">
+                        <div className="flex justify-center">
                           <div className="flex gap-2">
                             <button
                               type="button"
