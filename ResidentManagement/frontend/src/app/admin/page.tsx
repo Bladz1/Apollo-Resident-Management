@@ -78,7 +78,7 @@ const feeCategories = [
   },
 ];
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8080/resident-management';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8080';
 
 type FeedbackStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
 
