@@ -266,7 +266,7 @@ export default function AdminDashboardPage() {
     try {
       const headers = buildAuthHeaders({ Accept: 'application/json' });
 
-      const response = await fetch(`${API_BASE_URL}/users`, { headers });
+      const response = await fetch(`${API_BASE_URL}/users/pending`, { headers });
 
       if (!response.ok) {
         const detail = await response.text();
@@ -316,7 +316,7 @@ export default function AdminDashboardPage() {
   const rejectUser = async (id: string) => {
     const headers = buildAuthHeaders({ Accept: 'application/json', 'Content-Type': 'application/json' });
 
-    const response = await fetch(`${API_BASE_URL}/users/status/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/users/${id}`, {
       method: 'PUT',
       headers,
       body: JSON.stringify({ update: false }),
