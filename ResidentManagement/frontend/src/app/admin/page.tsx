@@ -29,7 +29,6 @@ const systemAlerts = [
     description: 'Phát hiện 2 lần đăng nhập thất bại liên tiếp từ tài khoản quản trị cấp huyện.',
     severity: 'critical',
   },
-  { title: 'Giám sát dịch vụ', description: 'API đồng bộ nhân khẩu phản hồi chậm hơn 35% so với bình thường.', severity: 'warning' },
   { title: 'Sao lưu dữ liệu', description: 'Phiên sao lưu định kỳ 06:00 đã hoàn thành và được lưu tại DC-HN-03.', severity: 'info' },
 ];
 
