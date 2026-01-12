@@ -264,6 +264,7 @@ export default function AdminDashboardPage() {
 
     try {
       const token = localStorage.getItem(TOKEN_KEY);
+      console.log('Token khi load pending users:', token);
 
       const response = await fetch(`${API_BASE_URL}/users/pending`, {
         method: "GET",
