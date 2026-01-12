@@ -82,7 +82,7 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOriginPatterns(List.of(
+        config.setAllowedOrigins(List.of(
                 "http://localhost:3000",
                 "https://resident-management.vercel.app"
         ));

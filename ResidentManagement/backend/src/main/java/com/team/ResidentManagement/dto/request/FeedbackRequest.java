@@ -17,5 +17,5 @@ public class FeedbackRequest {
     String title;
     String description;
 
-    String fileUrl;
+    String attachmentUrl;
 }
