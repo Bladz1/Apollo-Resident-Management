@@ -217,7 +217,7 @@ export default function AdminDashboardPage() {
 
       await deleteComplaint(id);
 
-      setLocalComplaints((prev) => prev.filter((c) => c.id !== id));
+      await loadComplaints();
       setSelectedComplaint((prev) => (prev?.id === id ? null : prev));
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Không thể xóa phản ánh.';
