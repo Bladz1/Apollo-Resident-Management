@@ -163,37 +163,30 @@ export default function AdminDashboardPage() {
   };
 
   // ========== Complaints ==========
-  const loadComplaints = async () => {
+ const loadComplaints = async () => {
   setLoadingComplaints(true);
   setComplaintError(null);
 
   try {
     const res = await api.get<ApiResponse<Complaint[]>>('/feedbacks', {
-      headers: {
+      headers: buildAuthHeaders({
         Accept: 'application/json',
-      },
+      }),
     });
 
     setLocalComplaints(res.data.result ?? []);
   } catch (error: any) {
-    let message = 'Không thể tải danh sách phản ánh.';
-
-    if (error.response) {
-      // server trả về lỗi
-      message =
-        typeof error.response.data === 'string'
-          ? error.response.data
-          : JSON.stringify(error.response.data);
-    } else if (error.message) {
-      // network / axios error
-      message = error.message;
-    }
-
+    const message =
+      error?.response?.data?.message ||
+      error?.response?.data ||
+      error?.message ||
+      'Không thể tải danh sách phản ánh.';
     setComplaintError(message);
   } finally {
     setLoadingComplaints(false);
   }
 };
+
 
 
   const handleViewComplaint = (item: Complaint) => {
@@ -234,6 +227,37 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const acceptComplaint = async (id: string) => {
+    const headers = buildAuthHeaders({ Accept: 'application/json', 'Content-Type': 'application/json' });
+
+    // Try to update status on the server; endpoint may vary depending on backend
+    const response = await fetch(`${API_BASE_URL}/feedbacks/status/${id}`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({ status: 'ACCEPTED' }),
+    });
+
+    if (!response.ok) {
+      const detail = await response.text();
+      throw new Error(detail || 'Không thể cập nhật trạng thái phản ánh.');
+    }
+
+    return true;
+  };
+
+  const handleAcceptComplaint = async (id: string) => {
+    try {
+      setComplaintError(null);
+      await acceptComplaint(id);
+
+      setLocalComplaints((prev) => prev.map((c) => (c.id === id ? { ...c, status: 'ACCEPTED' } : c)));
+      setSelectedComplaint((prev) => (prev?.id === id ? { ...prev, status: 'ACCEPTED' } : prev));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Không thể cập nhật trạng thái phản ánh.';
+      setComplaintError(message);
+    }
+  };
+
   // ========== Pending Users (NEW SECTION) ==========
   const loadPendingUsers = async () => {
     setLoadingUsers(true);
@@ -242,7 +266,7 @@ export default function AdminDashboardPage() {
     try {
       const headers = buildAuthHeaders({ Accept: 'application/json' });
 
-      const response = await fetch(`${API_BASE_URL}/users`, { headers });
+      const response = await fetch(`${API_BASE_URL}/users/pending`, { headers });
 
       if (!response.ok) {
         const detail = await response.text();
@@ -251,6 +275,7 @@ export default function AdminDashboardPage() {
 
       const data = (await response.json()) as ApiResponse<UserResponse[]>;
       const normalized = (data.result ?? [])
+        .filter((user) => user.status === 'PENDING')
         .filter((user) => user.status === 'PENDING')
         .map((user) => ({
           id: user.id,
@@ -291,7 +316,7 @@ export default function AdminDashboardPage() {
   const rejectUser = async (id: string) => {
     const headers = buildAuthHeaders({ Accept: 'application/json', 'Content-Type': 'application/json' });
 
-    const response = await fetch(`${API_BASE_URL}/users/status/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/users/${id}`, {
       method: 'PUT',
       headers,
       body: JSON.stringify({ update: false }),
@@ -553,7 +578,7 @@ export default function AdminDashboardPage() {
                                 onClick={() => void handleDeleteComplaint(item.id)}
                                 className="w-32 rounded-md border border-rose-400 px-3 py-1 text-xs font-semibold text-rose-200 hover:bg-rose-400/10"
                               >
-                                Từ chối
+                                Xóa
                               </button>
                             </div>
                           ) : item.status === 'ACCEPTED' ? (
@@ -562,7 +587,7 @@ export default function AdminDashboardPage() {
                             </span>
                           ) : (
                             <span className="w-40 rounded-md bg-rose-500 px-3 py-1 text-center text-xs font-semibold text-white">
-                              Đã từ chối
+                              Đã xóa
                             </span>
                           )}
                         </div>
@@ -608,7 +633,6 @@ export default function AdminDashboardPage() {
           )}
         </section>
 
-        {/* SECTION NEW - Pending user registrations (CCCD trước Họ & tên) */}
         <section className="w-full">
           <div className="w-full rounded-3xl border border-white/10 bg-slate-900/70 shadow-xl shadow-black/40 backdrop-blur">
             <div className="flex items-center justify-between border-b border-white/5 px-8 py-6">

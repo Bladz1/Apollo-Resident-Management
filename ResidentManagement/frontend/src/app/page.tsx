@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useSyncExternalStore } from 'react';
 import LoginCtaButton from "@/components/auth/LoginCtaButton";
 import ScrollToTop from "@/utils/scroll_to_top";
 import styles from "./custom_css/css.module.css";
@@ -14,40 +14,30 @@ import UserWelcome from "@/components/auth/UserWelcome";
 import WelcomeScreen from "@/components/WelcomeScreen"; 
 
 export default function Home() {
-  // 1. State kiểm soát hiển thị
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [showContent, setShowContent] = useState(false);
-  const [isChecking, setIsChecking] = useState(true); // Trạng thái đang kiểm tra storage
+  const hasVisited = useSyncExternalStore(
+    (callback) => {
+      if (typeof window === 'undefined') {
+        return () => {};
+      }
 
-  useEffect(() => {
-    // 2. Kiểm tra sessionStorage khi vừa vào trang
-    const hasVisited = sessionStorage.getItem('hasVisitedPortfolio');
+      const handler = () => callback();
+      window.addEventListener('hasVisitedPortfolio', handler);
 
-    if (hasVisited) {
-      // Nếu đã vào rồi -> Hiện nội dung luôn, không hiện Welcome
-      setShowContent(true);
-      setShowWelcome(false);
-    } else {
-      // Nếu chưa vào -> Hiện Welcome
-      setShowWelcome(true);
-      setShowContent(false);
-    }
-    
-    // Đã kiểm tra xong
-    setIsChecking(false);
-  }, []);
+      return () => window.removeEventListener('hasVisitedPortfolio', handler);
+    },
+    () => typeof window !== 'undefined' && sessionStorage.getItem('hasVisitedPortfolio') === 'true',
+    () => false,
+  );
+
+  // 1. Kiểm soát hiển thị dựa trên trạng thái đã xem
+  const showWelcome = !hasVisited;
+  const showContent = hasVisited;
 
   const handleWelcomeComplete = () => {
     // 3. Khi Welcome chạy xong -> Lưu vào bộ nhớ là "Đã xem"
     sessionStorage.setItem('hasVisitedPortfolio', 'true');
-    
-    // Tắt Welcome, hiện nội dung chính
-    setShowWelcome(false);
-    setShowContent(true);
+    window.dispatchEvent(new Event('hasVisitedPortfolio'));
   };
-
-  // Tránh nháy giao diện lúc đang load check storage
-  if (isChecking) return <div className="min-h-screen bg-slate-950"></div>;
 
   return (
     <main>
