@@ -59,6 +59,7 @@ export default function PetitionPage() {
 
       if (petitionState.attachment) {
         attachmentUrl = await uploadFeedbackFile(petitionState.attachment);
+        console.log("UPLOAD RESULT:", attachmentUrl);
       }
 
       const formData = new FormData();
