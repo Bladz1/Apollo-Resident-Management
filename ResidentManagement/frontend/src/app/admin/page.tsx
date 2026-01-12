@@ -318,10 +318,9 @@ export default function AdminDashboardPage() {
   const rejectUser = async (id: string) => {
     const headers = buildAuthHeaders({ Accept: 'application/json', 'Content-Type': 'application/json' });
 
-    const response = await fetch(`${API_BASE_URL}/users/status/${id}`, {
-      method: 'PUT',
+    const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+      method: 'DELETE',
       headers,
-      body: JSON.stringify({ update: false }),
     });
 
     if (!response.ok) {
