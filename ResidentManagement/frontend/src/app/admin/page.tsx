@@ -168,8 +168,10 @@ export default function AdminDashboardPage() {
 
   try {
     const res = await api.get<ApiResponse<Complaint[]>>('/feedbacks', {
+      method: 'GET',
       headers: buildAuthHeaders({
         Accept: 'application/json',
+        authentication: `Bearer ${localStorage.getItem(TOKEN_KEY)}`,
       }),
     });
 
