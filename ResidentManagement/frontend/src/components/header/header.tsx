@@ -112,7 +112,7 @@ const Header = () => {
         <div className="flex min-w-0 items-center gap-3">
           <Image
             className="rounded-md bg-transparent"
-            src="/images/logo.png" // Thay bằng đường dẫn ảnh quốc kỳ trong public/
+            src="/images/PicturePlaceholder.png" // Thay bằng đường dẫn ảnh quốc kỳ trong public/
             alt="Quốc kỳ Việt Nam"
             width={40}
             height={40}
