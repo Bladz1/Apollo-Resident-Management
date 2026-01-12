@@ -80,7 +80,7 @@ const feeCategories = [
   },
 ];
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8080';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8080/resident-management';
 
 type FeedbackStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
 
@@ -264,12 +264,10 @@ export default function AdminDashboardPage() {
 
     try {
       const token = localStorage.getItem(TOKEN_KEY);
-      console.log('Token khi load pending users:', token);
 
       const response = await fetch(`${API_BASE_URL}/users/pending`, {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
       });
