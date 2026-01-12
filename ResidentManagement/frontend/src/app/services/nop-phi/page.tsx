@@ -35,7 +35,7 @@ type PaymentStep = "ready" | "qr" | "success";
 
 async function loadFeeItems(): Promise<FeeItem[]> {
   const userId = loadUserId();
-  if (!userId) throw new Error("Missing user identifier");
+  if (!userId) throw new Error("Bạn hãy vui lòng đăng nhập trước khi xem mục này");
 
   try {
     const res = await api.get(`/fees/${userId}`);

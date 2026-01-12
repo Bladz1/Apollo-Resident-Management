@@ -7,7 +7,6 @@ import com.team.ResidentManagement.dto.request.UpdateUserStatusRequest;
 import com.team.ResidentManagement.dto.request.UserCreationRequest;
 import com.team.ResidentManagement.dto.request.UserUpdateRequest;
 import com.team.ResidentManagement.dto.response.FeedbackResponse;
-import com.team.ResidentManagement.dto.response.PendingUserResponse;
 import com.team.ResidentManagement.dto.response.UserResponse;
 import com.team.ResidentManagement.entity.User;
 import com.team.ResidentManagement.entity.Role;
@@ -79,9 +78,11 @@ public class UserService {
     /**
      * Đăng ký tài khoản mới cho cư dân (không yêu cầu quyền admin).
      */
+    @CacheEvict(value = "users", key = "'pending'")
     public UserResponse registerUser(UserCreationRequest request) {
         return createUserInternal(request);
     }
+
 
     private UserResponse createUserInternal(UserCreationRequest request) {
         User user = userMapper.toUser(request);
@@ -140,7 +141,8 @@ public class UserService {
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
-    @Cacheable(value = "users", key = "#userId")
+
+    @CacheEvict(value = "users", key = "'pending'")
     public UserResponse updateUserStatus(String userId, UpdateUserStatusRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -188,18 +190,12 @@ public class UserService {
                 .map(userMapper::toUserResponse)
                 .toList();
     }
-    @Cacheable(value = "users", key = "'pending'")
+    //@Cacheable(value = "users", key = "'pending'")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<PendingUserResponse> getPendingUsers() {
-        return userRepository.findByStatus("PENDING").stream()
-                .map(user -> PendingUserResponse.builder()
-                        .id(user.getId())
-                        .username(user.getUsername())
-                        .personalId(user.getPersonalId())
-                        .phoneNumber(user.getPhoneNumber())
-                        .address(user.getAddress())
-                        .status(user.getStatus())
-                        .build())
+    public List<UserResponse> getPendingUsers() {
+        return userRepository.findAll().stream()
+                .filter(user -> "PENDING".equals(user.getStatus()))
+                .map(userMapper::toUserResponse)
                 .toList();
     }
 
