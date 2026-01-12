@@ -77,7 +77,7 @@ export default function PetitionPage() {
       const token = typeof window !== "undefined" ? window.localStorage.getItem(TOKEN_KEY) : null;
       const response = await fetch(`${API_BASE_URL}/feedbacks/${userId}`, {
         method: "POST",
-        body: formData,
+        body: JSON.stringify(formData),
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
 
