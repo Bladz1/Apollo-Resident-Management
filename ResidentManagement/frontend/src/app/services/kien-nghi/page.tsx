@@ -4,11 +4,12 @@ import Link from "next/link";
 import { FormEvent, useRef, useState } from "react";
 
 import { loadUserId, TOKEN_KEY } from "@/utils/auth-storage";
+import { uploadFeedbackFile } from "@/utils/supabase";
 
 import { initialPetitionState, services, type PetitionFormState } from "../data";
 
 const petitionService = services.find((service) => service.id === "kien-nghi");
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080/resident-management";
 
 const createEmptyPetitionState = (): PetitionFormState => ({ ...initialPetitionState });
 
@@ -53,6 +54,12 @@ export default function PetitionPage() {
         throw new Error("Missing user identifier");
       }
 
+      let fileUrl: string | null = null;
+
+      if (petitionState.attachment) {
+        fileUrl = await uploadFeedbackFile(petitionState.attachment);
+      }
+
       const formData = new FormData();
       formData.append("name", petitionState.fullName);
       formData.append("email", petitionState.email);
@@ -61,15 +68,14 @@ export default function PetitionPage() {
       formData.append("title", petitionState.title);
       formData.append("description", petitionState.content);
 
-      if (petitionState.attachment) {
-        formData.append("file", petitionState.attachment);
-      }
+      if (fileUrl) {
+      formData.append("fileUrl", fileUrl);
+}
 
       const token = typeof window !== "undefined" ? window.localStorage.getItem(TOKEN_KEY) : null;
       const response = await fetch(`${API_BASE_URL}/feedbacks/${userId}`, {
         method: "POST",
         body: formData,
-        credentials: "include",
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
 
