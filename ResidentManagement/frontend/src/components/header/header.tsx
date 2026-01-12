@@ -93,16 +93,16 @@ const Header = () => {
   const isAdmin = authState.isAdmin;
   const displayName = authState.username ?? 'Người dùng';
 
- const handleLogout = async () => {
-  await clearAuth(); // ✅ quan trọng
-  setAuthState({
-    isAuthenticated: false,
-    username: null,
-    isAdmin: false,
-  });
-  setIsOpen(false);
-  setIsProfileOpen(false);
-};
+  const handleLogout = async () => {
+    await clearAuth(); // ✅ quan trọng
+    setAuthState({
+      isAuthenticated: false,
+      username: null,
+      isAdmin: false,
+    });
+    setIsOpen(false);
+    setIsProfileOpen(false);
+  };
 
 
   return (
@@ -207,9 +207,9 @@ const Header = () => {
                 aria-label="Mở меню tài khoản"
               >
                 <Image
-                  src="/images/hen.png"
+                  src="/images/PicturePlaceholder.png"
                   alt="Ảnh đại diện"
-                  width={36}  
+                  width={36}
                   height={36}
                   className="h-full w-full object-cover"
                 />
