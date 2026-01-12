@@ -14,10 +14,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,7 +24,6 @@ import java.util.List;
 public class FeedbackService {
     UserRepository userRepository;
     FeedbackRepository feedbackRepository;
-    FileStorageService fileStorageService;
     FeedbackMapper feedbackMapper;
 
     public void createFeedback(String userId, FeedbackRequest request) throws IOException {
@@ -41,13 +38,8 @@ public class FeedbackService {
                 .email(request.getEmail())
                 .status(FeedbackStatus.PENDING)
                 .user(user)
+                .attachmentUrl(request.getFileUrl())
                 .build();
-
-        MultipartFile file = request.getFile();
-        if (file != null &&  !file.isEmpty()) {
-            String url = fileStorageService.upload(file, userId);
-            feedback.setAttachmentUrl(url);
-        }
 
         feedbackRepository.save(feedback);
     }
