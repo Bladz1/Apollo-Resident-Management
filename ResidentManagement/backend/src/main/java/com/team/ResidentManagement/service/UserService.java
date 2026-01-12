@@ -186,6 +186,14 @@ public class UserService {
                 .map(userMapper::toUserResponse)
                 .toList();
     }
+    @Cacheable(value = "users", key = "'pending'")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<UserResponse> getPendingUsers() {
+        return userRepository.findAll().stream()
+                .filter(user -> "PENDING".equals(user.getStatus()))
+                .map(userMapper::toUserResponse)
+                .toList();
+    }
 
     /**
      * Lấy người dùng theo ID và chỉ cho phép xem nếu là chính mình.

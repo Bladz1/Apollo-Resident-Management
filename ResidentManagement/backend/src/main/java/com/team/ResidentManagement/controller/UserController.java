@@ -73,6 +73,12 @@ public class UserController {
                 .result(userService.getUser(userId))
                 .build();
     }
+    @GetMapping("/pending")
+    ApiResponse<List<UserResponse>> getPendingUser(){
+        return ApiResponse.<List<UserResponse>>builder()
+                .result(userService.getPendingUsers())
+                .build();
+    }
 
     /**
      * Lấy thông tin của chính người dùng đang đăng nhập.
