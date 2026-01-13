@@ -30,6 +30,7 @@ export type PetitionFormState = {
   title: string;
   content: string;
   attachment: File | null;
+  attachmentUrl: string | null;
 };
 
 export const services: Service[] = [
@@ -126,4 +127,5 @@ export const initialPetitionState: PetitionFormState = {
   title: "",
   content: "",
   attachment: null,
+  attachmentUrl: null,
 };
