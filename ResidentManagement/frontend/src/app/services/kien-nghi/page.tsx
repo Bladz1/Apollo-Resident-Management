@@ -70,7 +70,7 @@ export default function PetitionPage() {
       formData.append("description", petitionState.content);
 
       if (attachmentUrl) {
-        formData.append("attachmentUrl", petitionState.attachmentUrl ? attachmentUrl : "");
+        formData.append("attachmentUrl", String(petitionState.attachmentUrl ? attachmentUrl : ""));
       }
 
       const token = typeof window !== "undefined" ? window.localStorage.getItem(TOKEN_KEY) : null;
