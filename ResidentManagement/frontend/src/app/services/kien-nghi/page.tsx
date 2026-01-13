@@ -57,8 +57,8 @@ export default function PetitionPage() {
 
       let attachmentUrl: string | null = null;
 
-      if (petitionState.attachment) {
-        attachmentUrl = await uploadFeedbackFile(petitionState.attachment);
+      if (petitionState.attachmentUrl) {
+        attachmentUrl = await uploadFeedbackFile(petitionState.attachmentUrl);
       }
 
       const formData = new FormData();
@@ -70,7 +70,7 @@ export default function PetitionPage() {
       formData.append("description", petitionState.content);
 
       if (attachmentUrl) {
-        formData.append("attachmentUrl", attachmentUrl);
+        formData.append("attachmentUrl", petitionState.attachmentUrl ? attachmentUrl : "");
       }
 
       const token = typeof window !== "undefined" ? window.localStorage.getItem(TOKEN_KEY) : null;
@@ -275,11 +275,11 @@ export default function PetitionPage() {
               <input
                 id="petition-attachment"
                 type="file"
-                onChange={(event) => handlePetitionChange("attachment", event.target.files?.[0] ?? null)}
+                onChange={(event) => handlePetitionChange("attachmentUrl", event.target.files?.[0] ?? null)}
                 className="w-full cursor-pointer rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-600 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-200"
               />
-              {petitionState.attachment && (
-                <p className="text-xs text-slate-500">Đã chọn: {petitionState.attachment.name}</p>
+              {petitionState.attachmentUrl && (
+                <p className="text-xs text-slate-500">Đã chọn: {petitionState.attachmentUrl.name}</p>
               )}
             </div>
 
