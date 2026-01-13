@@ -5,9 +5,6 @@ import jakarta.persistence.Id;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-/**
- * Quyền thao tác cụ thể được gán cho vai trò.
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -16,10 +13,8 @@ import lombok.experimental.FieldDefaults;
 @Entity
 public class Permission {
 
-    /** Tên quyền duy nhất, làm khoá chính. */
     @Id
     String name;
 
-    /** Mô tả chi tiết chức năng của quyền. */
     String description;
 }

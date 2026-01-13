@@ -6,7 +6,6 @@ export const supabase = createClient(
 );
 
 async function uploadFeedbackFile(file: File): Promise<string> {
-  // Optional validations
   if (file.size > 5 * 1024 * 1024) {
     throw new Error('File must be <= 5MB');
   }
@@ -35,6 +34,6 @@ async function uploadFeedbackFile(file: File): Promise<string> {
     .from('feedback-files')
     .getPublicUrl(filePath);
 
-  return data.publicUrl; // ✅ THIS is what we send to backend
+  return data.publicUrl;
 }
 export { uploadFeedbackFile };

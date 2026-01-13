@@ -65,7 +65,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onLoadingComplete }) => {
     return () => clearTimeout(timer);
   }, [onLoadingComplete]);
 
-  // 2. Thêm định nghĩa kiểu ': Variants' ở đây để hết lỗi đỏ
   const containerVariants: Variants = {
     exit: {
       opacity: 0,
@@ -80,7 +79,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onLoadingComplete }) => {
     }
   };
 
-  // 3. Thêm định nghĩa kiểu ': Variants' ở đây nữa
   const childVariants: Variants = {
     exit: {
       y: -20,

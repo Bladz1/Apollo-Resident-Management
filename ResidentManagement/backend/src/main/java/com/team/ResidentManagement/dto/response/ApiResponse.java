@@ -4,9 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-/**
- * Bao gói cấu trúc phản hồi chung gồm mã, thông điệp và dữ liệu.
- */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 @Builder

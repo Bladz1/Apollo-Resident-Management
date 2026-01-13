@@ -21,24 +21,15 @@ import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
 
-/**
- * Nghiệp vụ quản lý các khoản phí và thao tác thanh toán của cư dân.
- */
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,  makeFinal = true)
 public class FeeService {
 
-    /** Repository khoản phí. */
     FeeRepository feeRepository;
-    /** Mapper chuyển đổi Fee. */
     FeeMapper feeMapper;
-    /** Repository người dùng để ràng buộc phí. */
     UserRepository userRepository;
 
-    /**
-     * Tạo khoản phí mới (chỉ dành cho admin).
-     */
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public FeeResponse create(FeeRequest request){
@@ -59,9 +50,6 @@ public class FeeService {
         return feeMapper.toFeeResponse(savedFee);
     }
 
-    /**
-     * Lấy toàn bộ khoản phí trong hệ thống.
-     */
     public List<FeeResponse> getAll(){
         return feeRepository.findAll()
                 .stream()
@@ -69,9 +57,6 @@ public class FeeService {
                 .toList();
     }
 
-    /**
-     * Lấy danh sách phí gắn với một người dùng cụ thể.
-     */
     public List<FeeResponse> getAllFromUser(String userId){
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -81,19 +66,14 @@ public class FeeService {
                 .toList();
     }
 
-    /** Xoá một khoản phí theo ID. */
     public void delete(String id){
         feeRepository.deleteById(id);
     }
 
-    /** Xoá toàn bộ khoản phí. */
     public void deleteAll(){
         feeRepository.deleteAll();
     }
 
-    /**
-     * Cập nhật trạng thái thanh toán của phí cho người dùng hiện tại.
-     */
     public FeeResponse updateFee(FeeUpdateRequest request){
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
@@ -102,7 +82,6 @@ public class FeeService {
         Fee fee = feeRepository.findById(request.getId()).orElseThrow(() -> new AppException(ErrorCode.FEE_NOT_FOUND));
 
         if (user.getFees().contains(fee)){
-            // Khi cư dân xác nhận đã đóng phí, đặt amount về 0 để biểu thị đã thanh toán.
             fee.setAmount(0);
         }
         else throw new AppException(ErrorCode.FEE_NOT_BELONG_TO_USER);

@@ -22,8 +22,8 @@ module.exports = {
         ],
       },
       colors: {
-        primary: "#1E40AF",   // xanh dương đậm
-        secondary: "#9333EA", // tím
+        primary: "#1E40AF",
+        secondary: "#9333EA",
       },
     },
   },

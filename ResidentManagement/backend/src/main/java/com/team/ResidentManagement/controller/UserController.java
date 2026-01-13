@@ -15,9 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controller quản lý người dùng: tạo, cập nhật, xem thông tin.
- */
 @Slf4j
 @RestController
 @RequestMapping("/users")
@@ -25,12 +22,8 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
 
-    /** Service nghiệp vụ người dùng. */
     UserService userService;
 
-    /**
-     * Tạo mới tài khoản cư dân.
-     */
     @PostMapping()
     public ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
@@ -44,9 +37,6 @@ public class UserController {
                 .build();
     }
 
-    /**
-     * Đăng ký tài khoản mới cho cư dân.
-     */
     @PostMapping("/register")
     public ApiResponse<UserResponse> registerUser(@RequestBody @Valid UserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
@@ -54,9 +44,6 @@ public class UserController {
                 .build();
     }
 
-    /**
-     * Lấy danh sách toàn bộ người dùng.
-     */
     @GetMapping()
     public ApiResponse<List<UserResponse>> getAllUsers() {
         return ApiResponse.<List<UserResponse>>builder()
@@ -64,9 +51,6 @@ public class UserController {
                 .build();
     }
 
-    /**
-     * Lấy chi tiết một người dùng theo ID.
-     */
     @GetMapping("/{userId}")
     ApiResponse<UserResponse> getUserById(@PathVariable("userId") String userId){
         return ApiResponse.<UserResponse>builder()
@@ -80,9 +64,6 @@ public class UserController {
                 .build();
     }
 
-    /**
-     * Lấy thông tin của chính người dùng đang đăng nhập.
-     */
     @GetMapping("/myInfo")
     ApiResponse<UserResponse> getMyInfo(){
         return ApiResponse.<UserResponse>builder()
@@ -90,9 +71,6 @@ public class UserController {
                 .build();
     }
 
-    /**
-     * Cập nhật thông tin cư dân theo ID.
-     */
     @PutMapping("/{userId}")
     ApiResponse<UserResponse> updateUser(@PathVariable String userId, @RequestBody UserUpdateRequest request) {
         return ApiResponse.<UserResponse>builder()
@@ -100,9 +78,6 @@ public class UserController {
                 .build();
     }
 
-    /**
-     * Xoá người dùng khỏi hệ thống.
-     */
     @DeleteMapping("/{userId}")
     public String deleteUser(@PathVariable("userId") String userId) {
         return userService.deleteUser(userId);

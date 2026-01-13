@@ -59,15 +59,12 @@ public class UserControllerTest {
     }
 
     @Test
-    //
     void createUser_validRequest_success() throws Exception {
-        // GIVEN
         ObjectMapper mapper = new ObjectMapper();
         String content = mapper.writeValueAsString(request);
 
         Mockito.when(userService.createUser(ArgumentMatchers.any())).thenReturn(userResponse);
 
-        // WHEN
         mockMvc.perform(MockMvcRequestBuilders
                 .post("/users")
                 .content(content)

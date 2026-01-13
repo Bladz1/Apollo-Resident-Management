@@ -12,14 +12,8 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 
 import java.io.IOException;
 
-/**
- * Entry point xử lý khi người dùng chưa xác thực nhưng cố truy cập tài nguyên bảo vệ.
- */
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-    /**
-     * Ghi nội dung JSON mô tả lỗi UNAUTHENTICATED cho client.
-     */
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         ErrorCode errorCode = ErrorCode.UNAUTHENTICATED;

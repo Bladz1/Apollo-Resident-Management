@@ -5,9 +5,6 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.Set;
 
-/**
- * DTO request thêm/bớt hoặc xoá toàn bộ tội danh trong hồ sơ truy nã.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

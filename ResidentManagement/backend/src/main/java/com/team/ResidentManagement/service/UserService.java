@@ -38,24 +38,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Nghiệp vụ quản lý thông tin người dùng và phân quyền.
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService {
 
-    /** Repository người dùng. */
     UserRepository userRepository;
-    /** Mapper chuyển đổi giữa entity và DTO. */
     UserMapper userMapper;
-    /** Bộ mã hoá mật khẩu chung. */
     PasswordEncoder passwordEncoder;
-    /** Repository vai trò để gán quyền. */
     RoleRepository roleRepository;
-    /** Repository phí để gán nghĩa vụ tài chính cho cư dân. */
     FeeRepository feeRepository;
 
     FileStorageService  fileStorageService;
@@ -67,17 +59,11 @@ public class UserService {
     @Value("${file.baseUrl}")
     protected String baseUrl;
 
-    /**
-     * Tạo mới người dùng với vai trò USER mặc định.
-     */
     @PreAuthorize("hasRole('ADMIN')")
     public UserResponse createUser(UserCreationRequest request) {
         return createUserInternal(request);
     }
 
-    /**
-     * Đăng ký tài khoản mới cho cư dân (không yêu cầu quyền admin).
-     */
     @CacheEvict(value = "users", key = "'pending'")
     public UserResponse registerUser(UserCreationRequest request) {
         return createUserInternal(request);
@@ -104,9 +90,6 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
 
-    /**
-     * Lấy thông tin người dùng đang đăng nhập dựa trên SecurityContext.
-     */
     public UserResponse getMyInfo() {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
@@ -122,9 +105,6 @@ public class UserService {
         return userResponse;
     }
 
-    /**
-     * Cập nhật thông tin, vai trò và các khoản phí của người dùng.
-     */
     @CacheEvict(value = "users", key = "#UserId")
     public UserResponse updateUser(String UserId, UserUpdateRequest request) {
         User user = userRepository.findById(UserId)
@@ -169,9 +149,6 @@ public class UserService {
         user.setAvatarUrl(fileUrl);
         return userRepository.save(user);
     }
-    /**
-     * Xoá người dùng theo ID.
-     */
     @CacheEvict(value = "users", key = "#UserId")
     public String deleteUser(String UserId) {
         if (userRepository.existsById(UserId)) {
@@ -180,9 +157,6 @@ public class UserService {
         return "User has been deleted!";
     }
 
-    /**
-     * Lấy danh sách toàn bộ người dùng (chỉ admin được phép).
-     */
     @Cacheable(value = "users", key = "'all'")
     @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> getUsers() {
@@ -190,7 +164,6 @@ public class UserService {
                 .map(userMapper::toUserResponse)
                 .toList();
     }
-    //@Cacheable(value = "users", key = "'pending'")
     @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> getPendingUsers() {
         return userRepository.findAll().stream()
@@ -199,9 +172,6 @@ public class UserService {
                 .toList();
     }
 
-    /**
-     * Lấy người dùng theo ID và chỉ cho phép xem nếu là chính mình.
-     */
     @Cacheable(value = "users", key = "#id")
     @PostAuthorize("returnObject.username = authentication.name")
     public UserResponse getUser(String id) {

@@ -23,13 +23,11 @@ public class RedisConfig {
 
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
-        // Create a customized ObjectMapper
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         objectMapper.registerModule(new JavaTimeModule());
 
-        // Ignore Hibernate-specific properties
         objectMapper.addMixIn(User.class, UserMixin.class);
         objectMapper.addMixIn(Role.class, RoleMixin.class);
 
@@ -45,7 +43,6 @@ public class RedisConfig {
                 .build();
     }
 
-    // Mixin to ignore Hibernate properties
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private abstract class UserMixin {}
 

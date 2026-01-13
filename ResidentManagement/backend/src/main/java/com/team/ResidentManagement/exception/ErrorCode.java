@@ -4,10 +4,6 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
-/**
- * Danh sách mã lỗi chuẩn hoá cùng thông điệp và HTTP status tương ứng.
- * Sử dụng để đồng bộ phản hồi lỗi giữa backend và frontend.
- */
 @Getter
 public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(999, "Uncategorized Error", HttpStatus.INTERNAL_SERVER_ERROR),
@@ -31,11 +27,8 @@ public enum ErrorCode {
     USER_NOT_ACCEPT(1018, "User Not Accepted", HttpStatus.FORBIDDEN),
     ;
 
-    /** Mã số lỗi nội bộ phục vụ phân loại. */
     private int code;
-    /** Thông điệp mô tả lỗi hiển thị cho người dùng. */
     private String message;
-    /** Mã trạng thái HTTP trả về cho client. */
     private HttpStatusCode statusCode;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

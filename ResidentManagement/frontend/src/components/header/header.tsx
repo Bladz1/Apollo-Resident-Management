@@ -94,7 +94,7 @@ const Header = () => {
   const displayName = authState.username ?? 'Người dùng';
 
   const handleLogout = async () => {
-    await clearAuth(); // ✅ quan trọng
+    await clearAuth();
     setAuthState({
       isAuthenticated: false,
       username: null,
@@ -108,11 +108,10 @@ const Header = () => {
   return (
     <header className="bg-gradient-to-r from-red-800 via-red-950 to-red-800 text-white shadow-md">
       <div className="container mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-        {/* Logo và Tiêu đề */}
         <div className="flex min-w-0 items-center gap-3">
           <Image
             className="h-9 w-9 rounded-md bg-transparent sm:h-10 sm:w-10"
-            src="/images/logo.png" // Thay bằng đường dẫn ảnh quốc kỳ trong public/
+            src="/images/logo.png"
             alt="Quốc kỳ Việt Nam"
             width={40}
             height={40}
@@ -123,7 +122,6 @@ const Header = () => {
           </h1>
         </div>
 
-        {/* Menu và Nút Đăng nhập (Desktop) */}
         <div className="hidden items-center gap-6 md:flex">
           <nav>
             <ul className="flex items-center gap-4">
@@ -196,7 +194,6 @@ const Header = () => {
           )}
         </div>
 
-        {/* Menu Hamburger (Mobile) */}
         <div className="relative z-50 ml-auto flex items-center gap-2 md:hidden">
           {isAuthenticated && (
             <div className="relative">
@@ -216,7 +213,6 @@ const Header = () => {
               </button>
 
               {isProfileOpen && (
-                // ✅ đổi absolute -> fixed để không bị cha che bởi overflow
                 <div className="fixed right-3 top-14 w-[calc(100vw-1.5rem)] max-w-[13rem] rounded-lg bg-yellow-400 text-red-900 shadow-lg z-[9999]">
                   <div className="border-b border-yellow-200 px-4 py-3 text-sm font-semibold">
                     {displayName}

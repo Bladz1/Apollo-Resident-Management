@@ -11,13 +11,12 @@ export async function POST(req: Request) {
 
     const res = NextResponse.json({ ok: true });
 
-    // ✅ Cookie để middleware/server đọc được
     res.cookies.set('token', token, {
       httpOnly: true,
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
       path: '/',
-      maxAge: 60 * 60 * 24 * 7, // 7 ngày
+      maxAge: 60 * 60 * 24 * 7,
     });
 
     return res;

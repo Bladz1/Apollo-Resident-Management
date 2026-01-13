@@ -193,7 +193,6 @@ export default function RegisterPage() {
           onReset={handleReset}
           className="grid gap-6 rounded-3xl border border-slate-200 bg-white p-8 shadow-xl md:grid-cols-2"
         >
-          {/* CỘT TRÁI */}
           <div className="space-y-5">
             <div>
               <label htmlFor="national-id" className="text-sm font-semibold text-slate-700">
@@ -337,7 +336,6 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          {/* CỘT PHẢI */}
           <div className="space-y-5">
             <div>
               <label htmlFor="password" className="text-sm font-semibold text-slate-700">

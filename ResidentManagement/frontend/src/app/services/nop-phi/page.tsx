@@ -44,14 +44,12 @@ async function loadFeeItems(): Promise<FeeItem[]> {
       method: "GET",
       headers: {
         "Accept": "application/json",
-        // add Authorization if your backend requires it
         ...(typeof window !== "undefined" && localStorage.getItem(TOKEN_KEY)
           ? { Authorization: `Bearer ${localStorage.getItem(TOKEN_KEY)}` }
           : {}),
       },
     });
 
-    // 1️⃣ Server responded (4xx / 5xx)
     if (!res.ok) {
       const contentType = res.headers.get("content-type") || "";
       let message = "Request failed";
@@ -67,12 +65,10 @@ async function loadFeeItems(): Promise<FeeItem[]> {
       throw new Error(`HTTP ${res.status}: ${message}`);
     }
 
-    // 2️⃣ Successful response
     const data = await res.json();
     return data.result as FeeItem[];
 
   } catch (err: any) {
-    // 3️⃣ Network error / CORS / fetch failure
     if (err instanceof TypeError) {
       throw new Error("Network error or server not reachable");
     }
@@ -103,93 +99,6 @@ const feeCategories: FeeCategory[] = [
   },
 ];
 
-// const feeItemss: FeeItem[] = [
-//   {
-//     id: "passport",
-//     categoryId: "administrative",
-//     name: "Phí cấp hộ chiếu",
-//     agency: "Cục Quản lý xuất nhập cảnh",
-//     amount: 200_000,
-//     dueDate: "2025-10-25",
-//     status: "Chưa nộp",
-//     description:
-//       "Phí cấp hộ chiếu phổ thông theo quy định của Bộ Tài chính dành cho công dân trên 14 tuổi.",
-//   },
-//   {
-//     id: "notarization",
-//     categoryId: "administrative",
-//     name: "Phí chứng thực",
-//     agency: "UBND phường Trung Tự",
-//     amount: 30_000,
-//     status: "Đã nộp",
-//     description:
-//       "Phí chứng thực bản sao giấy tờ, tài liệu hành chính theo Nghị định 23/2015/NĐ-CP.",
-//   },
-//   {
-//     id: "business-license",
-//     categoryId: "administrative",
-//     name: "Lệ phí cấp giấy phép kinh doanh",
-//     agency: "Sở Kế hoạch và Đầu tư Hà Nội",
-//     amount: 300_000,
-//     dueDate: "2025-04-30",
-//     status: "Đang xử lý",
-//     description:
-//       "Lệ phí cấp mới giấy chứng nhận đăng ký doanh nghiệp cho hộ kinh doanh cá thể.",
-//   },
-//   {
-//     id: "health-insurance",
-//     categoryId: "health-social",
-//     name: "Gia hạn bảo hiểm y tế hộ gia đình",
-//     agency: "BHXH quận Đống Đa",
-//     amount: 804_600,
-//     dueDate: "2025-02-15",
-//     status: "Chưa nộp",
-//     description:
-//       "Gia hạn thẻ bảo hiểm y tế hộ gia đình thời hạn 12 tháng theo mức đóng hiện hành.",
-//   },
-//   {
-//     id: "medical-check",
-//     categoryId: "health-social",
-//     name: "Phí khám sức khỏe tổng quát",
-//     agency: "Bệnh viện Đa khoa Hà Nội",
-//     amount: 950_000,
-//     status: "Chưa nộp",
-//     description:
-//       "Gói khám sức khỏe tổng quát định kỳ bao gồm xét nghiệm máu, nước tiểu và chẩn đoán hình ảnh.",
-//   },
-//   {
-//     id: "driving-penalty",
-//     categoryId: "transport",
-//     name: "Phạt vi phạm giao thông đường bộ",
-//     agency: "Phòng Cảnh sát giao thông Hà Nội",
-//     amount: 1_500_000,
-//     dueDate: "2025-01-20",
-//     status: "Chưa nộp",
-//     description:
-//       "Nộp phạt vi phạm lỗi vượt đèn đỏ theo quyết định xử phạt của lực lượng chức năng.",
-//   },
-//   {
-//     id: "toll-pass",
-//     categoryId: "transport",
-//     name: "Phí dịch vụ sử dụng đường bộ (vé tháng)",
-//     agency: "Trạm thu phí Pháp Vân - Cầu Giẽ",
-//     amount: 600_000,
-//     status: "Đã nộp",
-//     description:
-//       "Gia hạn vé tháng sử dụng dịch vụ đường bộ trên tuyến cao tốc Pháp Vân - Cầu Giẽ.",
-//   },
-//   {
-//     id: "vehicle-registration",
-//     categoryId: "transport",
-//     name: "Lệ phí đăng ký xe máy",
-//     agency: "Phòng CSGT đường bộ, đường sắt",
-//     amount: 2_000_000,
-//     dueDate: "2025-03-10",
-//     status: "Đang xử lý",
-//     description:
-//       "Lệ phí đăng ký lần đầu xe máy tại khu vực nội thành thuộc thành phố trực thuộc Trung ương.",
-//   },
-// ];
 
 const statusOptions: ("all" | FeeStatus)[] = ["all", "Chưa nộp", "Đang xử lý", "Đã nộp"];
 
@@ -239,7 +148,6 @@ export default function FeeDetailPage() {
     return ["all", ...Array.from(set)];
   }, [selectedCategory.id, feeItems]);
 
-  // testing filtering
   const filteredFees = useMemo(() => {
     return feeItems.filter((item) => {
       if (item.categoryId !== selectedCategory.id) return false;

@@ -9,8 +9,6 @@ import alerts from "./data/alerts_data";
 import news from "./data/news_data";
 import steps from "./data/steps_data";
 import UserWelcome from "@/components/auth/UserWelcome";
-
-// Import màn hình chờ
 import WelcomeScreen from "@/components/WelcomeScreen"; 
 
 export default function Home() {
@@ -29,27 +27,22 @@ export default function Home() {
     () => false,
   );
 
-  // 1. Kiểm soát hiển thị dựa trên trạng thái đã xem
   const showWelcome = !hasVisited;
   const showContent = hasVisited;
 
   const handleWelcomeComplete = () => {
-    // 3. Khi Welcome chạy xong -> Lưu vào bộ nhớ là "Đã xem"
     sessionStorage.setItem('hasVisitedPortfolio', 'true');
     window.dispatchEvent(new Event('hasVisitedPortfolio'));
   };
 
   return (
     <main>
-      {/* 4. Chỉ hiện Welcome khi biến showWelcome = true */}
       {showWelcome && (
         <WelcomeScreen onLoadingComplete={handleWelcomeComplete} />
       )}
 
-      {/* 5. Nội dung chính */}
       {showContent && (
         <div className="animate-[fadeIn_1s_ease-in-out]"> 
-          {/* --- BẮT ĐẦU NỘI DUNG CŨ CỦA BẠN --- */}
           <ScrollToTop></ScrollToTop>
           <div className="relative overflow-hidden bg-slate-950 text-slate-50">
             <section className={`relative ${styles["hero-spotlight"]}`}>
@@ -238,7 +231,6 @@ export default function Home() {
               </div>
             </section>
           </div>
-          {/* --- KẾT THÚC NỘI DUNG CŨ --- */}
         </div>
       )}
     </main>

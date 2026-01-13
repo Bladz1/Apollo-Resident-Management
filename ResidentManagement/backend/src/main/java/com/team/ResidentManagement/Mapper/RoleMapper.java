@@ -7,16 +7,11 @@ import com.team.ResidentManagement.entity.Role;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-/**
- * Mapper chuyển đổi dữ liệu liên quan đến Role.
- */
 @Mapper(componentModel = "spring")
 public interface RoleMapper {
 
-    /** Ánh xạ RoleRequest sang entity Role (bỏ qua danh sách quyền để xử lý thủ công). */
     @Mapping(target = "permissions", ignore = true)
     Role toRole(RoleRequest request);
 
-    /** Chuyển entity Role sang RoleResponse gửi cho client. */
     RoleResponse toRoleResponse(Role role);
 }

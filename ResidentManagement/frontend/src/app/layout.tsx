@@ -15,7 +15,6 @@ const beVietnamPro = Be_Vietnam_Pro({
   variable: '--font-be-vietnam',
 });
 
-// src/app/layout.tsx
 import Header from '@/components/header/header';
 
 export default function RootLayout({

@@ -9,9 +9,6 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-/**
- * Annotation tuỳ chỉnh dùng để khai báo điều kiện tuổi tối thiểu cho ngày sinh.
- */
 @Target({FIELD})
 @Retention(RUNTIME)
 @Constraint(validatedBy = {BirthdayValidator.class})

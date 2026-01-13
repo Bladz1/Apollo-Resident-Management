@@ -211,11 +211,6 @@ function deriveRolesFromJwt(token: string | null | undefined): string[] | null {
   return null;
 }
 
-/**
- * ✅ Đồng bộ cookie token để middleware/server đọc được
- * - Set cookie qua POST /api/auth/login
- * - Xoá cookie qua POST /api/auth/logout
- */
 async function syncCookieToken(token: string | null) {
   if (!isBrowser()) return;
 
@@ -230,7 +225,6 @@ async function syncCookieToken(token: string | null) {
       await fetch('/api/auth/logout', { method: 'POST' });
     }
   } catch {
-    // Không throw để tránh phá UI khi network tạm lỗi
   }
 }
 
@@ -253,7 +247,6 @@ export async function saveAuth(token: string | null | undefined, username: strin
     window.localStorage.removeItem(USERNAME_KEY);
   }
 
-  // ✅ cookie sync (để vào /profile không bị đá /login)
   await syncCookieToken(normalizedToken);
 
   dispatchAuthChanged({
@@ -284,7 +277,6 @@ export async function clearAuth() {
   window.localStorage.removeItem(TOKEN_KEY);
   window.localStorage.removeItem(USERNAME_KEY);
 
-  // ✅ xoá cookie
   await syncCookieToken(null);
 
   dispatchAuthChanged({ token: null, username: null });

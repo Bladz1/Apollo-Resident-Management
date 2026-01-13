@@ -6,7 +6,6 @@ export const dynamic = 'force-dynamic';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8080';
 
-/** base64url -> utf8 */
 function decodeBase64Url(input: string): string | null {
     try {
         const normalized = input.replace(/-/g, '+').replace(/_/g, '/');
@@ -100,7 +99,6 @@ function deriveRolesFromJwt(token: string): string[] {
 
 export async function GET() {
     try {
-        // ✅ tùy version Next, cookies() có thể async hoặc sync
         const store: any = cookies();
         const cookieStore = typeof store?.then === 'function' ? await store : store;
 

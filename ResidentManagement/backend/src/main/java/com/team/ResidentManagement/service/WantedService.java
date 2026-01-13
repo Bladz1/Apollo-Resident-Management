@@ -22,23 +22,15 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Dịch vụ xử lý hồ sơ truy nã và cập nhật danh sách tội danh.
- */
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 
 public class WantedService {
 
-    /** Repository truy nã. */
     WantedRepository wantedRepository;
-    /** Mapper chuyển đổi dữ liệu truy nã. */
     WantedMapper wantedMapper;
 
-    /**
-     * Tạo mới hồ sơ truy nã.
-     */
     @CacheEvict(value = "wanted", allEntries = true)
     public WantedResponse create(WantedRequest request) {
         Wanted wanted = wantedMapper.toWanted(request);
@@ -46,9 +38,6 @@ public class WantedService {
         return wantedMapper.toWantedResponse(wantedRepository.save(wanted));
     }
 
-    /**
-     * Lấy danh sách toàn bộ hồ sơ truy nã.
-     */
     @Cacheable(value = "wanted", key = "'all'")
     public List<WantedResponse> getAll(){
         return wantedRepository.findAll()
@@ -57,9 +46,6 @@ public class WantedService {
                 .toList();
     }
 
-    /**
-     * Lấy chi tiết một hồ sơ truy nã theo ID.
-     */
     @Cacheable(value = "wanted", key = "#wantedId")
     public WantedResponse getWantedByWantedId(String wantedId){
         Wanted wanted = wantedRepository.findById(wantedId).orElseThrow(() -> new AppException(ErrorCode.WANTED_NOT_FOUND));
@@ -67,15 +53,10 @@ public class WantedService {
         return wantedMapper.toWantedResponse(wanted);
     }
 
-    /** Xoá hồ sơ truy nã theo ID (chưa hiện thực). */
     public void deleteWantedById(String wantedId){}
 
-    /** Xoá toàn bộ hồ sơ truy nã. */
     public void deleteAll() {wantedRepository.deleteAll();}
 
-    /**
-     * Cập nhật thông tin cơ bản của hồ sơ truy nã.
-     */
     @CacheEvict(value = "wanted",  allEntries = true)
     @Transactional
     public WantedResponse updateWanted(String id, WantedUpdateRequest request) {
@@ -96,9 +77,6 @@ public class WantedService {
         return wantedMapper.toWantedResponse(wantedRepository.save(wanted));
     }
 
-    /**
-     * Thêm/bớt danh sách tội danh cho hồ sơ truy nã.
-     */
     @CacheEvict(value = "wanted", allEntries = true)
     @Transactional
     public WantedResponse patchCrimes(String id, WantedCrimePatchRequest request) {
@@ -113,7 +91,6 @@ public class WantedService {
             add = new LinkedHashSet<>();
             for (String crime : request.getAddCrimes()) {
                 if (crime != null) {
-                    // Chuẩn hoá chuỗi tội danh, loại bỏ khoảng trắng đầu/cuối trước khi thêm.
                     String normalizedCrime = crime.trim();
                     if (!normalizedCrime.isEmpty()) add.add(normalizedCrime);
                 }
@@ -125,7 +102,6 @@ public class WantedService {
             remove = new LinkedHashSet<>();
             for (String crime : request.getRemoveCrimes()) {
                 if (crime != null) {
-                    // Chuẩn hoá tương tự khi xử lý danh sách cần xoá.
                     String normalizedCrime = crime.trim();
                     if (!normalizedCrime.isEmpty()) remove.add(normalizedCrime);
                 }
@@ -133,17 +109,14 @@ public class WantedService {
         }
 
         if (Boolean.TRUE.equals(request.getClearCrimes())) {
-            // Yêu cầu xoá toàn bộ tội danh hiện tại.
             crimes.clear();
         }
 
         if (remove != null && !remove.isEmpty()) {
-            // Loại bỏ các tội danh cụ thể mà request gửi lên.
             crimes.removeAll(remove);
         }
 
         if (add != null && !add.isEmpty()) {
-            // Bổ sung các tội danh mới vào danh sách.
             crimes.addAll(add);
         }
 

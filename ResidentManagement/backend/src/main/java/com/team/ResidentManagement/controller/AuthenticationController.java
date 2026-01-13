@@ -14,9 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 
-/**
- * Cung cấp API xác thực JWT (đăng nhập, introspect, refresh, logout).
- */
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -24,12 +21,8 @@ import java.text.ParseException;
 @Slf4j
 public class AuthenticationController {
 
-    /** Dịch vụ xử lý xác thực. */
     AuthenticationService authenticationService;
 
-    /**
-     * Endpoint đăng nhập, trả về token.
-     */
     @PostMapping("/token")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
         var result = authenticationService.authenticate(request);
@@ -39,9 +32,6 @@ public class AuthenticationController {
                 .build();
     }
 
-    /**
-     * Endpoint kiểm tra token còn hợp lệ hay không.
-     */
     @PostMapping("/introspect")
     ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequest request) throws ParseException, JOSEException {
         var result = authenticationService.introspect(request);
@@ -51,9 +41,6 @@ public class AuthenticationController {
                 .build();
     }
 
-    /**
-     * Endpoint làm mới token.
-     */
     @PostMapping("/refresh")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody RefreshRequest request) throws ParseException, JOSEException {
         var result = authenticationService.refreshToken(request);
@@ -63,9 +50,6 @@ public class AuthenticationController {
                 .build();
     }
 
-    /**
-     * Endpoint đăng xuất và vô hiệu hoá token.
-     */
     @PostMapping("/logout")
     ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
         authenticationService.logout(request);

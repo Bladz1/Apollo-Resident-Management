@@ -28,7 +28,6 @@ export default async function NewsPage() {
     }));
   } catch (error) {
     console.error('Failed to fetch RSS:', error);
-    // Fallback to sample data if RSS fails
     articles = [];
   }
 

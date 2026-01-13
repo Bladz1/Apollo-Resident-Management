@@ -36,14 +36,12 @@ const ProfilePage = () => {
 
   const timersRef = useRef<Partial<Record<SensitiveFieldKey, ReturnType<typeof setTimeout>>>>({});
 
-  // Auto hide toast
   useEffect(() => {
     if (!toastMessage) return undefined;
     const timer = setTimeout(() => setToastMessage(null), 2500);
     return () => clearTimeout(timer);
   }, [toastMessage]);
 
-  // ✅ Load username/userId (local) + fetch profile (server đọc cookie)
   useEffect(() => {
     const loadedUsername = loadUsername();
     const loadedUserId = loadUserId();
@@ -71,7 +69,6 @@ const ProfilePage = () => {
 
         const data = await res.json();
 
-        // ✅ lấy roles từ API proxy (đã decode từ cookie token ở server)
         setRoles(Array.isArray(data.roles) ? data.roles : []);
 
         setProfile({
@@ -82,7 +79,6 @@ const ProfilePage = () => {
           address: data.address ?? '',
         });
       } catch (err) {
-        // Abort thì im lặng
         if (err instanceof DOMException && err.name === 'AbortError') return;
         setToastMessage('Không tải được hồ sơ. Vui lòng thử lại.');
       } finally {
@@ -287,7 +283,6 @@ const ProfilePage = () => {
               </div>
 
               <div className="mt-4 divide-y divide-gray-100 text-sm">
-                {/* Personal ID */}
                 <div className="flex flex-col gap-3 py-4 min-[992px]:flex-row min-[992px]:items-center min-[992px]:justify-between">
                   <div className="text-sm text-gray-500">Số định danh cá nhân</div>
                   <div className="flex items-center gap-3 min-[992px]:justify-end">
@@ -320,7 +315,6 @@ const ProfilePage = () => {
                   </div>
                 </div>
 
-                {/* Gender */}
                 <div className="flex flex-col gap-3 py-4 min-[992px]:flex-row min-[992px]:items-center min-[992px]:justify-between">
                   <div className="text-sm text-gray-500">Giới tính</div>
                   <div className="text-[15px] font-medium text-gray-900 min-[992px]:text-right">
@@ -328,7 +322,6 @@ const ProfilePage = () => {
                   </div>
                 </div>
 
-                {/* DOB */}
                 <div className="flex flex-col gap-3 py-4 min-[992px]:flex-row min-[992px]:items-center min-[992px]:justify-between">
                   <div className="text-sm text-gray-500">Ngày sinh</div>
                   <div className="text-[15px] font-medium text-gray-900 min-[992px]:text-right">
@@ -336,7 +329,6 @@ const ProfilePage = () => {
                   </div>
                 </div>
 
-                {/* Phone */}
                 <div className="flex flex-col gap-3 py-4 min-[992px]:flex-row min-[992px]:items-center min-[992px]:justify-between">
                   <div className="text-sm text-gray-500">Số điện thoại</div>
                   <div className="flex items-center gap-3 min-[992px]:justify-end">
@@ -369,7 +361,6 @@ const ProfilePage = () => {
                   </div>
                 </div>
 
-                {/* Address */}
                 <div className="flex flex-col gap-3 py-4 min-[992px]:flex-row min-[992px]:items-start min-[992px]:justify-between">
                   <div className="text-sm text-gray-500">Nơi thường trú</div>
                   <div className="min-[992px]:max-w-[60%] min-[992px]:text-right">

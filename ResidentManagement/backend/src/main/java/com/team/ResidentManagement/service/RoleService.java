@@ -18,25 +18,16 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.List;
 
-/**
- * Quản lý vai trò và phân bổ quyền cho từng vai trò.
- */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RoleService {
 
-    /** Repository vai trò. */
     RoleRepository roleRepository;
-    /** Repository quyền để lấy danh sách quyền gán cho vai trò. */
     PermissionRepository permissionRepository;
-    /** Mapper chuyển đổi dữ liệu vai trò. */
     RoleMapper roleMapper;
 
-    /**
-     * Tạo mới vai trò kèm danh sách quyền.
-     */
     @CacheEvict(value = "roles", allEntries = true)
     public RoleResponse createRole(RoleRequest request){
         var role = roleMapper.toRole(request);
@@ -48,9 +39,6 @@ public class RoleService {
         return roleMapper.toRoleResponse(role);
     }
 
-    /**
-     * Trả về toàn bộ vai trò hiện có.
-     */
     @Cacheable(value = "keys", key = "'all'")
     public List<RoleResponse> getAllRoles(){
         return roleRepository.findAll()
@@ -59,9 +47,6 @@ public class RoleService {
                 .toList();
     }
 
-    /**
-     * Xoá vai trò theo tên.
-     */
     @CacheEvict(value = "roles", allEntries = true)
     public void deleteRole(String role){
         roleRepository.deleteById(role);

@@ -5,9 +5,6 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
-/**
- * DTO response mô tả chi tiết một khoản phí.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

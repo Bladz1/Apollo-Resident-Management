@@ -3,9 +3,6 @@ package com.team.ResidentManagement.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-/**
- * DTO response mô tả thông tin của một quyền.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

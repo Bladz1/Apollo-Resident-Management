@@ -131,16 +131,13 @@ type ApiResponse<T> = {
 };
 
 export default function AdminDashboardPage() {
-  // Complaints
   const [localComplaints, setLocalComplaints] = useState<Complaint[]>([]);
   const [loadingComplaints, setLoadingComplaints] = useState(true);
   const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
 
-  // Pending users
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
 
-  // Fees
   const [feeRecords, setFeeRecords] = useState<FeeRecord[]>([]);
   const [feeDraft, setFeeDraft] = useState({
     categoryId: feeCategories[0]?.id ?? '',
@@ -149,7 +146,6 @@ export default function AdminDashboardPage() {
     dueDate: '',
   });
   const formatToLocalDate = (value: string) => {
-    // value may already be YYYY-MM-DD
     return value.slice(0, 10);
   };
 
@@ -161,7 +157,6 @@ export default function AdminDashboardPage() {
     return headers;
   };
 
-  // ========== Complaints ==========
   const loadComplaints = async () => {
     setLoadingComplaints(true);
 
@@ -240,7 +235,6 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // ========== Pending Users ==========
   const loadPendingUsers = async () => {
     setLoadingUsers(true);
 
@@ -325,7 +319,6 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // ========== Fees ==========
   const handleFeeChange = (field: 'categoryId' | 'personalId' | 'amount' | 'dueDate', value: string) => {
     setFeeDraft((prev) => ({ ...prev, [field]: value }));
   };
@@ -333,7 +326,6 @@ export default function AdminDashboardPage() {
   const handleFeeSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // im lặng nếu thiếu input
     if (
       !feeDraft.categoryId ||
       !feeDraft.amount ||
@@ -342,7 +334,7 @@ export default function AdminDashboardPage() {
     ) {
       alert('Vui lòng nhập đầy đủ thông tin phí');
       return;
-}
+    }
 
 
     const category = feeCategories.find((item) => item.id === feeDraft.categoryId);
@@ -391,7 +383,6 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     void loadComplaints();
     void loadPendingUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -435,7 +426,6 @@ export default function AdminDashboardPage() {
       </div>
 
       <main className="mx-auto max-w-6xl space-y-12 px-6 py-12">
-        {/* SECTION 1 */}
         <section className="w-full">
           <div className="w-full rounded-3xl border border-white/10 bg-slate-900/70 shadow-xl shadow-black/40 backdrop-blur">
             <div className="flex items-center justify-between border-b border-white/5 px-8 py-6">
@@ -477,7 +467,6 @@ export default function AdminDashboardPage() {
           </div>
         </section>
 
-        {/* SECTION 2 - Complaints */}
         <section className="w-full">
           <div className="w-full rounded-3xl border border-white/10 bg-slate-900/70 shadow-xl shadow-black/40 backdrop-blur">
             <div className="flex items-center justify-between border-b border-white/5 px-8 py-6">
@@ -617,7 +606,6 @@ export default function AdminDashboardPage() {
           )}
         </section>
 
-        {/* Pending users */}
         <section className="w-full">
           <div className="w-full rounded-3xl border border-white/10 bg-slate-900/70 shadow-xl shadow-black/40 backdrop-blur">
             <div className="flex items-center justify-between border-b border-white/5 px-8 py-6">
@@ -700,7 +688,6 @@ export default function AdminDashboardPage() {
           </div>
         </section>
 
-        {/* Fees */}
         <section className="w-full">
           <div className="w-full rounded-3xl border border-white/10 bg-slate-900/70 shadow-xl shadow-black/40 backdrop-blur">
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 px-8 py-6">

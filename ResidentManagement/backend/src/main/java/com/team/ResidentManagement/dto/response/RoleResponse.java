@@ -5,9 +5,6 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.Set;
 
-/**
- * DTO response mô tả một vai trò và các quyền tương ứng.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

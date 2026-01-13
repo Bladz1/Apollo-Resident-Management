@@ -34,39 +34,28 @@ import java.util.Date;
 import java.util.StringJoiner;
 import java.util.UUID;
 
-/**
- * Xử lý toàn bộ nghiệp vụ xác thực JWT: phát hành, kiểm tra, làm mới và thu hồi token.
- */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationService {
 
-    /** Repository truy cập dữ liệu người dùng. */
     UserRepository userRepository;
-    /** Repository lưu token đã vô hiệu hoá. */
     private final InvalidatedTokenRepository invalidatedTokenRepository;
 
-    /** Khoá ký JWT nạp từ cấu hình. */
     @NonFinal
     @Value("${jwt.signer-key}")
     protected String SIGNER_KEY;
 
-    /** Thời gian token có hiệu lực (giây). */
     @NonFinal
     @Value("${jwt.valid-duration}")
     protected long VALID_DURATION;
 
-    /** Thời gian được phép refresh kể từ thời điểm phát hành. */
     @NonFinal
     @Value("${jwt.refreshable-duration}")
     protected long REFRESHABLE_DURATION;
 
 
-    /**
-     * Kiểm tra token có hợp lệ hay không dựa trên verifyToken.
-     */
     public IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException {
         var token = request.getToken();
         boolean isValid = true;
@@ -81,9 +70,6 @@ public class AuthenticationService {
                 .build();
     }
 
-    /**
-     * Xác thực người dùng bằng username/password và phát hành JWT mới.
-     */
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -107,11 +93,6 @@ public class AuthenticationService {
                 .build();
     }
 
-    /**
-     * Verify chữ ký, hạn dùng và trạng thái thu hồi của token.
-     * @param token chuỗi JWT cần kiểm tra.
-     * @param refresh true nếu đang kiểm tra cho mục đích refresh.
-     */
     private SignedJWT verifyToken(String token, boolean refresh) throws JOSEException, ParseException {
         MACVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
 
@@ -133,9 +114,6 @@ public class AuthenticationService {
         return  signedJWT;
     }
 
-    /**
-     * Thu hồi token hiện tại bằng cách lưu vào bảng invalidated_token.
-     */
     public void logout(LogoutRequest request) throws ParseException, JOSEException {
         try {
             var signToken = verifyToken(request.getToken(), true);
@@ -154,9 +132,6 @@ public class AuthenticationService {
         }
     }
 
-    /**
-     * Làm mới token: thu hồi token cũ và phát hành token mới.
-     */
     public AuthenticationResponse refreshToken(RefreshRequest request) throws ParseException, JOSEException {
         var signedJWT = verifyToken(request.getToken(), true);
 
@@ -184,9 +159,6 @@ public class AuthenticationService {
                 .build();
     }
 
-    /**
-     * Tạo JWT chứa thông tin người dùng và phạm vi quyền hạn.
-     */
     private String generateToken(User user) {
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
 
@@ -215,9 +187,6 @@ public class AuthenticationService {
         }
     }
 
-    /**
-     * Ghép các vai trò và quyền thành chuỗi scope truyền vào JWT.
-     */
     private String buildScope(User user){
         StringJoiner stringJoiner = new StringJoiner(" ");
 

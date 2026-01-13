@@ -13,7 +13,6 @@ type AuthExtractionResult = {
   roles?: string[];
 };
 
-/* ===== Helpers ===== */
 function normalizeRoles(value: unknown): string[] | null {
   if (!value) return null;
 
@@ -82,7 +81,6 @@ function extractAuthDetails(payload: unknown): AuthExtractionResult {
   return result;
 }
 
-/* ===== Page ===== */
 function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();

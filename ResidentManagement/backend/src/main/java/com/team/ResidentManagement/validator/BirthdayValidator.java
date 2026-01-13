@@ -7,9 +7,6 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
-/**
- * Thành phần kiểm tra ngày sinh có đủ tuổi tối thiểu theo cấu hình.
- */
 public class BirthdayValidator implements ConstraintValidator<BirthdayConstraint, LocalDate> {
 
     private int min;

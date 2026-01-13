@@ -6,9 +6,6 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.Set;
 
-/**
- * DTO request tạo mới hồ sơ truy nã.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
