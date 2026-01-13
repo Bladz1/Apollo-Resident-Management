@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { FormEvent, Suspense, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { extractRolesFromToken, extractUsernameFromToken, saveAuth } from '@/utils/auth-storage';
-import publicApi from '@/utils/publicApi';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8080/resident-management';
 
 type AuthExtractionResult = {
   token?: string;
@@ -93,50 +94,65 @@ function LoginPageContent() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setLoading(true);
+ const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
+  setLoading(true);
 
-    try {
-      const loginRes = await publicApi.post('/auth/token', {
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
         username,
         password,
-      });
+      }),
+    });
 
-      const parsed = loginRes.data;
-      const { token, username: usernameFromResponse, roles } = extractAuthDetails(parsed);
-
-      if (!token) return;
-
-      const resolvedUsername =
-        usernameFromResponse ??
-        extractUsernameFromToken(token) ??
-        username;
-
-      const resolvedRoles = roles ?? extractRolesFromToken(token) ?? [];
-
-      const isAdmin = resolvedRoles.some(
-        (role) => role === 'ADMIN' || role === 'ROLE_ADMIN'
-      );
-
-      saveAuth(token, resolvedUsername);
-
-      if (
-        nextPath &&
-        nextPath !== '/' &&
-        (nextPath.startsWith('/profile') || nextPath.startsWith('/admin'))
-      ) {
-        router.replace(nextPath);
-        return;
-      }
-
-      router.replace(isAdmin ? '/admin' : '/');
-    } catch (error) {
-      console.error('Login error:', error);
-    } finally {
-      setLoading(false);
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || 'Login failed');
     }
-  };
+
+    const parsed = await res.json();
+
+    const { token, username: usernameFromResponse, roles } =
+      extractAuthDetails(parsed);
+
+    if (!token) return;
+
+    const resolvedUsername =
+      usernameFromResponse ??
+      extractUsernameFromToken(token) ??
+      username;
+
+    const resolvedRoles =
+      roles ?? extractRolesFromToken(token) ?? [];
+
+    const isAdmin = resolvedRoles.some(
+      (role) => role === 'ADMIN' || role === 'ROLE_ADMIN'
+    );
+
+    saveAuth(token, resolvedUsername);
+
+    if (
+      nextPath &&
+      nextPath !== '/' &&
+      (nextPath.startsWith('/profile') || nextPath.startsWith('/admin'))
+    ) {
+      router.replace(nextPath);
+      return;
+    }
+
+    router.replace(isAdmin ? '/admin' : '/');
+  } catch (error) {
+    console.error('Login error:', error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div

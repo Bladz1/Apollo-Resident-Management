@@ -148,6 +148,11 @@ export default function AdminDashboardPage() {
     amount: '',
     dueDate: '',
   });
+  const formatToLocalDate = (value: string) => {
+    // value may already be YYYY-MM-DD
+    return value.slice(0, 10);
+  };
+
 
   const buildAuthHeaders = (base: Record<string, string>) => {
     const token = typeof window !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null;
@@ -329,9 +334,20 @@ export default function AdminDashboardPage() {
     event.preventDefault();
 
     // im lặng nếu thiếu input
-    if (!feeDraft.categoryId || !feeDraft.amount || !feeDraft.dueDate || !feeDraft.personalId) return;
+    if (
+      !feeDraft.categoryId ||
+      !feeDraft.amount ||
+      !feeDraft.dueDate ||
+      !feeDraft.personalId.trim()
+    ) {
+      alert('Vui lòng nhập đầy đủ thông tin phí');
+      return;
+}
+
 
     const category = feeCategories.find((item) => item.id === feeDraft.categoryId);
+
+    console.log(feeDraft.dueDate)
 
     try {
       const response = await fetch(`${API_BASE_URL}/fees`, {
@@ -343,7 +359,7 @@ export default function AdminDashboardPage() {
           name: category?.label ?? 'Khoản phí mới',
           agency: 'Ủy ban nhân dân',
           amount: Number(feeDraft.amount),
-          dueDate: feeDraft.dueDate,
+          dueDate: formatToLocalDate(feeDraft.dueDate),
           status: 'Chưa nộp',
           description: `Khoản phí ${category?.label?.toLowerCase() ?? ''}`.trim(),
           personalId: feeDraft.personalId.trim(),
