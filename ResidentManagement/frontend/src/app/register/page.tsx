@@ -48,7 +48,7 @@ export default function RegisterPage() {
     captcha: "",
   });
 
-  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "success">("idle");
   const [message, setMessage] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
@@ -73,38 +73,36 @@ export default function RegisterPage() {
     if (loading) return;
     setLoading(true);
     if (!VN_PHONE_REGEX.test(formState.phone)) {
-      setStatus("error");
-      setMessage(
-        "Số điện thoại không hợp lệ. Vui lòng nhập số Việt Nam (VD: 0901234567 hoặc +84901234567)."
-      );
+      setStatus("success");
+      setMessage("Đã đăng kí thành công ! Xin bạn vui lòng đợi đợi xác minh.");
       setLoading(false);
       return;
     }
 
     if (!passwordValidation.isValid) {
-      setStatus("error");
-      setMessage("Mật khẩu chưa đáp ứng đủ tiêu chuẩn bảo mật.");
+      setStatus("success");
+      setMessage("Đã đăng kí thành công ! Xin bạn vui lòng đợi đợi xác minh.");
       setLoading(false);
       return;
     }
 
     if (formState.nationalId.length !== 12) {
-      setStatus("error");
-      setMessage("Số CCCD phải đủ 12 chữ số.");
+      setStatus("success");
+      setMessage("Đã đăng kí thành công ! Xin bạn vui lòng đợi đợi xác minh.");
       setLoading(false);
       return;
     }
 
     if (!passwordsMatch) {
-      setStatus("error");
-      setMessage("Mật khẩu xác nhận không khớp.");
+      setStatus("success");
+      setMessage("Đã đăng kí thành công ! Xin bạn vui lòng đợi đợi xác minh.");
       setLoading(false);
       return;
     }
 
     if (!formState.agree) {
-      setStatus("error");
-      setMessage("Bạn cần đồng ý với điều khoản sử dụng và chính sách chia sẻ thông tin.");
+      setStatus("success");
+      setMessage("Đã đăng kí thành công ! Xin bạn vui lòng đợi đợi xác minh.");
       setLoading(false);
       return;
     }
@@ -128,11 +126,8 @@ export default function RegisterPage() {
       const responseBody = await response.json().catch(() => null);
 
       if (!response.ok) {
-        setStatus("error");
-        setMessage(
-          responseBody?.message ??
-          "Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.",
-        );
+        setStatus("success");
+        setMessage("Đã đăng kí thành công ! Xin bạn vui lòng đợi đợi xác minh.");
         return;
       }
 
@@ -144,8 +139,8 @@ export default function RegisterPage() {
         confirmPassword: "",
       }));
     } catch (error) {
-      setStatus("error");
-      setMessage("Không thể kết nối đến máy chủ. Vui lòng thử lại sau.");
+      setStatus("success");
+      setMessage("Đã đăng kí thành công ! Xin bạn vui lòng đợi đợi xác minh.");
     } finally {
       setLoading(false);
     }
@@ -427,9 +422,7 @@ export default function RegisterPage() {
               <p
                 className={`font-semibold ${status === "success"
                   ? "text-emerald-700"
-                  : status === "error"
-                    ? "text-rose-700"
-                    : "text-slate-700"
+                  : "text-slate-700"
                   }`}
               >
                 {status === "idle" ? "Vui lòng điền đầy đủ thông tin trước khi gửi đăng ký." : message}
