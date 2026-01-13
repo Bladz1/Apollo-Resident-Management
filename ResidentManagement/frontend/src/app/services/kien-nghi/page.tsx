@@ -198,7 +198,8 @@ export default function PetitionPage() {
               ref={editorRef}
               contentEditable
               onInput={handleEditorInput}
-              className="min-h-[200px] rounded-xl border border-slate-200 p-4 text-sm"
+              className="min-h-[200px] rounded-xl border border-slate-200 p-4 text-sm  text-slate-900"
+
             />
 
             <input
