@@ -89,7 +89,6 @@ function LoginPageContent() {
 
   const nextPath = useMemo(() => searchParams.get('next') || '/', [searchParams]);
 
-  const [personalId, setPersonalId] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -106,7 +105,7 @@ function LoginPageContent() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        personalId,
+        username,
         password,
       }),
     });
