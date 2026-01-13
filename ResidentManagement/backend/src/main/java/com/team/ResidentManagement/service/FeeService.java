@@ -104,6 +104,7 @@ public class FeeService {
         if (user.getFees().contains(fee)){
             // Khi cư dân xác nhận đã đóng phí, đặt amount về 0 để biểu thị đã thanh toán.
             fee.setAmount(0);
+            fee.setStatus("Đã nộp");
         }
         else throw new AppException(ErrorCode.FEE_NOT_BELONG_TO_USER);
 
