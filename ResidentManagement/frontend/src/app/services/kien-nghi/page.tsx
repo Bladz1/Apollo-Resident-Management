@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useRef, useState } from "react";
 import { loadUserId, TOKEN_KEY } from "@/utils/auth-storage";
+import { uploadFeedbackFile } from "@/utils/supabase";
 import { initialPetitionState, services, type PetitionFormState } from "../data";
 
 const petitionService = services.find((service) => service.id === "kien-nghi");
@@ -57,6 +58,13 @@ export default function PetitionPage() {
       const userId = loadUserId();
       if (!userId) return;
 
+      let attachmentUrl: string | null = null;
+      if (petitionState.attachment) {
+        attachmentUrl = await uploadFeedbackFile(
+          petitionState.attachment
+        );
+      }
+
       const formData = new FormData();
       formData.append("name", petitionState.fullName);
       formData.append("email", petitionState.email);
@@ -65,8 +73,8 @@ export default function PetitionPage() {
       formData.append("title", petitionState.title);
       formData.append("description", petitionState.content);
 
-      if (petitionState.attachmentUrl) {
-        formData.append("attachmentUrl", petitionState.attachmentUrl);
+      if (attachmentUrl) {
+        formData.append("attachmentUrl", attachmentUrl);
       }
 
       const token =
@@ -192,13 +200,13 @@ export default function PetitionPage() {
             />
 
             <input
-              type="url"
-              placeholder="Đường dẫn tệp đính kèm (nếu có)"
-              value={petitionState.attachmentUrl ?? ""}
+              type="file"
               onChange={(e) =>
-                handlePetitionChange("attachmentUrl", e.target.value)
+                handlePetitionChange(
+                  "attachment",
+                  e.target.files?.[0] ?? null
+                )
               }
-              className="input"
             />
 
             <div className="flex gap-3">
