@@ -99,14 +99,12 @@ type UserRegisterStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
 
 type PendingUser = {
   id: string;
-  personalId: string; // ✅ CCCD
+  personalId: string;
   fullName: string;
   phone?: string;
   address?: string;
   createdAt?: string;
   status: UserRegisterStatus;
-
-  // (giữ lại nếu backend vẫn trả email, nhưng UI không hiển thị)
   email?: string;
 };
 
@@ -133,20 +131,17 @@ type ApiResponse<T> = {
 };
 
 export default function AdminDashboardPage() {
-  // SECTION 2 - complaints
+  // Complaints
   const [localComplaints, setLocalComplaints] = useState<Complaint[]>([]);
   const [loadingComplaints, setLoadingComplaints] = useState(true);
-  const [complaintError, setComplaintError] = useState<string | null>(null);
   const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
 
-  // SECTION NEW - pending users
+  // Pending users
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
-  const [userError, setUserError] = useState<string | null>(null);
 
-  // SECTION 3 - fees
+  // Fees
   const [feeRecords, setFeeRecords] = useState<FeeRecord[]>([]);
-  const [feeError, setFeeError] = useState<string | null>(null);
   const [feeDraft, setFeeDraft] = useState({
     categoryId: feeCategories[0]?.id ?? '',
     personalId: '',
@@ -164,7 +159,6 @@ export default function AdminDashboardPage() {
   // ========== Complaints ==========
   const loadComplaints = async () => {
     setLoadingComplaints(true);
-    setComplaintError(null);
 
     try {
       const response = await fetch(`${API_BASE_URL}/feedbacks`, {
@@ -180,27 +174,19 @@ export default function AdminDashboardPage() {
       const data = (await response.json()) as ApiResponse<Complaint[]>;
       setLocalComplaints(data.result ?? []);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Không thể tải danh sách phản ánh.';
-      setComplaintError(message);
+      console.error('Load complaints error:', error);
     } finally {
       setLoadingComplaints(false);
     }
   };
 
-
-
-  const handleViewComplaint = (item: Complaint) => {
-    setSelectedComplaint(item);
-  };
-
+  const handleViewComplaint = (item: Complaint) => setSelectedComplaint(item);
   const closeComplaintModal = () => setSelectedComplaint(null);
 
   const deleteComplaint = async (id: string) => {
-    const headers = buildAuthHeaders({ Accept: 'application/json' });
-
     const response = await fetch(`${API_BASE_URL}/feedbacks/${id}`, {
       method: 'DELETE',
-      headers,
+      headers: buildAuthHeaders({ Accept: 'application/json' }),
     });
 
     if (!response.ok) {
@@ -213,27 +199,21 @@ export default function AdminDashboardPage() {
 
   const handleDeleteComplaint = async (id: string) => {
     try {
-      setComplaintError(null);
       const ok = window.confirm('Bạn có chắc muốn từ chối và xóa phản ánh này không?');
       if (!ok) return;
 
       await deleteComplaint(id);
-
       await loadComplaints();
       setSelectedComplaint((prev) => (prev?.id === id ? null : prev));
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Không thể xóa phản ánh.';
-      setComplaintError(message);
+      console.error('Delete complaint error:', error);
     }
   };
 
   const acceptComplaint = async (id: string) => {
-    const headers = buildAuthHeaders({ Accept: 'application/json', 'Content-Type': 'application/json' });
-
-    // Try to update status on the server; endpoint may vary depending on backend
     const response = await fetch(`${API_BASE_URL}/feedbacks/${id}/status`, {
       method: 'PUT',
-      headers,
+      headers: buildAuthHeaders({ Accept: 'application/json', 'Content-Type': 'application/json' }),
       body: JSON.stringify({ status: 'ACCEPTED' }),
     });
 
@@ -247,30 +227,22 @@ export default function AdminDashboardPage() {
 
   const handleAcceptComplaint = async (id: string) => {
     try {
-      setComplaintError(null);
       await acceptComplaint(id);
-
       setLocalComplaints((prev) => prev.map((c) => (c.id === id ? { ...c, status: 'ACCEPTED' } : c)));
       setSelectedComplaint((prev) => (prev?.id === id ? { ...prev, status: 'ACCEPTED' } : prev));
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Không thể cập nhật trạng thái phản ánh.';
-      setComplaintError(message);
+      console.error('Accept complaint error:', error);
     }
   };
 
-  // ========== Pending Users (NEW SECTION) ==========
+  // ========== Pending Users ==========
   const loadPendingUsers = async () => {
     setLoadingUsers(true);
-    setUserError(null);
 
     try {
-      const token = localStorage.getItem(TOKEN_KEY);
-
       const response = await fetch(`${API_BASE_URL}/users/pending`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
+        method: 'GET',
+        headers: buildAuthHeaders({ Accept: 'application/json' }),
       });
 
       if (!response.ok) {
@@ -292,19 +264,16 @@ export default function AdminDashboardPage() {
 
       setPendingUsers(normalized);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Không thể tải danh sách đăng ký chờ duyệt.';
-      setUserError(message);
+      console.error('Load pending users error:', error);
     } finally {
       setLoadingUsers(false);
     }
   };
 
   const approveUser = async (id: string) => {
-    const headers = buildAuthHeaders({ Accept: 'application/json', 'Content-Type': 'application/json' });
-
     const response = await fetch(`${API_BASE_URL}/users/status/${id}`, {
       method: 'PUT',
-      headers,
+      headers: buildAuthHeaders({ Accept: 'application/json', 'Content-Type': 'application/json' }),
       body: JSON.stringify({ status: 'ACCEPTED' }),
     });
 
@@ -317,11 +286,9 @@ export default function AdminDashboardPage() {
   };
 
   const rejectUser = async (id: string) => {
-    const headers = buildAuthHeaders({ Accept: 'application/json', 'Content-Type': 'application/json' });
-
     const response = await fetch(`${API_BASE_URL}/users/${id}`, {
       method: 'DELETE',
-      headers,
+      headers: buildAuthHeaders({ Accept: 'application/json' }),
     });
 
     if (!response.ok) {
@@ -334,26 +301,22 @@ export default function AdminDashboardPage() {
 
   const handleApproveUser = async (id: string) => {
     try {
-      setUserError(null);
       await approveUser(id);
       setPendingUsers((prev) => prev.filter((u) => u.id !== id));
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Duyệt tài khoản thất bại.';
-      setUserError(message);
+      console.error('Approve user error:', error);
     }
   };
 
   const handleRejectUser = async (id: string) => {
     try {
-      setUserError(null);
       const ok = window.confirm('Bạn có chắc muốn từ chối tài khoản này không?');
       if (!ok) return;
 
       await rejectUser(id);
       setPendingUsers((prev) => prev.filter((u) => u.id !== id));
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Từ chối tài khoản thất bại.';
-      setUserError(message);
+      console.error('Reject user error:', error);
     }
   };
 
@@ -364,20 +327,16 @@ export default function AdminDashboardPage() {
 
   const handleFeeSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setFeeError(null);
 
-    if (!feeDraft.categoryId || !feeDraft.amount || !feeDraft.dueDate || !feeDraft.personalId) {
-      setFeeError('Vui lòng nhập đầy đủ CCCD, loại phí, số tiền và hạn nộp.');
-      return;
-    }
+    // im lặng nếu thiếu input
+    if (!feeDraft.categoryId || !feeDraft.amount || !feeDraft.dueDate || !feeDraft.personalId) return;
 
     const category = feeCategories.find((item) => item.id === feeDraft.categoryId);
-    const headers = buildAuthHeaders({ 'Content-Type': 'application/json' });
 
     try {
       const response = await fetch(`${API_BASE_URL}/fees`, {
         method: 'POST',
-        headers,
+        headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
           feeType: feeDraft.categoryId,
           categoryId: feeDraft.categoryId,
@@ -403,22 +362,13 @@ export default function AdminDashboardPage() {
         categoryLabel: category?.label ?? 'Chưa xác định',
         amount: feeDraft.amount,
         dueDate: feeDraft.dueDate,
-        createdAt: new Date().toLocaleString('vi-VN', {
-          dateStyle: 'short',
-          timeStyle: 'short',
-        }),
+        createdAt: new Date().toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' }),
       };
 
       setFeeRecords((prev) => [newRecord, ...prev].slice(0, 5));
-      setFeeDraft({
-        categoryId: feeDraft.categoryId,
-        personalId: '',
-        amount: '',
-        dueDate: '',
-      });
+      setFeeDraft({ categoryId: feeDraft.categoryId, personalId: '', amount: '', dueDate: '' });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Không thể tạo phí mới.';
-      setFeeError(message);
+      console.error('Create fee error:', error);
     }
   };
 
@@ -443,9 +393,7 @@ export default function AdminDashboardPage() {
               <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-emerald-200">
                 Bảng điều khiển quản trị
               </span>
-              <h1 className="text-3xl font-black text-white md:text-4xl">
-                Giám sát toàn diện tình trạng cư trú và hạ tầng hệ thống
-              </h1>
+              <h1 className="text-3xl font-black text-white md:text-4xl">Giám sát toàn diện tình trạng cư trú và hạ tầng hệ thống</h1>
               <p className="text-sm text-slate-200 md:text-base">
                 Cung cấp tầm nhìn tổng quan cho cán bộ quản trị: theo dõi hồ sơ, hoạt động người dùng, cảnh báo an ninh và tự động hóa quy trình trên cùng một giao diện trực quan.
               </p>
@@ -523,12 +471,6 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            {complaintError && (
-              <div className="border-b border-white/5 px-8 py-4 text-sm text-rose-200">
-                {complaintError}
-              </div>
-            )}
-
             <div className="overflow-x-auto">
               <table className="min-w-full table-fixed divide-y divide-white/10 text-sm">
                 <thead className="bg-white/5 text-xs uppercase tracking-wide text-slate-300">
@@ -549,6 +491,7 @@ export default function AdminDashboardPage() {
                       </td>
                     </tr>
                   )}
+
                   {!loadingComplaints && localComplaints.length === 0 && (
                     <tr>
                       <td colSpan={5} className="px-8 py-6 text-center text-sm text-slate-400">
@@ -629,9 +572,7 @@ export default function AdminDashboardPage() {
 
                 {selectedComplaint.attachmentUrl && (
                   <div className="mt-4">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
-                      Tệp đính kèm
-                    </p>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Tệp đính kèm</p>
 
                     <Image
                       src={selectedComplaint.attachmentUrl}
@@ -660,6 +601,7 @@ export default function AdminDashboardPage() {
           )}
         </section>
 
+        {/* Pending users */}
         <section className="w-full">
           <div className="w-full rounded-3xl border border-white/10 bg-slate-900/70 shadow-xl shadow-black/40 backdrop-blur">
             <div className="flex items-center justify-between border-b border-white/5 px-8 py-6">
@@ -676,12 +618,6 @@ export default function AdminDashboardPage() {
                 Làm mới
               </button>
             </div>
-
-            {userError && (
-              <div className="border-b border-white/5 px-8 py-4 text-sm text-rose-200">
-                {userError}
-              </div>
-            )}
 
             <div className="overflow-x-auto">
               <table className="min-w-full table-fixed divide-y divide-white/10 text-sm">
@@ -748,12 +684,12 @@ export default function AdminDashboardPage() {
           </div>
         </section>
 
-        {/* SECTION 3 */}
+        {/* Fees */}
         <section className="w-full">
           <div className="w-full rounded-3xl border border-white/10 bg-slate-900/70 shadow-xl shadow-black/40 backdrop-blur">
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 px-8 py-6">
               <div>
-                <h2 className="text-xl font-semibold text-white"> Thiết lập các loại phí, số tiền và hạn nộp cho từng dịch vụ công</h2>
+                <h2 className="text-xl font-semibold text-white">Thiết lập các loại phí, số tiền và hạn nộp cho từng dịch vụ công</h2>
               </div>
               <span className="rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs font-semibold text-slate-200">
                 Cập nhật mới nhất: {new Date().toLocaleDateString('vi-VN')}
@@ -822,12 +758,6 @@ export default function AdminDashboardPage() {
                     </button>
                   </div>
                 </div>
-
-                {feeError && (
-                  <div className="rounded-2xl border border-rose-400/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
-                    {feeError}
-                  </div>
-                )}
 
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Gợi ý loại phí</p>
