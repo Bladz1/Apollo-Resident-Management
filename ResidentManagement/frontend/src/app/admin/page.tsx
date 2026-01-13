@@ -435,47 +435,6 @@ export default function AdminDashboardPage() {
       </div>
 
       <main className="mx-auto max-w-6xl space-y-12 px-6 py-12">
-        {/* SECTION 1 */}
-        <section className="w-full">
-          <div className="w-full rounded-3xl border border-white/10 bg-slate-900/70 shadow-xl shadow-black/40 backdrop-blur">
-            <div className="flex items-center justify-between border-b border-white/5 px-8 py-6">
-              <div>
-                <h2 className="text-xl font-semibold text-white">Hồ sơ cần xử lý</h2>
-                <p className="text-xs text-slate-400">Danh sách cập nhật trong 15 phút gần nhất</p>
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="min-w-full table-fixed divide-y divide-white/10 text-sm">
-                <thead className="bg-white/5 text-xs uppercase tracking-wide text-slate-300">
-                  <tr>
-                    <th scope="col" className="w-[160px] px-8 py-3 text-left">Mã hồ sơ</th>
-                    <th scope="col" className="px-4 py-3 text-left">Công dân</th>
-                    <th scope="col" className="px-4 py-3 text-left">Loại thủ tục</th>
-                    <th scope="col" className="w-[190px] px-4 py-3 text-left">Thời gian gửi</th>
-                    <th scope="col" className="w-[160px] px-4 py-3 text-left">Trạng thái</th>
-                  </tr>
-                </thead>
-
-                <tbody className="divide-y divide-white/5 text-slate-200">
-                  {pendingApprovals.map((item) => (
-                    <tr key={item.id} className="transition hover:bg-white/5">
-                      <td className="px-8 py-4 font-semibold text-white">{item.id}</td>
-                      <td className="px-4 py-4">{item.citizen}</td>
-                      <td className="px-4 py-4 text-slate-300">{item.type}</td>
-                      <td className="px-4 py-4 text-slate-400">{item.submittedAt}</td>
-                      <td className="px-4 py-4">
-                        <span className="inline-flex items-center rounded-full bg-amber-400/10 px-3 py-1 text-xs font-semibold text-amber-200">
-                          {item.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
 
         {/* SECTION 2 - Complaints */}
         <section className="w-full">
