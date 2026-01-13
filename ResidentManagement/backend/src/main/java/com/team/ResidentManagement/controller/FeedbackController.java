@@ -9,7 +9,6 @@ import com.team.ResidentManagement.service.FeedbackService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -37,11 +36,8 @@ public class FeedbackController {
                 .build();
     }
 
-    @PostMapping(
-            value = "/{userId}",
-            consumes = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ApiResponse<Object> uploadFeedback(@PathVariable String userId, @RequestBody FeedbackRequest feedBackRequest) throws IOException {
+    @PostMapping("/{userId}")
+    public ApiResponse<Object> uploadFeedback(@PathVariable String userId, @ModelAttribute FeedbackRequest feedBackRequest) throws IOException {
 
         feedBackService.createFeedback(userId, feedBackRequest);
 
