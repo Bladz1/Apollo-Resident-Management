@@ -7,7 +7,7 @@ import jakarta.persistence.Id;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 /**
  * Thực thể thể hiện khoản phí/hoá đơn mà cư dân cần thanh toán.
@@ -37,7 +37,7 @@ public class Fee {
     /** Số tiền phải đóng. */
     int amount;
     /** Hạn chót thanh toán. */
-    LocalDateTime dueDate;
+    LocalDate dueDate;
     /** Trạng thái thanh toán hiện tại. */
     String status;
     /** Ghi chú chi tiết. */

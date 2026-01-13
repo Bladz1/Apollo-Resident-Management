@@ -3,7 +3,7 @@ package com.team.ResidentManagement.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 /**
  * DTO response mô tả chi tiết một khoản phí.
@@ -20,7 +20,7 @@ public class FeeResponse {
     String name;
     String agency;
     int amount;
-    LocalDateTime dueDate;
+    LocalDate dueDate;
     String status;
     String description;
 }
