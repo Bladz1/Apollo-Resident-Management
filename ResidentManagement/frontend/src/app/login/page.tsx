@@ -4,10 +4,7 @@ import Link from 'next/link';
 import { FormEvent, Suspense, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { extractRolesFromToken, extractUsernameFromToken, saveAuth } from '@/utils/auth-storage';
-import styles from './login.module.css';
 import publicApi from '@/utils/publicApi';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8080';
 
 type AuthExtractionResult = {
   token?: string;
@@ -15,6 +12,7 @@ type AuthExtractionResult = {
   roles?: string[];
 };
 
+/* ===== Helpers ===== */
 function normalizeRoles(value: unknown): string[] | null {
   if (!value) return null;
 
@@ -22,64 +20,33 @@ function normalizeRoles(value: unknown): string[] | null {
   const queue: unknown[] = [value];
   const visited = new Set<object>();
 
-  while (queue.length > 0) {
+  while (queue.length) {
     const current = queue.shift();
     if (!current) continue;
 
     if (typeof current === 'string') {
       current
         .split(/[;,]/)
-        .flatMap((segment) => segment.split(/\s+/))
-        .map((segment) => segment.trim())
-        .filter((segment) => segment.length > 0)
-        .map((segment) => segment.toUpperCase())
-        .forEach((segment) => collected.add(segment));
+        .flatMap((s) => s.split(/\s+/))
+        .map((s) => s.trim().toUpperCase())
+        .filter(Boolean)
+        .forEach((s) => collected.add(s));
       continue;
     }
 
     if (Array.isArray(current)) {
-      current.forEach((item) => queue.push(item));
+      queue.push(...current);
       continue;
     }
 
     if (typeof current === 'object') {
-      if (visited.has(current as object)) continue;
-      visited.add(current as object);
-
-      for (const candidate of Object.values(current as Record<string, unknown>)) {
-        queue.push(candidate);
-      }
+      if (visited.has(current)) continue;
+      visited.add(current);
+      queue.push(...Object.values(current as Record<string, unknown>));
     }
   }
 
   return collected.size ? Array.from(collected) : null;
-}
-
-function pickRolesFromRecord(record: Record<string, unknown>): string[] | null {
-  const candidateKeys = ['roles', 'role', 'authorities', 'permissions', 'scopes', 'scope'];
-
-  for (const key of candidateKeys) {
-    const roles = normalizeRoles(record[key]);
-    if (roles?.length) return roles;
-  }
-
-  const realmAccess = record['realm_access'];
-  if (realmAccess && typeof realmAccess === 'object') {
-    const roles = normalizeRoles((realmAccess as Record<string, unknown>)['roles']);
-    if (roles?.length) return roles;
-  }
-
-  const resourceAccess = record['resource_access'];
-  if (resourceAccess && typeof resourceAccess === 'object') {
-    for (const value of Object.values(resourceAccess as Record<string, unknown>)) {
-      if (value && typeof value === 'object') {
-        const roles = normalizeRoles((value as Record<string, unknown>)['roles']);
-        if (roles?.length) return roles;
-      }
-    }
-  }
-
-  return null;
 }
 
 function extractAuthDetails(payload: unknown): AuthExtractionResult {
@@ -88,224 +55,149 @@ function extractAuthDetails(payload: unknown): AuthExtractionResult {
 
   if (payload && typeof payload === 'object') queue.push(payload as object);
 
-  const pickString = (source: Record<string, unknown>, keys: string[]) => {
-    for (const key of keys) {
-      const value = source[key];
-      if (typeof value === 'string' && value.trim().length > 0) return value.trim();
-    }
-    return undefined;
-  };
-
   const result: AuthExtractionResult = {};
 
-  while (queue.length > 0 && (!result.token || !result.username || !result.roles)) {
-    const current = queue.shift();
-    if (!current || typeof current !== 'object') continue;
-    if (visited.has(current as object)) continue;
+  const pickString = (obj: Record<string, unknown>, keys: string[]) =>
+    keys.map((k) => obj[k]).find((v) => typeof v === 'string' && v.trim()) as string | undefined;
 
-    visited.add(current as object);
+  while (queue.length && (!result.token || !result.username || !result.roles)) {
+    const current = queue.shift();
+    if (!current || visited.has(current)) continue;
+    visited.add(current);
+
     const record = current as Record<string, unknown>;
 
-    if (!result.token) {
-      result.token = pickString(record, ['token', 'jwt', 'accessToken', 'access_token']);
-    }
+    result.token ??= pickString(record, ['token', 'jwt', 'accessToken', 'access_token']);
+    result.username ??= pickString(record, ['username', 'userName', 'name']);
+    result.roles ??= normalizeRoles(record.roles) ?? undefined;
 
-    result.roles = result.roles ?? pickRolesFromRecord(record) ?? undefined;
-
-    if (!result.username) {
-      result.username = pickString(record, ['username', 'userName', 'name']);
-    }
-
-    for (const key of ['result', 'data', 'user', 'account', 'profile']) {
-      const value = record[key];
-      if (value && typeof value === 'object') queue.push(value as object);
+    for (const key of ['data', 'result', 'user', 'account', 'profile']) {
+      if (record[key] && typeof record[key] === 'object') {
+        queue.push(record[key] as object);
+      }
     }
   }
 
   return result;
 }
 
+/* ===== Page ===== */
 function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  
   const nextPath = useMemo(() => searchParams.get('next') || '/', [searchParams]);
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [message, setMessage] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     setLoading(true);
-    setStatus("idle");
-    setMessage(null);
 
     try {
-      // 1️⃣ LOGIN → get JWT
-      const loginRes = await publicApi.post("/auth/token", {
+      const loginRes = await publicApi.post('/auth/token', {
         username,
         password,
       });
 
       const parsed = loginRes.data;
-      const {
-        token: tokenFromResponse,
-        username: usernameFromResponse,
-        roles: rolesFromResponse,
-      } = extractAuthDetails(parsed);
+      const { token, username: usernameFromResponse, roles } = extractAuthDetails(parsed);
 
-      if (!tokenFromResponse) {
-        setStatus("error");
-        setMessage("Không thể đăng nhập. Vui lòng thử lại sau.");
-        return;
-      }
+      if (!token) return;
 
       const resolvedUsername =
         usernameFromResponse ??
-        extractUsernameFromToken(tokenFromResponse) ??
+        extractUsernameFromToken(token) ??
         username;
 
-      const resolvedRoles =
-        rolesFromResponse ?? extractRolesFromToken(tokenFromResponse) ?? [];
+      const resolvedRoles = roles ?? extractRolesFromToken(token) ?? [];
 
       const isAdmin = resolvedRoles.some(
-        (role) => role === "ADMIN" || role === "ROLE_ADMIN"
+        (role) => role === 'ADMIN' || role === 'ROLE_ADMIN'
       );
 
-      // 3️⃣ SAVE LOCAL STORAGE (for UI)
-      saveAuth(tokenFromResponse, resolvedUsername);
+      saveAuth(token, resolvedUsername);
 
-      setStatus("success");
-      setMessage("Đăng nhập thành công!");
-
-      // 4️⃣ REDIRECT
       if (
         nextPath &&
-        nextPath !== "/" &&
-        (nextPath.startsWith("/profile") || nextPath.startsWith("/admin"))
+        nextPath !== '/' &&
+        (nextPath.startsWith('/profile') || nextPath.startsWith('/admin'))
       ) {
         router.replace(nextPath);
         return;
       }
 
-      router.replace(isAdmin ? "/admin" : "/");
-    } catch (err: any) {
-      console.error("Login error:", err);
-
-      const errorMsg =
-        err.response?.data?.message ||
-        err.message ||
-        "Sai thông tin đăng nhập";
-
-      setStatus("error");
-      setMessage(errorMsg);
+      router.replace(isAdmin ? '/admin' : '/');
+    } catch (error) {
+      console.error('Login error:', error);
     } finally {
       setLoading(false);
     }
   };
 
-
   return (
     <div
-      className="relative min-h-screen flex items-center justify-center text-slate-900"
+      className="relative flex min-h-screen items-center justify-center text-slate-900"
       style={{
         backgroundImage: "url('/images/trongdong.jpg')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
       }}
     >
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="login-grid" aria-hidden />
-        <div className="login-orb orb-top" aria-hidden />
-        <div className="login-orb orb-bottom" aria-hidden />
-      </div>
+      <div className="relative z-10 w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-10 shadow-xl">
+        <h1 className="mb-6 text-3xl font-black tracking-tight">Đăng nhập hệ thống</h1>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center justify-center gap-10 px-6 py-0 lg:flex-row lg:items-center lg:justify-center">
-        <section className="w-full max-w-xl space-y-6 rounded-3xl border border-slate-200 bg-white p-10 shadow-xl">
-          <h1 className="text-3xl font-black tracking-tight text-slate-900">Đăng nhập hệ thống</h1>
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          <div className="space-y-2">
+            <label className="text-sm font-semibold">Tên đăng nhập</label>
+            <input
+              type="text"
+              required
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full rounded-md border px-4 py-2.5 text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-300"
+              placeholder="CCCD hoặc SĐT"
+            />
+          </div>
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <div className="space-y-2">
-              <label htmlFor="username" className="text-sm font-semibold text-slate-700">
-                Tên đăng nhập
-              </label>
+          <div className="space-y-2">
+            <label className="text-sm font-semibold">Mật khẩu</label>
+            <div className="relative">
               <input
-                id="username"
-                type="text"
+                type={showPassword ? 'text' : 'password'}
                 required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:border-amber-400 focus:ring-2 focus:ring-amber-300"
-                placeholder="CCCD hoặc SĐT"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-md border px-4 py-2.5 text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-300"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </button>
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-semibold text-slate-700">
-                Mật khẩu
-              </label>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-md bg-gradient-to-r from-amber-300 via-amber-400 to-amber-200 px-4 py-2.5 text-sm font-semibold text-red-900 shadow-lg disabled:opacity-70"
+          >
+            {loading ? 'Đang kiểm tra...' : 'Đăng nhập'}
+          </button>
+        </form>
 
-              <div className="relative">
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:border-amber-400 focus:ring-2 focus:ring-amber-300"
-                  placeholder=""
-                />
-
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 focus:outline-none"
-                  aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-                >
-                  {showPassword ? '🙈' : '👁️'}
-                </button>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-md bg-gradient-to-r from-amber-300 via-amber-400 to-amber-200 px-4 py-2.5 text-sm font-semibold text-red-900 shadow-lg shadow-amber-500/30 transition-transform duration-300 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:ring-offset-2 focus:ring-offset-white disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {loading ? 'Đang kiểm tra...' : 'Đăng nhập'}
-            </button>
-          </form>
-
-          <p className="text-center text-xs text-slate-600">
-            Chưa có tài khoản?{' '}
-            <Link href="/register" className="font-semibold text-amber-700 hover:text-amber-600">
-              Đăng ký ngay
-            </Link>
-          </p>
-
-          {status !== 'idle' && (
-            <div
-              role="alert"
-              aria-live="polite"
-              className={`w-full rounded-md border px-4 py-3 text-sm ${
-                status === 'error'
-                  ? 'bg-rose-50 border-rose-300 text-rose-700'
-                  : 'bg-emerald-50 border-emerald-300 text-emerald-700'
-              }`}
-            >
-              <div className="font-semibold">{status === 'error' ? 'Lỗi đăng nhập' : 'Thành công'}</div>
-
-              {message && <div className="mt-1">{message}</div>}
-            </div>
-          )}
-        </section>
+        <p className="mt-6 text-center text-xs text-slate-600">
+          Chưa có tài khoản?{' '}
+          <Link href="/register" className="font-semibold text-amber-700 hover:text-amber-600">
+            Đăng ký ngay
+          </Link>
+        </p>
       </div>
     </div>
   );
@@ -313,9 +205,7 @@ function LoginPageContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense
-      fallback={<div className="flex min-h-screen items-center justify-center text-slate-600">Đang tải...</div>}
-    >
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Đang tải...</div>}>
       <LoginPageContent />
     </Suspense>
   );
