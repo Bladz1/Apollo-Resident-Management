@@ -19,6 +19,7 @@ export default function PetitionPage() {
   const [petitionState, setPetitionState] = useState<PetitionFormState>(() =>
     createEmptyPetitionState()
   );
+  const [petitionMessage, setPetitionMessage] = useState<string>("");
 
   const editorRef = useRef<HTMLDivElement | null>(null);
 
@@ -97,7 +98,7 @@ export default function PetitionPage() {
         throw new Error(await response.text());
       }
 
-      // reset form sau khi gửi thành công
+      setPetitionMessage("Gửi thành công! Phản ánh của bạn đã được ghi nhận.");
       handlePetitionReset();
     } catch (error) {
       console.error("Submit petition error:", error);
@@ -106,6 +107,7 @@ export default function PetitionPage() {
 
   const handlePetitionReset = () => {
     setPetitionState(createEmptyPetitionState());
+    setPetitionMessage("");
     if (editorRef.current) {
       editorRef.current.innerHTML = "";
     }
@@ -223,6 +225,11 @@ export default function PetitionPage() {
                 Nhập lại
               </button>
             </div>
+            {petitionMessage && (
+              <div className="rounded-2xl border border-emerald-300 bg-emerald-50 p-4 text-sm font-semibold text-emerald-700">
+                {petitionMessage}
+              </div>
+            )}
           </form>
         </section>
       </main>
