@@ -202,6 +202,8 @@ export default function FeeDetailPage() {
   const [selectedFee, setSelectedFee] = useState<FeeItem | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("bank");
   const [paymentStep, setPaymentStep] = useState<PaymentStep>("ready");
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
 
   const [feeItems, setFeeItems] = useState<FeeItem[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -295,14 +297,64 @@ export default function FeeDetailPage() {
     setSelectedFee(fee);
     setPaymentStep("ready");
     setPaymentMethod("bank");
+    setPaymentError(null);
   };
 
   const handleConfirmPayment = () => {
     setPaymentStep("qr");
+    setPaymentError(null);
   };
 
-  const handlePaymentCompleted = () => {
-    setPaymentStep("success");
+  const handlePaymentCompleted = async () => {
+    if (!selectedFee) return;
+    setPaymentProcessing(true);
+    setPaymentError(null);
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/fees`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          ...(typeof window !== "undefined" && localStorage.getItem(TOKEN_KEY)
+            ? { Authorization: `Bearer ${localStorage.getItem(TOKEN_KEY)}` }
+            : {}),
+        },
+        body: JSON.stringify({ id: selectedFee.id }),
+      });
+
+      if (!res.ok) {
+        const contentType = res.headers.get("content-type") || "";
+        let message = "Request failed";
+
+        if (contentType.includes("application/json")) {
+          const data = await res.json();
+          message = typeof data === "string" ? data : JSON.stringify(data);
+        } else {
+          const text = await res.text();
+          if (text.trim()) message = text;
+        }
+
+        throw new Error(`HTTP ${res.status}: ${message}`);
+      }
+
+      const data = await res.json();
+      const updatedFee = data.result as FeeItem;
+
+      setFeeItems((prev) =>
+        prev.map((item) => (item.id === updatedFee.id ? { ...item, ...updatedFee } : item))
+      );
+      setSelectedFee((prev) => (prev ? { ...prev, ...updatedFee } : updatedFee));
+      setPaymentStep("success");
+    } catch (err: any) {
+      if (err instanceof TypeError) {
+        setPaymentError("Network error or server not reachable");
+      } else {
+        setPaymentError(err.message || "Unknown error");
+      }
+    } finally {
+      setPaymentProcessing(false);
+    }
   };
 
   if (loading) {
@@ -587,6 +639,11 @@ export default function FeeDetailPage() {
 
                 <div className="space-y-3 rounded-2xl bg-slate-50 p-4">
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Xác nhận &amp; biên lai</p>
+                  {paymentError && (
+                    <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+                      {paymentError}
+                    </div>
+                  )}
                   {paymentStep === "ready" ? (
                     <>
                       <p className="text-sm text-slate-600">
@@ -635,9 +692,10 @@ export default function FeeDetailPage() {
                       <button
                         type="button"
                         onClick={handlePaymentCompleted}
+                        disabled={paymentProcessing}
                         className="inline-flex w-full items-center justify-center rounded-full bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-700"
                       >
-                        Tôi đã thanh toán
+                        {paymentProcessing ? "Đang xác nhận..." : "Tôi đã thanh toán"}
                       </button>
                     </div>
                   ) : (
