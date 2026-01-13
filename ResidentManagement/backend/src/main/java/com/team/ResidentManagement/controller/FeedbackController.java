@@ -37,9 +37,23 @@ public class FeedbackController {
     }
 
     @PostMapping("/{userId}")
-    public ApiResponse<Object> uploadFeedback(@PathVariable String userId, @ModelAttribute FeedbackRequest feedBackRequest) throws IOException {
+    public ApiResponse<Object> uploadFeedback(@PathVariable String userId, @RequestParam String name,
+                                              @RequestParam String email,
+                                              @RequestParam String phone,
+                                              @RequestParam String address,
+                                              @RequestParam String title,
+                                              @RequestParam String description,
+                                              @RequestParam(required = false) String attachmentUrl) throws IOException {
+        FeedbackRequest feedbackRequest = FeedbackRequest.builder()
+                        .name(name)
+                                .email(email)
+                                        .phone(phone)
+                                                .address(address)
+                                                        .title(title)
+                                                                .description(description)
+                .attachmentUrl(attachmentUrl).build();
 
-        feedBackService.createFeedback(userId, feedBackRequest);
+        feedBackService.createFeedback(userId, feedbackRequest);
 
         return ApiResponse.builder()
                 .result("Thank you for your feed back!")
