@@ -16,6 +16,5 @@ public class FeedbackRequest {
     String address;
     String title;
     String description;
-
-    String attachmentUrl;
+    MultipartFile file;
 }

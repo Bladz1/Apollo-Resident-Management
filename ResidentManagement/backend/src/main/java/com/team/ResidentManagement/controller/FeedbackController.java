@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -43,7 +44,7 @@ public class FeedbackController {
                                               @RequestParam String address,
                                               @RequestParam String title,
                                               @RequestParam String description,
-                                              @RequestParam(required = false) String attachmentUrl) throws IOException {
+                                              @RequestParam(required = false) MultipartFile file) throws IOException {
         FeedbackRequest feedbackRequest = FeedbackRequest.builder()
                         .name(name)
                                 .email(email)
@@ -51,7 +52,7 @@ public class FeedbackController {
                                                 .address(address)
                                                         .title(title)
                                                                 .description(description)
-                .attachmentUrl(attachmentUrl).build();
+                .file(file).build();
 
         feedBackService.createFeedback(userId, feedbackRequest);
 

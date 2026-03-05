@@ -17,6 +17,7 @@ const beVietnamPro = Be_Vietnam_Pro({
 
 // src/app/layout.tsx
 import Header from '@/components/header/header';
+import TokenRefreshProvider from '@/components/auth/TokenRefreshProvider';
 
 export default function RootLayout({
   children,
@@ -26,6 +27,7 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <body className={`${inter.variable} ${beVietnamPro.variable} antialiased`}>
+        <TokenRefreshProvider />
         <Header />
         <main>
           {children}

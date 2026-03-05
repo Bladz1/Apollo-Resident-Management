@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Slf4j
 @Service
@@ -27,9 +28,19 @@ public class FeedbackService {
     UserRepository userRepository;
     FeedbackRepository feedbackRepository;
     FeedbackMapper feedbackMapper;
+    FileStorageService fileStorageService;
 
     public void createFeedback(String userId, FeedbackRequest request) throws IOException {
         User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.FEE_NOT_FOUND));
+
+        String attachmentUrl = null;
+        if (request.getFile() != null && !request.getFile().isEmpty()) {
+            String filename = fileStorageService.upload(request.getFile(), userId);
+            attachmentUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/files/")
+                    .path(filename)
+                    .toUriString();
+        }
 
         Feedback feedback = Feedback.builder()
                 .name(request.getName())
@@ -40,7 +51,7 @@ public class FeedbackService {
                 .email(request.getEmail())
                 .status(FeedbackStatus.PENDING)
                 .user(user)
-                .attachmentUrl(request.getAttachmentUrl())
+                .attachmentUrl(attachmentUrl)
                 .build();
 
         feedbackRepository.save(feedback);

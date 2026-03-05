@@ -1,64 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { TOKEN_KEY } from '@/utils/auth-storage';
 import Image from 'next/image';
 
-const overviewStats = [
-  { label: 'Hồ sơ chờ duyệt', value: '128', trend: '+12', trendLabel: 'so với hôm qua' },
-  { label: 'Yêu cầu cư trú khẩn', value: '14', trend: '+3', trendLabel: 'cần xử lý trước 18:00' },
-  { label: 'Báo cáo bất thường', value: '5', trend: '-2', trendLabel: 'đã giải quyết' },
-];
-
-const pendingApprovals = [
-  { id: 'HS-2024-9812', citizen: 'Nguyễn Văn Minh', type: 'Đăng ký thường trú', submittedAt: '09:24 - 24/05/2025', status: 'Đang kiểm tra' },
-  { id: 'HS-2024-9804', citizen: 'Trần Thị Thu', type: 'Gia hạn tạm trú', submittedAt: '08:10 - 24/05/2025', status: 'Chờ bổ sung' },
-  { id: 'HS-2024-9795', citizen: 'Lê Quốc Huy', type: 'Xác nhận tạm vắng', submittedAt: '20:16 - 23/05/2025', status: 'Sẵn sàng duyệt' },
-  { id: 'HS-2024-9790', citizen: 'Phạm Thị Lan', type: 'Điều chỉnh nhân khẩu', submittedAt: '19:02 - 23/05/2025', status: 'Đang kiểm tra' },
-];
-
-const recentActivities = [
-  { time: '10:42', actor: 'Nguyễn An (Quản trị viên)', action: 'Phê duyệt hồ sơ tạm trú HS-2024-9788', priority: 'normal' },
-  { time: '09:58', actor: 'Hệ thống cảnh báo', action: 'Phát hiện đăng nhập trái phép từ IP 203.113.5.87', priority: 'high' },
-  { time: '09:15', actor: 'Trần Quỳnh (Kiểm duyệt)', action: 'Gửi yêu cầu bổ sung giấy tờ hồ sơ HS-2024-9804', priority: 'normal' },
-  { time: '08:45', actor: 'Tự động hóa', action: 'Đồng bộ dữ liệu dân cư với CSDL Quốc gia', priority: 'low' },
-];
-
-const systemAlerts = [
-  {
-    title: 'Cảnh báo an toàn thông tin',
-    description: 'Phát hiện 2 lần đăng nhập thất bại liên tiếp từ tài khoản quản trị cấp huyện.',
-    severity: 'critical',
-  },
-  { title: 'Sao lưu dữ liệu', description: 'Phiên sao lưu định kỳ 06:00 đã hoàn thành và được lưu tại DC-HN-03.', severity: 'info' },
-];
-
-const teamMembers = [
-  { name: 'Vũ Minh Đức', role: 'Trưởng phòng quản trị', status: 'Đang trực', shift: '07:30 - 15:30' },
-  { name: 'Đặng Thu Uyên', role: 'Kiểm duyệt viên', status: 'Đang xử lý hồ sơ', shift: '08:00 - 16:00' },
-  { name: 'Phan Công Nam', role: 'Chuyên viên an ninh', status: 'Theo dõi hệ thống', shift: 'Trực tuyến 24/7' },
-];
-
-const automationRules = [
-  {
-    name: 'Duyệt nhanh hồ sơ tái đăng ký',
-    description: 'Tự động chấp nhận hồ sơ tái đăng ký cư trú nếu thông tin khớp 100% với kỳ trước.',
-    updatedAt: '22/05/2025',
-    status: 'Đang kích hoạt',
-  },
-  {
-    name: 'Chặn truy cập bất thường',
-    description: 'Phong tỏa tài khoản nếu phát hiện 5 lần đăng nhập sai liên tiếp trong 10 phút.',
-    updatedAt: '20/05/2025',
-    status: 'Đang giám sát',
-  },
-  {
-    name: 'Cảnh báo hồ sơ trễ hạn',
-    description: 'Gửi thông báo tới cán bộ phụ trách khi hồ sơ quá hạn xử lý trên 24 giờ.',
-    updatedAt: '18/05/2025',
-    status: 'Đang kích hoạt',
-  },
-];
 
 const feeCategories = [
   {
@@ -93,6 +38,7 @@ type Complaint = {
   description?: string;
   content?: string;
   attachmentUrl?: string;
+  createdAt?: string;
 };
 
 type UserRegisterStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
@@ -132,13 +78,16 @@ type ApiResponse<T> = {
 
 export default function AdminDashboardPage() {
   // Complaints
+  const [loadingComplaints, setLoadingComplaints] = useState(false);
   const [localComplaints, setLocalComplaints] = useState<Complaint[]>([]);
-  const [loadingComplaints, setLoadingComplaints] = useState(true);
   const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
+  const [complaintsSort, setComplaintsSort] = useState<'default' | 'name-asc' | 'name-desc' | 'status' | 'time-desc' | 'time-asc'>('default');
+  const [complaintsSearchPhone, setComplaintsSearchPhone] = useState('');
 
   // Pending users
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
+  const [pendingUsersSearchCCCD, setPendingUsersSearchCCCD] = useState('');
 
   // Fees
   const [feeRecords, setFeeRecords] = useState<FeeRecord[]>([]);
@@ -240,6 +189,43 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const sortedComplaints = useMemo(() => {
+    let list = [...localComplaints];
+
+    // Filter by phone if provided
+    if (complaintsSearchPhone.trim()) {
+      list = list.filter((c) =>
+        c.phone.toLowerCase().includes(complaintsSearchPhone.trim().toLowerCase())
+      );
+    }
+
+    if (complaintsSort === 'default') return list;
+
+    return list.sort((a, b) => {
+      if (complaintsSort === 'name-asc') {
+        return a.name.localeCompare(b.name);
+      }
+      if (complaintsSort === 'name-desc') {
+        return b.name.localeCompare(a.name);
+      }
+      if (complaintsSort === 'status') {
+        const order = { 'PENDING': 0, 'ACCEPTED': 1, 'REJECTED': 2 };
+        return order[a.status] - order[b.status];
+      }
+      if (complaintsSort === 'time-desc') {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA; // Newest first
+      }
+      if (complaintsSort === 'time-asc') {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateA - dateB; // Oldest first
+      }
+      return 0;
+    });
+  }, [localComplaints, complaintsSort, complaintsSearchPhone]);
+
   // ========== Pending Users ==========
   const loadPendingUsers = async () => {
     setLoadingUsers(true);
@@ -325,6 +311,13 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const filteredPendingUsers = useMemo(() => {
+    if (!pendingUsersSearchCCCD.trim()) return pendingUsers;
+    return pendingUsers.filter((u) =>
+      u.personalId.toLowerCase().includes(pendingUsersSearchCCCD.trim().toLowerCase())
+    );
+  }, [pendingUsers, pendingUsersSearchCCCD]);
+
   // ========== Fees ==========
   const handleFeeChange = (field: 'categoryId' | 'personalId' | 'amount' | 'dueDate', value: string) => {
     setFeeDraft((prev) => ({ ...prev, [field]: value }));
@@ -342,7 +335,7 @@ export default function AdminDashboardPage() {
     ) {
       alert('Vui lòng nhập đầy đủ thông tin phí');
       return;
-}
+    }
 
 
     const category = feeCategories.find((item) => item.id === feeDraft.categoryId);
@@ -439,10 +432,43 @@ export default function AdminDashboardPage() {
         {/* SECTION 2 - Complaints */}
         <section className="w-full">
           <div className="w-full rounded-3xl border border-white/10 bg-slate-900/70 shadow-xl shadow-black/40 backdrop-blur">
-            <div className="flex items-center justify-between border-b border-white/5 px-8 py-6">
+            <div className="flex items-center justify-between border-b border-white/5 px-8 py-6 flex-wrap gap-4">
               <div>
                 <h2 className="text-xl font-semibold text-white">Kiến nghị & phản ánh</h2>
                 <p className="text-xs text-slate-400">Danh sách phản ánh của người dân gửi lên hệ thống</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-4">
+                <input
+                  type="text"
+                  placeholder="Tìm theo CCCD/SĐT..."
+                  value={complaintsSearchPhone}
+                  onChange={(e) => setComplaintsSearchPhone(e.target.value)}
+                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder:text-slate-500 outline-none hover:bg-white/10 focus:border-emerald-500/50"
+                  aria-label="Tìm theo CCCD/SĐT"
+                />
+                <button
+                  type="button"
+                  onClick={() => void loadComplaints()}
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10"
+                >
+                  Làm mới
+                </button>
+                <div className="flex items-center gap-2">
+                  <label htmlFor="complaints-sort" className="text-xs text-slate-400">Sắp xếp:</label>
+                  <select
+                    id="complaints-sort"
+                    value={complaintsSort}
+                    onChange={(e) => setComplaintsSort(e.target.value as any)}
+                    className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-200 outline-none hover:bg-white/10 focus:border-emerald-500/50"
+                  >
+                    <option value="default" className="bg-slate-900">Mặc định</option>
+                    <option value="time-desc" className="bg-slate-900">Mới nhất</option>
+                    <option value="time-asc" className="bg-slate-900">Cũ nhất</option>
+                    <option value="name-asc" className="bg-slate-900">Tên A → Z</option>
+                    <option value="name-desc" className="bg-slate-900">Tên Z → A</option>
+                    <option value="status" className="bg-slate-900">Trạng thái (Chờ duyệt trước)</option>
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -452,6 +478,7 @@ export default function AdminDashboardPage() {
                   <tr>
                     <th className="px-8 py-3 text-left">Họ và tên</th>
                     <th className="w-[150px] px-4 py-3 text-left">SĐT</th>
+                    <th className="w-[120px] px-4 py-3 text-left">Ngày tạo</th>
                     <th className="px-4 py-3 text-left">Email</th>
                     <th className="px-4 py-3 text-left">Địa chỉ liên hệ</th>
                     <th className="w-[260px] px-4 py-3 text-left">Thao tác</th>
@@ -469,16 +496,27 @@ export default function AdminDashboardPage() {
 
                   {!loadingComplaints && localComplaints.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="px-8 py-6 text-center text-sm text-slate-400">
+                      <td colSpan={6} className="px-8 py-6 text-center text-sm text-slate-400">
                         Chưa có phản ánh mới.
                       </td>
                     </tr>
                   )}
 
-                  {localComplaints.map((item) => (
+                  {!loadingComplaints && localComplaints.length > 0 && sortedComplaints.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="px-8 py-6 text-center text-sm text-slate-400">
+                        Không tìm thấy phản ánh nào khớp với số điện thoại này.
+                      </td>
+                    </tr>
+                  )}
+
+                  {sortedComplaints.map((item) => (
                     <tr key={item.id} className="transition hover:bg-white/5">
                       <td className="px-8 py-4 font-semibold text-white">{item.name}</td>
                       <td className="px-4 py-4">{item.phone}</td>
+                      <td className="px-4 py-4 text-slate-300 text-xs">
+                        {item.createdAt ? new Date(item.createdAt).toLocaleDateString('vi-VN') : '—'}
+                      </td>
                       <td className="px-4 py-4 text-slate-300">{item.email}</td>
                       <td className="px-4 py-4 text-slate-400">{item.address}</td>
 
@@ -585,13 +623,23 @@ export default function AdminDashboardPage() {
                 <p className="text-xs text-slate-400">Danh sách người dùng mới đăng ký cần admin phê duyệt</p>
               </div>
 
-              <button
-                type="button"
-                onClick={() => void loadPendingUsers()}
-                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10"
-              >
-                Làm mới
-              </button>
+              <div className="flex flex-wrap items-center gap-4">
+                <input
+                  type="text"
+                  placeholder="Tìm theo CCCD..."
+                  value={pendingUsersSearchCCCD}
+                  onChange={(e) => setPendingUsersSearchCCCD(e.target.value)}
+                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder:text-slate-500 outline-none hover:bg-white/10 focus:border-emerald-500/50"
+                  aria-label="Tìm theo CCCD"
+                />
+                <button
+                  type="button"
+                  onClick={() => void loadPendingUsers()}
+                  className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10"
+                >
+                  Làm mới
+                </button>
+              </div>
             </div>
 
             <div className="overflow-x-auto">
@@ -623,7 +671,15 @@ export default function AdminDashboardPage() {
                     </tr>
                   )}
 
-                  {pendingUsers.map((u) => (
+                  {!loadingUsers && pendingUsers.length > 0 && filteredPendingUsers.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-8 py-6 text-center text-sm text-slate-400">
+                        Không tìm thấy tài khoản chờ duyệt nào khớp với số CCCD này.
+                      </td>
+                    </tr>
+                  )}
+
+                  {filteredPendingUsers.map((u) => (
                     <tr key={u.id} className="transition hover:bg-white/5">
                       <td className="px-8 py-4 font-semibold text-white">{u.personalId || '—'}</td>
                       <td className="px-4 py-4">{u.fullName}</td>

@@ -69,33 +69,6 @@ function parseJwt(token: string): Record<string, unknown> | null {
     return null;
   }
 }
-export function getAccessToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
-}
-
-export function setAccessToken(token: string) {
-  localStorage.setItem(TOKEN_KEY, token);
-}
-
-export function removeAccessToken() {
-  localStorage.removeItem(TOKEN_KEY);
-}
-export function isTokenExpired(token: string): boolean {
-  try {
-    const { exp } = jwtDecode<JwtPayload>(token);
-    return Date.now() >= exp * 1000;
-  } catch {
-    return true;
-  }
-}
-
-export function willExpireSoon(
-  token: string,
-  thresholdSeconds = 60
-): boolean {
-  const { exp } = jwtDecode<JwtPayload>(token);
-  return exp * 1000 - Date.now() < thresholdSeconds * 1000;
-}
 
 function pickString(source: Record<string, unknown>, keys: string[]): string | null {
   for (const key of keys) {
@@ -232,6 +205,29 @@ async function syncCookieToken(token: string | null) {
   } catch {
     // Không throw để tránh phá UI khi network tạm lỗi
   }
+}
+
+/**
+ * Returns the raw stored JWT token, or null if not present.
+ */
+export function getStoredToken(): string | null {
+  if (!isBrowser()) return null;
+  return window.localStorage.getItem(TOKEN_KEY);
+}
+
+/**
+ * Returns true if the stored access token's `exp` claim is in the past.
+ * Returns true (treat as expired) if there is no token or it cannot be decoded.
+ */
+export function isAccessTokenExpired(): boolean {
+  const token = getStoredToken();
+  if (!token) return true;
+
+  const claims = parseJwt(token);
+  if (!claims || typeof claims.exp !== 'number') return true;
+
+  // exp is in seconds; Date.now() is in milliseconds
+  return Date.now() >= claims.exp * 1000;
 }
 
 export async function saveAuth(token: string | null | undefined, username: string | null | undefined) {

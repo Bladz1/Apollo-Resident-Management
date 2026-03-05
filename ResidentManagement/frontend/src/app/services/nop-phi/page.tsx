@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
-import { clearAuth, loadUserId, setAccessToken, TOKEN_KEY } from "@/utils/auth-storage";
+import { loadUserId, TOKEN_KEY } from "@/utils/auth-storage";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
 
 type FeeStatus = "Chưa nộp" | "Đã nộp" | "Đang xử lý";
@@ -208,23 +208,23 @@ export default function FeeDetailPage() {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-  let cancelled = false;
+    let cancelled = false;
 
-  (async () => {
-    try {
-      const data = await loadFeeItems();
-      if (!cancelled) setFeeItems(data);
-    } catch (err: any) {
-      if (!cancelled) setError(err.message ?? "Unknown error");
-    } finally {
-      if (!cancelled) setLoading(false);
-    }
-  })();
+    (async () => {
+      try {
+        const data = await loadFeeItems();
+        if (!cancelled) setFeeItems(data);
+      } catch (err: any) {
+        if (!cancelled) setError(err.message ?? "Unknown error");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
 
-  return () => {
-    cancelled = true;
-  };
-}, []);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
 
   console.log(feeItems);
@@ -366,11 +366,10 @@ export default function FeeDetailPage() {
                     key={category.id}
                     type="button"
                     onClick={() => handleSelectCategory(category)}
-                    className={`text-left rounded-2xl border p-4 transition focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                      isActive
+                    className={`text-left rounded-2xl border p-4 transition focus:outline-none focus:ring-2 focus:ring-red-500 ${isActive
                         ? "border-red-500 bg-red-50 text-red-800 shadow-md"
                         : "border-slate-200 bg-white text-slate-700 hover:border-red-300 hover:bg-red-50/60"
-                    }`}
+                      }`}
                   >
                     <h3 className="text-base font-semibold">{category.name}</h3>
                     <p className="mt-2 text-sm leading-relaxed">{category.description}</p>
@@ -476,13 +475,12 @@ export default function FeeDetailPage() {
                         </td>
                         <td className="px-4 py-4">
                           <span
-                            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
-                              fee.status === "Đã nộp"
+                            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${fee.status === "Đã nộp"
                                 ? "bg-emerald-100 text-emerald-700"
                                 : fee.status === "Đang xử lý"
                                   ? "bg-amber-100 text-amber-700"
                                   : "bg-rose-100 text-rose-700"
-                            }`}
+                              }`}
                           >
                             {fee.status}
                           </span>
