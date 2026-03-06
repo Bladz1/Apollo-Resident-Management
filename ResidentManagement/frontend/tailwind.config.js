@@ -25,6 +25,15 @@ module.exports = {
         primary: "#1E40AF",   // xanh dương đậm
         secondary: "#9333EA", // tím
       },
+      keyframes: {
+        slideDown: {
+          '0%': { transform: 'translateY(-100%)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+      },
+      animation: {
+        slideDown: 'slideDown 0.3s ease-out forwards',
+      },
     },
   },
   plugins: [require("@tailwindcss/line-clamp")],

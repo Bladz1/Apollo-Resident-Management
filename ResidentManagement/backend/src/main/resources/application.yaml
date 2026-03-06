@@ -33,3 +33,8 @@ spring:
 file:
   uploadDir: uploads/
   baseUrl: "http://localhost:8080"
+
+payos:
+  client-id: "1774adbb-a63b-42a1-8da3-ef74701f9174"
+  api-key: "1738f8f1-cc14-4469-9cad-6c8a242bf7f5"
+  checksum-key: "2e43dbb18dbb734dda13c5adb1614af5426e8ff164c3bb0452836623b08b642d"

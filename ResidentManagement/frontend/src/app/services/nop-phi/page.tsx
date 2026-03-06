@@ -30,8 +30,42 @@ interface Bill {
   fees: FeeItem[];
 }
 
-type PaymentMethod = "bank" | "wallet" | "card";
+type PaymentMethod = "bank" | "wallet" | "card" | "payos";
 type PaymentStep = "ready" | "qr" | "success";
+
+interface Transaction {
+  id: string;
+  type: "in" | "out";
+  from: string;
+  to: string;
+  amount: number;
+  time: string;
+  status: "Thành công" | "Thất bại" | "Đang xử lý";
+  description: string;
+}
+
+const mockTransactions: Transaction[] = [
+  {
+    id: "TXN-98231",
+    type: "out",
+    from: "Ngân hàng Vietcombank",
+    to: "BQL Tòa nhà Apollo",
+    amount: 600000,
+    time: "2025-03-01T08:30:00",
+    status: "Thành công",
+    description: "Thanh toán Phí dịch vụ sử dụng đường bộ (vé tháng)",
+  },
+  {
+    id: "TXN-98232",
+    type: "out",
+    from: "Ví MoMo",
+    to: "UBND phường Trung Tự",
+    amount: 30000,
+    time: "2025-02-15T14:20:00",
+    status: "Thành công",
+    description: "Nộp Phí chứng thực",
+  }
+];
 
 async function loadFeeItems(): Promise<FeeItem[]> {
   const userId = loadUserId();
@@ -203,9 +237,48 @@ export default function FeeDetailPage() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("bank");
   const [paymentStep, setPaymentStep] = useState<PaymentStep>("ready");
 
+  const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [expandedTxn, setExpandedTxn] = useState<string | null>(null);
+
   const [feeItems, setFeeItems] = useState<FeeItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+
+  const handleDeleteFee = async (feeId: string) => {
+    if (!confirm("Bạn có chắc chắn muốn xóa đánh dấu khoản phí này?")) return;
+    try {
+      // API call to delete fee backend could be added here
+      // const res = await fetch(`${API_BASE_URL}/fees/${feeId}`, { method: 'DELETE', ... });
+      // if (!res.ok) throw new Error("Delete failed");
+      setFeeItems(prev => prev.filter(f => f.id !== feeId));
+    } catch (err: any) {
+      alert("Lỗi khi xóa khoản phí: " + (err.message || err));
+    }
+  };
+
+  const handlePaymentCompleted = () => {
+    setPaymentStep("success");
+    if (selectedFee) {
+      // update status locally
+      setFeeItems(prev => prev.map(f => f.id === selectedFee.id ? { ...f, status: "Đã nộp" } : f));
+      // update selected fee
+      setSelectedFee(prev => prev ? { ...prev, status: "Đã nộp" } : prev);
+
+      // record transaction locally
+      const newTxn: Transaction = {
+        id: `TXN-${Math.floor(Math.random() * 100000)}`,
+        type: "out",
+        from: paymentMethod === 'bank' ? "Ngân hàng nội địa" : paymentMethod === 'wallet' ? "Ví điện tử" : "Thẻ tín dụng",
+        to: selectedFee.agency,
+        amount: selectedFee.amount,
+        time: new Date().toISOString(),
+        status: "Thành công",
+        description: `Thanh toán ${selectedFee.name}`,
+      };
+      setTransactions(prev => [newTxn, ...prev]);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -301,10 +374,6 @@ export default function FeeDetailPage() {
     setPaymentStep("qr");
   };
 
-  const handlePaymentCompleted = () => {
-    setPaymentStep("success");
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -367,8 +436,8 @@ export default function FeeDetailPage() {
                     type="button"
                     onClick={() => handleSelectCategory(category)}
                     className={`text-left rounded-2xl border p-4 transition focus:outline-none focus:ring-2 focus:ring-red-500 ${isActive
-                        ? "border-red-500 bg-red-50 text-red-800 shadow-md"
-                        : "border-slate-200 bg-white text-slate-700 hover:border-red-300 hover:bg-red-50/60"
+                      ? "border-red-500 bg-red-50 text-red-800 shadow-md"
+                      : "border-slate-200 bg-white text-slate-700 hover:border-red-300 hover:bg-red-50/60"
                       }`}
                   >
                     <h3 className="text-base font-semibold">{category.name}</h3>
@@ -476,23 +545,50 @@ export default function FeeDetailPage() {
                         <td className="px-4 py-4">
                           <span
                             className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${fee.status === "Đã nộp"
-                                ? "bg-emerald-100 text-emerald-700"
-                                : fee.status === "Đang xử lý"
-                                  ? "bg-amber-100 text-amber-700"
-                                  : "bg-rose-100 text-rose-700"
+                              ? "bg-emerald-100 text-emerald-700"
+                              : fee.status === "Đang xử lý"
+                                ? "bg-amber-100 text-amber-700"
+                                : "bg-rose-100 text-rose-700"
                               }`}
                           >
                             {fee.status}
                           </span>
                         </td>
                         <td className="px-4 py-4 text-right">
-                          <button
-                            type="button"
-                            onClick={() => handleSelectFee(fee)}
-                            className="inline-flex items-center gap-2 rounded-full border border-red-200 px-4 py-2 font-medium text-red-700 transition hover:border-red-500 hover:bg-red-50"
-                          >
-                            {fee.status === "Đã nộp" ? "Chi tiết" : "Chi tiết / Nộp ngay"}
-                          </button>
+                          {fee.status === "Đã nộp" ? (
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                type="button"
+                                onClick={() => handleSelectFee(fee)}
+                                className="inline-flex items-center gap-2 rounded-full border border-red-200 px-4 py-2 font-medium text-red-700 transition hover:border-red-500 hover:bg-red-50"
+                              >
+                                Chi tiết
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteFee(fee.id);
+                                }}
+                                className="inline-flex items-center justify-center rounded-full p-2 text-slate-400 hover:bg-rose-100 hover:text-rose-600 transition"
+                                title="Xóa khoản phí"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M3 6h18"></path>
+                                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                </svg>
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleSelectFee(fee)}
+                              className="inline-flex items-center gap-2 rounded-full border border-red-200 px-4 py-2 font-medium text-red-700 transition hover:border-red-500 hover:bg-red-50"
+                            >
+                              Chi tiết / Nộp ngay
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))
@@ -570,14 +666,14 @@ export default function FeeDetailPage() {
                       <input
                         type="radio"
                         name="payment-method"
-                        value="card"
-                        checked={paymentMethod === "card"}
-                        onChange={() => setPaymentMethod("card")}
+                        value="payos"
+                        checked={paymentMethod === "payos"}
+                        onChange={() => setPaymentMethod("payos" as any)}
                         className="h-4 w-4 text-red-600 focus:ring-red-500"
                       />
                       <div>
-                        <p className="font-medium text-slate-900">Thẻ tín dụng / ghi nợ</p>
-                        <p className="text-xs text-slate-500">Hỗ trợ Visa, Mastercard, JCB.</p>
+                        <p className="font-medium text-slate-900">Thanh toán qua PayOS (Chuyển khoản QR)</p>
+                        <p className="text-xs text-slate-500">Hỗ trợ chuyển khoản nhanh 24/7 với VietQR do PayOS cung cấp.</p>
                       </div>
                     </label>
                   </div>
@@ -592,7 +688,36 @@ export default function FeeDetailPage() {
                       </p>
                       <button
                         type="button"
-                        onClick={handleConfirmPayment}
+                        onClick={async () => {
+                          if (paymentMethod === "payos") {
+                            try {
+                              const res = await fetch(`${API_BASE_URL}/api/payment/create-link`, {
+                                method: "POST",
+                                headers: {
+                                  "Content-Type": "application/json",
+                                  ...(typeof window !== "undefined" && localStorage.getItem(TOKEN_KEY)
+                                    ? { Authorization: `Bearer ${localStorage.getItem(TOKEN_KEY)}` }
+                                    : {}),
+                                },
+                                body: JSON.stringify({
+                                  amount: selectedFee.amount,
+                                  description: `Nộp ${selectedFee.name}`,
+                                }),
+                              });
+                              if (!res.ok) throw new Error("Không thể tạo link thanh toán");
+                              const result = await res.json();
+                              if (result.code === 1000 && result.result) {
+                                window.location.href = result.result;
+                              } else {
+                                alert("Có lỗi xảy ra khi gọi PayOS: " + result.message);
+                              }
+                            } catch (error) {
+                              alert(error instanceof Error ? error.message : "Có lỗi xảy ra");
+                            }
+                          } else {
+                            handleConfirmPayment();
+                          }
+                        }}
                         className="inline-flex w-full items-center justify-center rounded-full bg-red-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-red-200 transition hover:bg-red-700"
                       >
                         Xác nhận thanh toán
@@ -681,6 +806,73 @@ export default function FeeDetailPage() {
                 <span className="font-semibold text-slate-900">{summary.dueSoon}</span>
               </div>
             </div>
+          </section>
+
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 text-sm shadow-sm">
+            <button
+              onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+              className="flex w-full items-center justify-between font-semibold text-slate-900 hover:text-red-600 transition"
+            >
+              <h2 className="text-lg">Lịch sử giao dịch</h2>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20" height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`transform transition-transform ${isHistoryOpen ? 'rotate-180' : ''}`}
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+
+            {isHistoryOpen && (
+              <div className="mt-4 space-y-3">
+                {transactions.length === 0 ? (
+                  <p className="text-slate-500 text-center py-4">Chưa có giao dịch nào.</p>
+                ) : (
+                  transactions.map(txn => (
+                    <div key={txn.id} className="rounded-2xl border border-slate-200 overflow-hidden">
+                      <button
+                        onClick={() => setExpandedTxn(expandedTxn === txn.id ? null : txn.id)}
+                        className="flex w-full items-center justify-between bg-slate-50 px-4 py-3 hover:bg-slate-100 transition text-left"
+                      >
+                        <div>
+                          <p className="font-medium text-slate-900 flex items-center gap-2">
+                            {txn.type === 'in' ? (
+                              <span className="text-emerald-600">↓ Tiền vào</span>
+                            ) : (
+                              <span className="text-rose-600">↑ Tiền ra</span>
+                            )}
+                            <span className="text-slate-900 font-semibold">{txn.amount.toLocaleString("vi-VN")}₫</span>
+                          </p>
+                          <p className="text-xs text-slate-500 mt-1">{new Date(txn.time).toLocaleString("vi-VN")}</p>
+                        </div>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                          className={`text-slate-400 transform transition-transform ${expandedTxn === txn.id ? 'rotate-180' : ''}`}
+                        >
+                          <path d="m6 9 6 6 6-6" />
+                        </svg>
+                      </button>
+
+                      {expandedTxn === txn.id && (
+                        <div className="border-t border-slate-200 px-4 py-3 space-y-2 bg-white text-xs text-slate-600">
+                          <p><span className="font-medium text-slate-900">Mã GD:</span> {txn.id}</p>
+                          <p><span className="font-medium text-slate-900">Trạng thái:</span> <span className={txn.status === "Thành công" ? "text-emerald-600 font-medium" : "text-amber-600 font-medium"}>{txn.status}</span></p>
+                          <p><span className="font-medium text-slate-900">Nguồn tiền:</span> {txn.from}</p>
+                          <p><span className="font-medium text-slate-900">Đơn vị nhận:</span> {txn.to}</p>
+                          <p><span className="font-medium text-slate-900">Nội dung:</span> {txn.description}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
           </section>
         </aside>
       </main>

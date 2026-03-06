@@ -93,65 +93,68 @@ function LoginPageContent() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
- const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-  event.preventDefault();
-  setLoading(true);
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoading(true);
+    setErrorMessage('');
 
-  try {
-    const res = await fetch(`${API_BASE_URL}/auth/token`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username,
-        password,
-      }),
-    });
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
 
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text || 'Login failed');
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || 'Login failed');
+      }
+
+      const parsed = await res.json();
+
+      const { token, username: usernameFromResponse, roles } =
+        extractAuthDetails(parsed);
+
+      if (!token) return;
+
+      const resolvedUsername =
+        usernameFromResponse ??
+        extractUsernameFromToken(token) ??
+        username;
+
+      const resolvedRoles =
+        roles ?? extractRolesFromToken(token) ?? [];
+
+      const isAdmin = resolvedRoles.some(
+        (role) => role === 'ADMIN' || role === 'ROLE_ADMIN'
+      );
+
+      saveAuth(token, resolvedUsername);
+
+      if (
+        nextPath &&
+        nextPath !== '/' &&
+        (nextPath.startsWith('/profile') || nextPath.startsWith('/admin'))
+      ) {
+        router.replace(nextPath);
+        return;
+      }
+
+      router.replace(isAdmin ? '/admin' : '/');
+    } catch (error) {
+      console.error('Login error:', error);
+      setErrorMessage('Invalid username or password. Try again!');
+    } finally {
+      setLoading(false);
     }
-
-    const parsed = await res.json();
-
-    const { token, username: usernameFromResponse, roles } =
-      extractAuthDetails(parsed);
-
-    if (!token) return;
-
-    const resolvedUsername =
-      usernameFromResponse ??
-      extractUsernameFromToken(token) ??
-      username;
-
-    const resolvedRoles =
-      roles ?? extractRolesFromToken(token) ?? [];
-
-    const isAdmin = resolvedRoles.some(
-      (role) => role === 'ADMIN' || role === 'ROLE_ADMIN'
-    );
-
-    saveAuth(token, resolvedUsername);
-
-    if (
-      nextPath &&
-      nextPath !== '/' &&
-      (nextPath.startsWith('/profile') || nextPath.startsWith('/admin'))
-    ) {
-      router.replace(nextPath);
-      return;
-    }
-
-    router.replace(isAdmin ? '/admin' : '/');
-  } catch (error) {
-    console.error('Login error:', error);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
 
   return (
@@ -163,6 +166,12 @@ function LoginPageContent() {
         backgroundPosition: 'center',
       }}
     >
+      {/* Error Banner */}
+      {errorMessage && (
+        <div className="fixed top-0 left-0 right-0 z-50 animate-[slideDown_0.3s_ease-out] bg-red-500 px-4 py-3 text-center text-white shadow-md">
+          <p className="font-semibold">{errorMessage}</p>
+        </div>
+      )}
       <div className="relative z-10 w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-10 shadow-xl">
         <h1 className="mb-6 text-3xl font-black tracking-tight">Đăng nhập hệ thống</h1>
 

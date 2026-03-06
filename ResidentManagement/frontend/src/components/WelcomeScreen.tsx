@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence, Variants } from 'framer-motion'; 
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 
@@ -13,27 +13,19 @@ interface WelcomeScreenProps {
   onLoadingComplete?: () => void;
 }
 
-const TypewriterEffect: React.FC<TypewriterProps> = ({ text }) => {
-  const [displayText, setDisplayText] = useState('');
-  
+const LoadingText = () => {
+  const [dots, setDots] = useState('');
+
   useEffect(() => {
-    let index = 0;
-    const timer = setInterval(() => {
-      if (index <= text.length) {
-        setDisplayText(text.slice(0, index));
-        index++;
-      } else {
-        clearInterval(timer);
-      }
-    }, 260); 
-    
-    return () => clearInterval(timer);
-  }, [text]);
+    const interval = setInterval(() => {
+      setDots(prev => prev.length >= 3 ? '' : prev + '.');
+    }, 400);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <span className="inline-block">
-      {displayText}
-      <span className="animate-pulse">|</span>
+    <span className="inline-block px-2 bg-gradient-to-r from-white via-blue-100 to-purple-200 bg-clip-text text-transparent w-[300px] text-left">
+      Loading{dots}
     </span>
   );
 };
@@ -55,14 +47,41 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onLoadingComplete }) => {
       mirror: false,
     });
 
-    const timer = setTimeout(() => {
+    const finishLoading = () => {
       setIsLoading(false);
       setTimeout(() => {
         if (onLoadingComplete) onLoadingComplete();
-      }, 1000);
-    }, 4000);
-    
-    return () => clearTimeout(timer);
+      }, 1000); // Đợi hiệu ứng exit chạy xong
+    };
+
+    let isLoaded = document.readyState === 'complete';
+    let minTimeElapsed = false;
+
+    const tryFinish = () => {
+      if (isLoaded && minTimeElapsed) {
+        finishLoading();
+      }
+    };
+
+    const handleLoad = () => {
+      isLoaded = true;
+      tryFinish();
+    };
+
+    if (!isLoaded) {
+      window.addEventListener('load', handleLoad);
+    }
+
+    // Minimum display time of 1500ms so the user can actually see it
+    const minTimer = setTimeout(() => {
+      minTimeElapsed = true;
+      tryFinish();
+    }, 1500);
+
+    return () => {
+      window.removeEventListener('load', handleLoad);
+      clearTimeout(minTimer);
+    };
   }, [onLoadingComplete]);
 
   // 2. Thêm định nghĩa kiểu ': Variants' ở đây để hết lỗi đỏ
@@ -97,39 +116,18 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onLoadingComplete }) => {
       {isLoading && (
         <motion.div
           className="fixed inset-0 bg-[#030014] z-50 flex items-center justify-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
           exit="exit"
           variants={containerVariants}
         >
           <BackgroundEffect />
-          
+
           <div className="relative w-full max-w-4xl mx-auto px-4">
-            <motion.div 
+            <motion.div
               className="text-center"
               variants={childVariants}
             >
-              <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold space-y-2 sm:space-y-4">
-                <div className="mb-2 sm:mb-4">
-                  <span data-aos="fade-right" data-aos-delay="200" className="inline-block px-2 bg-gradient-to-r from-white via-blue-100 to-purple-200 bg-clip-text text-transparent">
-                    Welcome
-                  </span>{' '}
-                  <span data-aos="fade-right" data-aos-delay="400" className="inline-block px-2 bg-gradient-to-r from-white via-blue-100 to-purple-200 bg-clip-text text-transparent">
-                    To
-                  </span>{' '}
-                  <span data-aos="fade-right" data-aos-delay="600" className="inline-block px-2 bg-gradient-to-r from-white via-blue-100 to-purple-200 bg-clip-text text-transparent">
-                    Our
-                  </span>
-                </div>
-
-                <div>
-                  <span data-aos="fade-up" data-aos-delay="800" className="inline-block px-2 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    Project
-                  </span>{' '}
-                  <span data-aos="fade-up" data-aos-delay="1000" className="inline-block px-2 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    Website
-                  </span>
-                </div>
+              <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold flex justify-center space-y-2 sm:space-y-4">
+                <LoadingText />
               </h1>
             </motion.div>
           </div>
