@@ -23,32 +23,7 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      <nav className="relative z-10  bg-white">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-6 px-6 py-4 text-sm">
-          {services.map((service) => (
-            <div key={service.id} className="group relative">
-              <Link
-                href={`#${service.id}`}
-                className="inline-flex items-center gap-2 rounded-full border border-red-300 bg-white px-4 py-2 font-semibold text-gray-800 transition hover:border-red-500 hover:bg-red-100"
-              >
-                {service.name}
-              </Link>
 
-              <div className="invisible absolute left-0 top-full mt-3 w-72 translate-y-2 rounded-2xl border border-red-300 bg-white p-4 text-gray-700 shadow-lg opacity-0 transition duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-                <p className="text-sm font-semibold text-black">Tính năng nổi bật</p>
-                <ul className="mt-2 space-y-1 text-sm text-gray-600">
-                  {service.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2">
-                      <span className="text-gray-500">•</span>
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          ))}
-        </div>
-      </nav>
 
 
       <section className="bg-white">
@@ -81,34 +56,42 @@ export default function ServicesPage() {
           <article
             key={service.id}
             id={service.id}
-            className="rounded-3xl border border-red-300 bg-white p-6 text-gray-700 shadow transition hover:-translate-y-1 hover:border-red-500"
+            className="group relative overflow-hidden rounded-3xl border border-red-300 p-6 shadow-lg transition hover:-translate-y-1 hover:border-red-500 hover:shadow-xl min-h-[380px] flex flex-col justify-end"
           >
-            <h2 className="text-xl font-semibold text-black">
-              {service.name}
-            </h2>
+            <div
+              className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-110"
+              style={{ backgroundImage: `url(${service.image})` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 flex via-slate-900/80 to-transparent opacity-90 transition duration-500 group-hover:opacity-100" />
 
-            <p className="mt-3 text-sm text-gray-600">
-              {service.description}
-            </p>
+            <div className="relative z-10 mt-auto flex flex-col gap-3">
+              <h2 className="text-2xl font-bold text-white drop-shadow-md">
+                {service.name}
+              </h2>
 
-            <ul className="mt-4 space-y-2 text-sm text-gray-700">
-              {service.features.map((feature) => (
-                <li key={feature} className="flex items-center gap-3">
-                  <span className="inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-red-100 text-xs font-semibold text-black">
-                    ✓
-                  </span>
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
+              <p className="text-sm text-gray-200 drop-shadow leading-relaxed">
+                {service.description}
+              </p>
 
-            <div className="mt-6 flex items-center justify-between text-sm">
-              <Link
-                href={`/services/${service.id}`}
-                className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-4 py-2 font-medium text-gray-800 transition hover:border-red-500 hover:bg-red-200"
-              >
-                Bắt đầu ngay
-              </Link>
+              <ul className="space-y-2 text-sm text-gray-200 mt-2">
+                {service.features.map((feature) => (
+                  <li key={feature} className="flex items-center gap-3">
+                    <span className="inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-red-600/80 text-xs font-bold text-white shadow-sm backdrop-blur-sm">
+                      ✓
+                    </span>
+                    <span className="drop-shadow-sm font-medium">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="pt-4 flex items-center justify-start text-sm">
+                <Link
+                  href={`/services/${service.id}`}
+                  className="inline-flex items-center justify-center rounded-full border border-red-400/50 bg-red-600/90 px-6 py-2.5 font-semibold text-white shadow-lg backdrop-blur-md transition hover:scale-105 hover:bg-red-500 hover:border-red-400"
+                >
+                  Bắt đầu ngay
+                </Link>
+              </div>
             </div>
           </article>
         ))}

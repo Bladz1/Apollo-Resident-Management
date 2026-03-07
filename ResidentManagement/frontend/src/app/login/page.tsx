@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { FormEvent, Suspense, useMemo, useState } from 'react';
+import { FormEvent, Suspense, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { extractRolesFromToken, extractUsernameFromToken, saveAuth } from '@/utils/auth-storage';
 
@@ -95,6 +95,15 @@ function LoginPageContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  useEffect(() => {
+    // Lock scrolling on the body when on the login page
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
@@ -159,7 +168,7 @@ function LoginPageContent() {
 
   return (
     <div
-      className="relative flex min-h-screen items-center justify-center text-slate-900"
+      className="relative flex h-[calc(100vh-130px)] overflow-hidden items-center justify-center text-slate-900"
       style={{
         backgroundImage: "url('/images/trongdong.jpg')",
         backgroundSize: 'cover',
@@ -172,12 +181,12 @@ function LoginPageContent() {
           <p className="font-semibold">{errorMessage}</p>
         </div>
       )}
-      <div className="relative z-10 w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-10 shadow-xl">
-        <h1 className="mb-6 text-3xl font-black tracking-tight">Đăng nhập hệ thống</h1>
+      <div className="relative z-10 w-full max-w-sm rounded-xl border border-slate-200 bg-white p-6 shadow-xl">
+        <h1 className="mb-4 text-xl font-black tracking-tight">Đăng nhập hệ thống</h1>
 
-        <form className="space-y-5" onSubmit={handleSubmit}>
-          <div className="space-y-2">
-            <label className="text-sm font-semibold">Tên đăng nhập</label>
+        <form className="space-y-3.5" onSubmit={handleSubmit}>
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold">Tên đăng nhập</label>
             <input
               type="text"
               required
@@ -188,8 +197,8 @@ function LoginPageContent() {
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-semibold">Mật khẩu</label>
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold">Mật khẩu</label>
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
@@ -217,7 +226,7 @@ function LoginPageContent() {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-xs text-slate-600">
+        <p className="mt-5 text-center text-[10px] text-slate-600">
           Chưa có tài khoản?{' '}
           <Link href="/register" className="font-semibold text-amber-700 hover:text-amber-600">
             Đăng ký ngay

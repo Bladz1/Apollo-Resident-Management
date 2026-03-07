@@ -3,6 +3,7 @@ export type Service = {
   name: string;
   description: string;
   features: string[];
+  image?: string;
 };
 
 export type WantedPerson = {
@@ -40,6 +41,7 @@ export const services: Service[] = [
     description:
       "Thanh toán trực tuyến các loại phí, lệ phí hành chính nhanh chóng, an toàn và tiện lợi.",
     features: ["Phí y tế  xã hội", "Phí hành chính công", "Phí giao thông"],
+    image: "/images/thanh-toan-tien-dien.webp",
   },
   {
     id: "thong-bao",
@@ -51,6 +53,7 @@ export const services: Service[] = [
       "Thông tin bảo trì hệ thống",
       "Tin nhắn từ cán bộ phụ trách",
     ],
+    image: "/images/THONG-BAO.png",
   },
   {
     id: "kien-nghi",
@@ -58,6 +61,7 @@ export const services: Service[] = [
     description:
       "Gửi phản ánh, kiến nghị trực tuyến và theo dõi tiến độ xử lý minh bạch, nhanh chóng.",
     features: ["Nộp kiến nghị trực tuyến", "Theo dõi trạng thái xử lý", "Nhận phản hồi chính thức"],
+    image: "/images/kien-nghi.jpg",
   },
   {
     id: "truy-na",
@@ -69,6 +73,7 @@ export const services: Service[] = [
       "Kênh tiếp nhận thông tin ẩn danh",
       "Số điện thoại đường dây nóng",
     ],
+    image: "/images/tqd.jpg",
   },
 ];
 

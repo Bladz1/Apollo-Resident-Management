@@ -79,7 +79,7 @@ type ApiResponse<T> = {
 export default function AdminDashboardPage() {
   // Sidebar states
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'feedback' | 'accounts' | 'fees'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'feedback' | 'accounts' | 'fees' | 'news'>('dashboard');
   const [isScrolled, setIsScrolled] = useState(false);
 
   // Complaints
@@ -103,6 +103,20 @@ export default function AdminDashboardPage() {
     amount: '',
     dueDate: '',
   });
+
+  // System News
+  type SystemNewsItem = {
+    id: string;
+    title: string;
+    summary: string;
+    content: string;
+    version: string;
+    createdAt: string;
+  };
+  const [newsItems, setNewsItems] = useState<SystemNewsItem[]>([]);
+  const [loadingNews, setLoadingNews] = useState(false);
+  const [newsView, setNewsView] = useState<'create' | 'history'>('create');
+  const [newsDraft, setNewsDraft] = useState({ title: '', summary: '', content: '', version: '' });
   const formatToLocalDate = (value: string) => {
     // value may already be YYYY-MM-DD
     return value.slice(0, 10);
@@ -401,9 +415,63 @@ export default function AdminDashboardPage() {
     }
   };
 
+  // ========== System News ==========
+  const loadNews = async () => {
+    setLoadingNews(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/system-news`, {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+      });
+      if (!response.ok) throw new Error('Không thể tải danh sách tin tức.');
+      const data = (await response.json()) as ApiResponse<SystemNewsItem[]>;
+      setNewsItems(data.result ?? []);
+    } catch (error) {
+      console.error('Load news error:', error);
+    } finally {
+      setLoadingNews(false);
+    }
+  };
+
+  const handleNewsSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!newsDraft.title.trim() || !newsDraft.summary.trim()) {
+      alert('Vui lòng nhập tiêu đề và tóm tắt.');
+      return;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/system-news`, {
+        method: 'POST',
+        headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify(newsDraft),
+      });
+      if (!response.ok) throw new Error('Không thể tạo tin tức mới.');
+      setNewsDraft({ title: '', summary: '', content: '', version: '' });
+      await loadNews();
+      alert('Đã tạo tin tức thành công!');
+    } catch (error) {
+      console.error('Create news error:', error);
+    }
+  };
+
+  const handleDeleteNews = async (id: string) => {
+    const ok = window.confirm('Bạn có chắc muốn xóa tin tức này không?');
+    if (!ok) return;
+    try {
+      await fetch(`${API_BASE_URL}/system-news/${id}`, {
+        method: 'DELETE',
+        headers: buildAuthHeaders({ Accept: 'application/json' }),
+      });
+      setNewsItems((prev) => prev.filter((n) => n.id !== id));
+    } catch (error) {
+      console.error('Delete news error:', error);
+    }
+  };
+
   useEffect(() => {
     void loadComplaints();
     void loadPendingUsers();
+    void loadNews();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -468,6 +536,15 @@ export default function AdminDashboardPage() {
           >
             Fee Settings
           </button>
+          <button
+            onClick={() => { setActiveTab('news'); }}
+            className={`w-full rounded-md px-4 py-2 text-left text-sm font-medium transition-colors ${activeTab === 'news'
+              ? 'bg-emerald-50 text-emerald-700'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              }`}
+          >
+            Tin tức & Cập nhật
+          </button>
         </nav>
       </aside>
 
@@ -484,8 +561,8 @@ export default function AdminDashboardPage() {
           {/* Header with Hamburger */}
           <header
             className={`sticky top-0 z-30 flex items-center justify-between transition-all duration-500 ease-in-out ${isScrolled
-                ? 'mx-auto mt-4 h-14 w-[92%] max-w-5xl rounded-full border border-slate-200/60 bg-white/80 shadow-lg backdrop-blur-md px-5'
-                : 'h-16 w-full border-b border-slate-200 bg-white px-6'
+              ? 'mx-auto mt-4 h-14 w-[92%] max-w-5xl rounded-full border border-slate-200/60 bg-white/80 shadow-lg backdrop-blur-md px-5'
+              : 'h-16 w-full border-b border-slate-200 bg-white px-6'
               }`}
           >
             <div className="flex items-center gap-4">
@@ -502,6 +579,7 @@ export default function AdminDashboardPage() {
                 {activeTab === 'accounts' && 'Quản lý Tài khoản (Account Manager)'}
                 {activeTab === 'feedback' && 'Kiến nghị & Phản ánh'}
                 {activeTab === 'fees' && 'Thiết lập Phí'}
+                {activeTab === 'news' && 'Tin tức & Cập nhật Hệ thống'}
               </h1>
             </div>
           </header>
@@ -952,6 +1030,161 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
                   </div>
+                </div>
+              </section>
+            )}
+
+            {/* TAB: SYSTEM NEWS */}
+            {activeTab === 'news' && (
+              <section className="w-full animate-[fadeIn_0.3s_ease-out]">
+                <div className="w-full rounded-3xl border border-slate-200 bg-white shadow-md">
+                  <div className="flex items-center justify-between border-b border-slate-100 px-8 py-6 flex-wrap gap-4">
+                    <div>
+                      <h2 className="text-xl font-semibold text-slate-900">Tin tức & Cập nhật hệ thống</h2>
+                      <p className="text-xs text-slate-500">Tạo và quản lý tin tức hiển thị trên trang chủ</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setNewsView('create')}
+                        className={`rounded-xl px-4 py-2 text-xs font-semibold transition-colors ${newsView === 'create'
+                            ? 'bg-emerald-500 text-white'
+                            : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                          }`}
+                      >
+                        ✏️ Tạo mới
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setNewsView('history'); void loadNews(); }}
+                        className={`rounded-xl px-4 py-2 text-xs font-semibold transition-colors ${newsView === 'history'
+                            ? 'bg-emerald-500 text-white'
+                            : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                          }`}
+                      >
+                        📋 Lịch sử phiên bản
+                      </button>
+                    </div>
+                  </div>
+
+                  {newsView === 'create' && (
+                    <div className="px-8 py-8">
+                      <form onSubmit={handleNewsSubmit} className="space-y-5 max-w-2xl">
+                        <label className="block space-y-2 text-sm text-slate-700">
+                          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Tiêu đề</span>
+                          <input
+                            type="text"
+                            value={newsDraft.title}
+                            onChange={(e) => setNewsDraft((prev) => ({ ...prev, title: e.target.value }))}
+                            placeholder="Nhập tiêu đề tin tức"
+                            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                          />
+                        </label>
+
+                        <label className="block space-y-2 text-sm text-slate-700">
+                          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Tóm tắt</span>
+                          <input
+                            type="text"
+                            value={newsDraft.summary}
+                            onChange={(e) => setNewsDraft((prev) => ({ ...prev, summary: e.target.value }))}
+                            placeholder="Mô tả ngắn gọn nội dung"
+                            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                          />
+                        </label>
+
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <label className="block space-y-2 text-sm text-slate-700">
+                            <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Phiên bản (tuỳ chọn)</span>
+                            <input
+                              type="text"
+                              value={newsDraft.version}
+                              onChange={(e) => setNewsDraft((prev) => ({ ...prev, version: e.target.value }))}
+                              placeholder="VD: v2.1, Bản cập nhật tháng 3"
+                              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                            />
+                          </label>
+                        </div>
+
+                        <label className="block space-y-2 text-sm text-slate-700">
+                          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Nội dung chi tiết</span>
+                          <textarea
+                            rows={5}
+                            value={newsDraft.content}
+                            onChange={(e) => setNewsDraft((prev) => ({ ...prev, content: e.target.value }))}
+                            placeholder="Nhập nội dung chi tiết của tin tức hoặc bản cập nhật..."
+                            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 resize-none"
+                          />
+                        </label>
+
+                        <button
+                          type="submit"
+                          className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600 shadow-sm"
+                        >
+                          Đăng tin tức mới
+                        </button>
+                      </form>
+
+                      <div className="mt-8">
+                        <button
+                          type="button"
+                          onClick={() => { setNewsView('history'); void loadNews(); }}
+                          className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline transition-colors"
+                        >
+                          📋 Xem lịch sử phiên bản →
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {newsView === 'history' && (
+                    <div className="px-8 py-8">
+                      {loadingNews && (
+                        <p className="text-center text-sm text-slate-500 py-6">Đang tải danh sách tin tức...</p>
+                      )}
+                      {!loadingNews && newsItems.length === 0 && (
+                        <p className="text-center text-sm text-slate-500 py-6">Chưa có tin tức nào.</p>
+                      )}
+                      {!loadingNews && newsItems.length > 0 && (
+                        <div className="space-y-4">
+                          {newsItems.map((item) => (
+                            <div
+                              key={item.id}
+                              className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-emerald-300 hover:shadow-md"
+                            >
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-3 flex-wrap">
+                                    <h3 className="text-base font-semibold text-slate-900">{item.title}</h3>
+                                    {item.version && (
+                                      <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-700">
+                                        {item.version}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="mt-1 text-xs text-slate-500">
+                                    {item.createdAt
+                                      ? new Date(item.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                                      : '—'}
+                                  </p>
+                                  <p className="mt-2 text-sm text-slate-600 leading-relaxed">{item.summary}</p>
+                                  {item.content && (
+                                    <p className="mt-2 text-xs text-slate-500 leading-relaxed whitespace-pre-wrap">{item.content}</p>
+                                  )}
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => void handleDeleteNews(item.id)}
+                                  className="flex-shrink-0 rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 hover:border-rose-300 transition-colors"
+                                >
+                                  Xóa
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </section>
             )}

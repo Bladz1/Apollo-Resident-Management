@@ -1,25 +1,11 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function SupportButton() {
-  const router = useRouter();
-
-  const navigateToSupport = () => {
-
-    router.push('/');
-
-    setTimeout(() => {
-      const supportElement = document.getElementById('support');
-      if (supportElement) {
-        supportElement.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
-  };
-
   return (
-    <button onClick={navigateToSupport} className="hover:text-yellow-200">
+    <Link href="/#support" className="hover:text-yellow-200">
       Hỗ trợ
-    </button>
+    </Link>
   );
 }

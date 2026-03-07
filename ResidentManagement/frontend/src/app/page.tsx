@@ -1,17 +1,30 @@
 'use client';
 
-import React, { useSyncExternalStore } from 'react';
+import React, { useEffect, useState, useSyncExternalStore } from 'react';
 import LoginCtaButton from "@/components/auth/LoginCtaButton";
+import Link from 'next/link';
 import ScrollToTop from "@/utils/scroll_to_top";
 import styles from "./custom_css/css.module.css";
 import Image from "next/image";
 import alerts from "./data/alerts_data";
-import news from "./data/news_data";
+import staticNews from "./data/news_data";
 import steps from "./data/steps_data";
 import UserWelcome from "@/components/auth/UserWelcome";
 
 // Import màn hình chờ
 import WelcomeScreen from "@/components/WelcomeScreen";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8080/resident-management';
+
+type NewsItem = {
+  id?: string;
+  title: string;
+  date?: string;
+  description?: string;
+  summary?: string;
+  version?: string;
+  createdAt?: string;
+};
 
 export default function Home() {
   const hasVisited = useSyncExternalStore(
@@ -38,6 +51,28 @@ export default function Home() {
     sessionStorage.setItem('hasVisitedPortfolio', 'true');
     window.dispatchEvent(new Event('hasVisitedPortfolio'));
   };
+
+  const [news, setNews] = useState<NewsItem[]>(staticNews);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/system-news`)
+      .then((res) => res.json())
+      .then((data) => {
+        const items = (data.result ?? []) as NewsItem[];
+        if (items.length > 0) {
+          setNews(
+            items.map((item) => ({
+              ...item,
+              date: item.createdAt
+                ? new Date(item.createdAt).toLocaleDateString('vi-VN')
+                : '',
+              description: item.summary || item.description || '',
+            }))
+          );
+        }
+      })
+      .catch(() => { /* keep static fallback */ });
+  }, []);
 
   return (
     <main>
@@ -175,6 +210,15 @@ export default function Home() {
                     </p>
                   </article>
                 ))}
+              </div>
+
+              <div className="mt-8 text-center">
+                <Link
+                  href="/news/updates"
+                  className="inline-flex items-center gap-2 rounded-xl border border-red-300 bg-white px-6 py-3 text-sm font-semibold text-red-700 shadow-sm transition hover:bg-red-50 hover:border-red-500 hover:-translate-y-0.5"
+                >
+                  Hiện tất cả cập nhật →
+                </Link>
               </div>
             </div>
           </section>
