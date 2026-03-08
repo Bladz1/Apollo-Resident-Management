@@ -117,6 +117,11 @@ export default function AdminDashboardPage() {
   const [loadingNews, setLoadingNews] = useState(false);
   const [newsView, setNewsView] = useState<'create' | 'history'>('create');
   const [newsDraft, setNewsDraft] = useState({ title: '', summary: '', content: '', version: '' });
+
+  // Admin users state (for the right sidebar table)
+  const [adminUsers, setAdminUsers] = useState<UserResponse[]>([]);
+  const [loadingAdminUsers, setLoadingAdminUsers] = useState(false);
+
   const formatToLocalDate = (value: string) => {
     // value may already be YYYY-MM-DD
     return value.slice(0, 10);
@@ -466,731 +471,429 @@ export default function AdminDashboardPage() {
     } catch (error) {
       console.error('Delete news error:', error);
     }
-  };
+    const loadAdminUsers = async () => {
+      setLoadingAdminUsers(true);
+      try {
+        const response = await fetch(`${API_BASE_URL}/users/admins`, {
+          method: 'GET',
+          headers: buildAuthHeaders({ Accept: 'application/json' }),
+        });
+        if (!response.ok) throw new Error('Không thể tải danh sách admin.');
+        const data = (await response.json()) as ApiResponse<UserResponse[]>;
+        setAdminUsers(data.result ?? []);
+      } catch (error) {
+        console.error('Load admin users error:', error);
+      } finally {
+        setLoadingAdminUsers(false);
+      }
+    };
 
-  useEffect(() => {
-    void loadComplaints();
-    void loadPendingUsers();
-    void loadNews();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    useEffect(() => {
+      void loadComplaints();
+      void loadPendingUsers();
+      void loadNews();
+      void loadAdminUsers();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-  return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-900 overflow-hidden">
-      {/* Sidebar background overlay for mobile only */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/30 transition-opacity lg:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
-
-      {/* Vertical Sidebar */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r border-slate-200 bg-white shadow-xl transition-all duration-300 ease-in-out lg:relative ${isSidebarOpen ? 'translate-x-0 ml-0' : '-translate-x-full lg:ml-[-16rem]'
-          }`}
-      >
-        <div className="flex h-16 items-center justify-between border-b border-slate-200 px-6">
-          <span className="text-lg font-bold text-emerald-600">Admin Tools</span>
-          <button
-            className="text-slate-500 hover:text-slate-700 lg:hidden"
+    return (
+      <div className="flex min-h-screen bg-slate-50 text-slate-900 overflow-hidden">
+        {/* Sidebar background overlay for mobile only */}
+        {isSidebarOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-black/30 transition-opacity lg:hidden"
             onClick={() => setIsSidebarOpen(false)}
-          >
-            ✕
-          </button>
-        </div>
-        <nav className="space-y-1 p-4">
-          <button
-            onClick={() => { setActiveTab('dashboard'); }}
-            className={`w-full rounded-md px-4 py-2 text-left text-sm font-medium transition-colors ${activeTab === 'dashboard'
-              ? 'bg-emerald-50 text-emerald-700'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
-          >
-            Dashboard
-          </button>
-          <button
-            onClick={() => { setActiveTab('accounts'); }}
-            className={`w-full rounded-md px-4 py-2 text-left text-sm font-medium transition-colors ${activeTab === 'accounts'
-              ? 'bg-emerald-50 text-emerald-700'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
-          >
-            Account Manager
-          </button>
-          <button
-            onClick={() => { setActiveTab('feedback'); }}
-            className={`w-full rounded-md px-4 py-2 text-left text-sm font-medium transition-colors ${activeTab === 'feedback'
-              ? 'bg-emerald-50 text-emerald-700'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
-          >
-            Feedbacks
-          </button>
-          <button
-            onClick={() => { setActiveTab('fees'); }}
-            className={`w-full rounded-md px-4 py-2 text-left text-sm font-medium transition-colors ${activeTab === 'fees'
-              ? 'bg-emerald-50 text-emerald-700'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
-          >
-            Fee Settings
-          </button>
-          <button
-            onClick={() => { setActiveTab('news'); }}
-            className={`w-full rounded-md px-4 py-2 text-left text-sm font-medium transition-colors ${activeTab === 'news'
-              ? 'bg-emerald-50 text-emerald-700'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
-          >
-            Tin tức & Cập nhật
-          </button>
-        </nav>
-      </aside>
+          />
+        )}
 
-      {/* Main Content Area */}
-      <div className="flex flex-1 flex-col overflow-hidden transition-all duration-300 relative">
-        {/* Header with Hamburger */}
-        <main
-          className="flex-1 overflow-y-auto scroll-smooth"
-          onScroll={(e) => {
-            const scrollTop = e.currentTarget.scrollTop;
-            setIsScrolled(scrollTop > 20);
-          }}
+        {/* Vertical Sidebar */}
+        <aside
+          className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r border-slate-200 bg-white shadow-xl transition-all duration-300 ease-in-out lg:relative ${isSidebarOpen ? 'translate-x-0 ml-0' : '-translate-x-full lg:ml-[-16rem]'
+            }`}
         >
+          <div className="flex h-16 items-center justify-between border-b border-slate-200 px-6">
+            <span className="text-lg font-bold text-emerald-600">Admin Tools</span>
+            <button
+              className="text-slate-500 hover:text-slate-700 lg:hidden"
+              onClick={() => setIsSidebarOpen(false)}
+            >
+              ✕
+            </button>
+          </div>
+          <nav className="space-y-1 p-4">
+            <button
+              onClick={() => { setActiveTab('dashboard'); }}
+              className={`w-full rounded-md px-4 py-2 text-left text-sm font-medium transition-colors ${activeTab === 'dashboard'
+                ? 'bg-emerald-50 text-emerald-700'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`}
+            >
+              Dashboard
+            </button>
+            <button
+              onClick={() => { setActiveTab('accounts'); }}
+              className={`w-full rounded-md px-4 py-2 text-left text-sm font-medium transition-colors ${activeTab === 'accounts'
+                ? 'bg-emerald-50 text-emerald-700'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`}
+            >
+              Account Manager
+            </button>
+            <button
+              onClick={() => { setActiveTab('feedback'); }}
+              className={`w-full rounded-md px-4 py-2 text-left text-sm font-medium transition-colors ${activeTab === 'feedback'
+                ? 'bg-emerald-50 text-emerald-700'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`}
+            >
+              Feedbacks
+            </button>
+            <button
+              onClick={() => { setActiveTab('fees'); }}
+              className={`w-full rounded-md px-4 py-2 text-left text-sm font-medium transition-colors ${activeTab === 'fees'
+                ? 'bg-emerald-50 text-emerald-700'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`}
+            >
+              Fee Settings
+            </button>
+            <button
+              onClick={() => { setActiveTab('news'); }}
+              className={`w-full rounded-md px-4 py-2 text-left text-sm font-medium transition-colors ${activeTab === 'news'
+                ? 'bg-emerald-50 text-emerald-700'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`}
+            >
+              Tin tức & Cập nhật
+            </button>
+          </nav>
+        </aside>
+
+        {/* Main Content Area */}
+        <div className="flex flex-1 flex-col overflow-hidden transition-all duration-300 relative">
           {/* Header with Hamburger */}
-          <header
-            className={`sticky top-0 z-30 flex items-center justify-between transition-all duration-500 ease-in-out ${isScrolled
-              ? 'mx-auto mt-4 h-14 w-[92%] max-w-5xl rounded-full border border-slate-200/60 bg-white/80 shadow-lg backdrop-blur-md px-5'
-              : 'h-16 w-full border-b border-slate-200 bg-white px-6'
-              }`}
+          <main
+            className="flex-1 overflow-y-auto scroll-smooth"
+            onScroll={(e) => {
+              const scrollTop = e.currentTarget.scrollTop;
+              setIsScrolled(scrollTop > 20);
+            }}
           >
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="text-slate-500 hover:text-emerald-600 transition-colors"
-              >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-              <h1 className="text-xl font-semibold capitalize text-slate-800">
-                {activeTab === 'dashboard' && 'Trang chủ Dashboard'}
-                {activeTab === 'accounts' && 'Quản lý Tài khoản (Account Manager)'}
-                {activeTab === 'feedback' && 'Kiến nghị & Phản ánh'}
-                {activeTab === 'fees' && 'Thiết lập Phí'}
-                {activeTab === 'news' && 'Tin tức & Cập nhật Hệ thống'}
-              </h1>
-            </div>
-          </header>
+            {/* Header with Hamburger */}
+            <header
+              className={`sticky top-0 z-30 flex items-center justify-between transition-all duration-500 ease-in-out ${isScrolled
+                ? 'mx-auto mt-4 h-14 w-[92%] max-w-5xl rounded-full border border-slate-200/60 bg-white/80 shadow-lg backdrop-blur-md px-5'
+                : 'h-16 w-full border-b border-slate-200 bg-white px-6'
+                }`}
+            >
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                  className="text-slate-500 hover:text-emerald-600 transition-colors"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+                <h1 className="text-xl font-semibold capitalize text-slate-800">
+                  {activeTab === 'dashboard' && 'Trang chủ Dashboard'}
+                  {activeTab === 'accounts' && 'Quản lý Tài khoản (Account Manager)'}
+                  {activeTab === 'feedback' && 'Kiến nghị & Phản ánh'}
+                  {activeTab === 'fees' && 'Thiết lập Phí'}
+                  {activeTab === 'news' && 'Tin tức & Cập nhật Hệ thống'}
+                </h1>
+              </div>
+            </header>
 
-          <div className="mx-auto max-w-6xl space-y-12 p-6">
+            <div className="mx-auto max-w-7xl px-6 py-6 font-sans">
+              <div className="flex flex-col gap-8 lg:flex-row">
+                {/* Left Column - Forms & Main Lists */}
+                <div className="flex-1 space-y-12">
+                  {/* TAB: DASHBOARD */}
+                  {activeTab === 'dashboard' && (
+                    <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+                      <div className="flex flex-wrap items-center justify-between gap-6">
+                        <div className="max-w-xl space-y-4">
+                          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-50 px-4 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-emerald-600">
+                            Bảng điều khiển quản trị
+                          </span>
+                          <h2 className="text-3xl font-black text-slate-900">Trang tổng quan trung tâm điều hành</h2>
+                          <p className="text-sm text-slate-600">
+                            Cung cấp tầm nhìn tổng quan cho cán bộ quản trị: theo dõi hồ sơ, hoạt động người dùng, cảnh báo an ninh và tự động hóa quy trình trên cùng một giao diện trực quan.
+                          </p>
+                        </div>
 
-            {/* TAB: DASHBOARD */}
-            {activeTab === 'dashboard' && (
-              <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-                <div className="flex flex-wrap items-center justify-between gap-6">
-                  <div className="max-w-2xl space-y-4">
-                    <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-50 px-4 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-emerald-600">
-                      Bảng điều khiển quản trị
-                    </span>
-                    <h2 className="text-3xl font-black text-slate-900 md:text-4xl">Trang tổng quan trung tâm điều hành</h2>
-                    <p className="text-sm text-slate-600 md:text-base">
-                      Cung cấp tầm nhìn tổng quan cho cán bộ quản trị: theo dõi hồ sơ, hoạt động người dùng, cảnh báo an ninh và tự động hóa quy trình trên cùng một giao diện trực quan. Tính năng nằm ở thanh Sidebar (Menu bên trái).
-                    </p>
-                  </div>
-
-                  <div className="grid gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-6 text-sm text-slate-600 shadow-md">
-                    <span className="mb-2 block rounded-full border border-slate-200 bg-white px-4 py-1.5 text-center text-xs font-semibold text-slate-500 shadow-sm">
-                      Cập nhật mới nhất: {new Date().toLocaleDateString('vi-VN')}
-                    </span>
-                    <div className="flex items-center justify-between text-xs uppercase tracking-wide text-slate-500">
-                      <span>Trung tâm điều hành</span>
-                      <span>Trạng thái</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <p className="text-lg font-semibold text-slate-900">CSDL Dân cư</p>
-                        <p className="text-xs text-slate-500">Đồng bộ thời gian thực</p>
+                        <div className="rounded-2xl border border-slate-100 bg-slate-50 p-6 text-sm text-slate-600 shadow-md min-w-[280px]">
+                          <span className="mb-2 block rounded-full border border-slate-200 bg-white px-4 py-1.5 text-center text-xs font-semibold text-slate-500 shadow-sm">
+                            Cập nhật: {new Date().toLocaleDateString('vi-VN')}
+                          </span>
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                              <p className="text-lg font-semibold text-slate-900">CSDL Dân cư</p>
+                              <p className="text-xs text-slate-500">Đồng bộ mạnh mẽ</p>
+                            </div>
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                              ● Ổn định
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-                        ● Ổn định
-                      </span>
+                    </div>
+                  )}
+
+                  {/* TAB: ACCOUNTS (PENDING USERS) */}
+                  {activeTab === 'accounts' && (
+                    <section className="w-full animate-[fadeIn_0.3s_ease-out]">
+                      <div className="w-full rounded-3xl border border-slate-200 bg-white shadow-md overflow-hidden">
+                        <div className="flex items-center justify-between border-b border-slate-100 px-8 py-6 flex-wrap gap-4 bg-white">
+                          <div>
+                            <h2 className="text-xl font-semibold text-slate-900">Đăng ký tài khoản chờ duyệt</h2>
+                            <p className="text-xs text-slate-500">Người dùng mới cần được phê duyệt</p>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-4">
+                            <input
+                              type="text"
+                              placeholder="CCCD..."
+                              value={pendingUsersSearchCCCD}
+                              onChange={(e) => setPendingUsersSearchCCCD(e.target.value)}
+                              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 outline-none focus:border-emerald-500"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => void loadPendingUsers()}
+                              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                            >
+                              Tải lại
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full divide-y divide-slate-100 text-sm">
+                            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                              <tr>
+                                <th className="px-6 py-3 text-left">CCCD</th>
+                                <th className="px-6 py-3 text-left">Họ tên</th>
+                                <th className="px-6 py-3 text-left">SĐT</th>
+                                <th className="px-6 py-3 text-left">Thao tác</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 bg-white text-slate-600">
+                              {loadingUsers ? (
+                                <tr><td colSpan={4} className="px-6 py-8 text-center text-slate-400">Đang tải...</td></tr>
+                              ) : pendingUsers.length === 0 ? (
+                                <tr><td colSpan={4} className="px-6 py-8 text-center text-slate-400">Không có yêu cầu chờ.</td></tr>
+                              ) : (
+                                sortedPendingUsers.map((u) => (
+                                  <tr key={u.id} className="hover:bg-slate-50 transition">
+                                    <td className="px-6 py-4 font-medium text-slate-900">{u.personalId || '—'}</td>
+                                    <td className="px-6 py-4">{u.fullName}</td>
+                                    <td className="px-6 py-4 text-slate-500">{u.phone || '—'}</td>
+                                    <td className="px-6 py-4">
+                                      <div className="flex gap-2">
+                                        <button onClick={() => void handleApproveUser(u.id)} className="rounded-md bg-emerald-500 px-3 py-1 text-[10px] font-bold text-white uppercase tracking-wider hover:bg-emerald-600">Duyệt</button>
+                                        <button onClick={() => void handleRejectUser(u.id)} className="rounded-md border border-rose-200 bg-white px-3 py-1 text-[10px] font-bold text-rose-600 uppercase tracking-wider hover:bg-rose-50">Từ chối</button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </section>
+                  )}
+
+                  {/* TAB: FEEDBACKS */}
+                  {activeTab === 'feedback' && (
+                    <section className="w-full animate-[fadeIn_0.3s_ease-out]">
+                      <div className="w-full rounded-3xl border border-slate-200 bg-white shadow-md overflow-hidden">
+                        <div className="flex items-center justify-between border-b border-slate-100 px-8 py-6 flex-wrap gap-4 bg-white">
+                          <h2 className="text-xl font-semibold text-slate-900">Kiến nghị & phản ánh</h2>
+                          <input
+                            type="text"
+                            placeholder="SĐT..."
+                            value={complaintsSearchPhone}
+                            onChange={(e) => setComplaintsSearchPhone(e.target.value)}
+                            className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 outline-none focus:border-emerald-500"
+                          />
+                        </div>
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full divide-y divide-slate-100 text-sm">
+                            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500 text-left">
+                              <tr>
+                                <th className="px-6 py-3">Tên</th>
+                                <th className="px-6 py-3">SĐT</th>
+                                <th className="px-6 py-3">Ngày gửi</th>
+                                <th className="px-6 py-3">Email</th>
+                                <th className="px-6 py-3">Thao tác</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                              {loadingComplaints ? (
+                                <tr><td colSpan={5} className="px-6 py-8 text-center text-slate-400">Đang tải...</td></tr>
+                              ) : localComplaints.length === 0 ? (
+                                <tr><td colSpan={5} className="px-6 py-8 text-center text-slate-400">Chưa có phản ánh.</td></tr>
+                              ) : (
+                                sortedComplaints.map((item) => (
+                                  <tr key={item.id} className="hover:bg-slate-50 transition">
+                                    <td className="px-6 py-4 font-medium text-slate-900">{item.name}</td>
+                                    <td className="px-6 py-4 text-slate-500">{item.phone}</td>
+                                    <td className="px-6 py-4 text-slate-400 text-xs">{item.createdAt ? new Date(item.createdAt).toLocaleDateString('vi-VN') : '—'}</td>
+                                    <td className="px-6 py-4 text-slate-500 truncate max-w-[150px]">{item.email}</td>
+                                    <td className="px-6 py-4">
+                                      {item.status === 'PENDING' ? (
+                                        <button onClick={() => handleViewComplaint(item)} className="rounded-md bg-sky-500 px-3 py-1 text-[10px] font-bold text-white uppercase hover:bg-sky-600">Xem</button>
+                                      ) : <span className={`text-[10px] font-bold uppercase rounded-md px-2 py-0.5 ${item.status === 'ACCEPTED' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>{item.status === 'ACCEPTED' ? 'Đã nhận' : 'Đã xóa'}</span>}
+                                    </td>
+                                  </tr>
+                                ))
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </section>
+                  )}
+
+                  {/* TAB: FEES */}
+                  {activeTab === 'fees' && (
+                    <section className="w-full animate-[fadeIn_0.3s_ease-out]">
+                      <div className="w-full rounded-3xl border border-slate-200 bg-white shadow-md p-8">
+                        <h2 className="text-xl font-semibold text-slate-900 mb-6">Thiết lập khoản phí dịch vụ công</h2>
+                        <form onSubmit={handleFeeSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-4">
+                            <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Loại phí</label>
+                            <select value={feeDraft.categoryId} onChange={(e) => handleFeeChange('categoryId', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500/50 outline-none">
+                              {feeCategories.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+                            </select>
+                          </div>
+                          <div className="space-y-4">
+                            <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Số CCCD</label>
+                            <input type="text" value={feeDraft.personalId} onChange={(e) => handleFeeChange('personalId', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/50" />
+                          </div>
+                          <div className="space-y-4">
+                            <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Số tiền (VNĐ)</label>
+                            <input type="number" value={feeDraft.amount} onChange={(e) => handleFeeChange('amount', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/50" />
+                          </div>
+                          <div className="space-y-4">
+                            <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Hạn nộp</label>
+                            <input type="date" value={feeDraft.dueDate} onChange={(e) => handleFeeChange('dueDate', e.target.value)} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/50" />
+                          </div>
+                          <button type="submit" className="md:col-span-2 rounded-xl bg-emerald-500 py-4 text-sm font-bold text-white hover:bg-emerald-600 transition shadow-lg shadow-emerald-500/20">Tạo phí mới</button>
+                        </form>
+                      </div>
+                    </section>
+                  )}
+
+                  {/* TAB: NEWS */}
+                  {activeTab === 'news' && (
+                    <section className="w-full animate-[fadeIn_0.3s_ease-out]">
+                      <div className="w-full rounded-3xl border border-slate-200 bg-white shadow-md p-8">
+                        <div className="flex justify-between items-center mb-6">
+                          <h2 className="text-xl font-semibold text-slate-900">Tin tức hệ thống</h2>
+                          <div className="flex bg-slate-50 rounded-xl p-1">
+                            <button onClick={() => setNewsView('create')} className={`px-4 py-2 text-xs font-bold rounded-lg transition ${newsView === 'create' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400'}`}>Tạo mới</button>
+                            <button onClick={() => { setNewsView('history'); void loadNews(); }} className={`px-4 py-2 text-xs font-bold rounded-lg transition ${newsView === 'history' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400'}`}>Lịch sử</button>
+                          </div>
+                        </div>
+
+                        {newsView === 'create' ? (
+                          <form onSubmit={handleNewsSubmit} className="space-y-5">
+                            <input type="text" placeholder="Tiêu đề..." value={newsDraft.title} onChange={(e) => setNewsDraft(p => ({ ...p, title: e.target.value }))} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/50" />
+                            <input type="text" placeholder="Tóm tắt ngắn..." value={newsDraft.summary} onChange={(e) => setNewsDraft(p => ({ ...p, summary: e.target.value }))} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/50" />
+                            <textarea rows={4} placeholder="Nội dung chi tiết..." value={newsDraft.content} onChange={(e) => setNewsDraft(p => ({ ...p, content: e.target.value }))} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/50 resize-none"></textarea>
+                            <button type="submit" className="w-full rounded-xl bg-emerald-500 py-4 text-sm font-bold text-white hover:bg-emerald-600 transition">Đăng tin tức</button>
+                          </form>
+                        ) : (
+                          <div className="space-y-4">
+                            {newsItems.map(n => (
+                              <div key={n.id} className="border border-slate-100 rounded-2xl p-4 hover:border-emerald-200 transition">
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    <h4 className="font-bold text-slate-900 text-sm">{n.title}</h4>
+                                    <p className="text-[10px] text-slate-400 mb-2">{n.createdAt ? new Date(n.createdAt).toLocaleDateString('vi-VN') : ''}</p>
+                                    <p className="text-xs text-slate-600">{n.summary}</p>
+                                  </div>
+                                  <button onClick={() => void handleDeleteNews(n.id)} className="text-rose-500 p-2 hover:bg-rose-50 rounded-lg transition-colors">🗑️</button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </section>
+                  )}
+                </div>
+
+                {/* Right Column - ADMIN Accounts List */}
+                <div className="w-full shrink-0 lg:w-[320px]">
+                  <div className="sticky top-24 space-y-6">
+                    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-md transition-all hover:shadow-lg">
+                      <div className="mb-6 flex items-center justify-between">
+                        <div>
+                          <h3 className="text-lg font-bold text-slate-900">ADMIN Accounts</h3>
+                          <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-emerald-600">Những người điều hành hệ thống</p>
+                        </div>
+                        <div className="rounded-full bg-emerald-50 p-2 text-emerald-600">
+                          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                          </svg>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        {loadingAdminUsers ? (
+                          <div className="flex flex-col items-center justify-center py-8 text-center">
+                            <div className="h-6 w-6 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent mb-2"></div>
+                            <p className="text-xs text-slate-400">Đang tải danh sách...</p>
+                          </div>
+                        ) : adminUsers.length === 0 ? (
+                          <p className="py-8 text-center text-xs text-slate-400 italic">Không có tài khoản quản trị nào.</p>
+                        ) : (
+                          adminUsers.map((user) => (
+                            <div key={user.id} className="group flex items-center gap-3 rounded-2xl border border-transparent bg-slate-50/50 p-3 transition-all hover:border-emerald-100 hover:bg-emerald-50/30">
+                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 font-bold text-white shadow-sm ring-4 ring-white group-hover:scale-110 transition-transform duration-300">
+                                {user.username.charAt(0).toUpperCase()}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate text-sm font-bold text-slate-900">{user.username}</p>
+                                <div className="flex items-center gap-1.5 overflow-hidden">
+                                  <span className="inline-block h-1 w-1 rounded-full bg-emerald-400"></span>
+                                  <p className="truncate text-[10px] text-slate-500">Administrator</p>
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+
+                      <div className="mt-8 rounded-2xl bg-slate-900/[0.03] p-4">
+                        <div className="flex items-center justify-between text-[11px] font-bold text-slate-500">
+                          <span>Tổng số Admin</span>
+                          <span className="rounded-full bg-slate-900 px-2 py-0.5 text-white">{adminUsers.length}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Quick System Info Card */}
+                    <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-6 shadow-sm">
+                      <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-slate-400">Trạng thái Redis</h4>
+                      <div className="flex items-center gap-3">
+                        <div className="relative flex h-3 w-3">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-500"></span>
+                        </div>
+                        <span className="text-sm font-semibold text-slate-700">Cache is Active</span>
+                      </div>
+                      <p className="mt-2 text-[10px] leading-relaxed text-slate-500">Dữ liệu được tối ưu hóa bằng Redis để đảm bảo tốc độ truy xuất thông tin Admin nhanh nhất.</p>
                     </div>
                   </div>
                 </div>
               </div>
-            )}
-
-            {/* TAB: ACCOUNTS (PENDING USERS) */}
-            {activeTab === 'accounts' && (
-              <section className="w-full animate-[fadeIn_0.3s_ease-out]">
-                <div className="w-full rounded-3xl border border-slate-200 bg-white shadow-md">
-                  <div className="flex items-center justify-between border-b border-slate-100 px-8 py-6 flex-wrap gap-4">
-                    <div>
-                      <h2 className="text-xl font-semibold text-slate-900">Đăng ký tài khoản chờ duyệt</h2>
-                      <p className="text-xs text-slate-500">Danh sách người dùng mới đăng ký cần admin phê duyệt</p>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-4">
-                      <input
-                        type="text"
-                        placeholder="Tìm theo CCCD..."
-                        value={pendingUsersSearchCCCD}
-                        onChange={(e) => setPendingUsersSearchCCCD(e.target.value)}
-                        className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 outline-none hover:bg-slate-100 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => void loadPendingUsers()}
-                        className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
-                      >
-                        Làm mới
-                      </button>
-                      <div className="flex items-center gap-2">
-                        <label htmlFor="pending-users-sort" className="text-xs text-slate-500">Sắp xếp:</label>
-                        <select
-                          id="pending-users-sort"
-                          value={pendingUsersSort}
-                          onChange={(e) => setPendingUsersSort(e.target.value as any)}
-                          className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 outline-none hover:bg-slate-100 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-                        >
-                          <option value="default">Mặc định</option>
-                          <option value="name-asc">Tên A → Z</option>
-                          <option value="name-desc">Tên Z → A</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full table-fixed divide-y divide-slate-100 text-sm">
-                      <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                        <tr>
-                          <th className="w-[200px] px-8 py-3 text-left">CCCD</th>
-                          <th className="px-4 py-3 text-left">Họ và tên</th>
-                          <th className="w-[170px] px-4 py-3 text-left">SĐT</th>
-                          <th className="px-4 py-3 text-left">Địa chỉ</th>
-                          <th className="w-[260px] px-4 py-3 text-left">Thao tác</th>
-                        </tr>
-                      </thead>
-
-                      <tbody className="divide-y divide-slate-100 text-slate-600">
-                        {loadingUsers && (
-                          <tr>
-                            <td colSpan={5} className="px-8 py-6 text-center text-sm text-slate-500">
-                              Đang tải danh sách đăng ký...
-                            </td>
-                          </tr>
-                        )}
-
-                        {!loadingUsers && pendingUsers.length === 0 && (
-                          <tr>
-                            <td colSpan={5} className="px-8 py-6 text-center text-sm text-slate-500">
-                              Không có đăng ký mới.
-                            </td>
-                          </tr>
-                        )}
-
-                        {!loadingUsers && pendingUsers.length > 0 && sortedPendingUsers.length === 0 && (
-                          <tr>
-                            <td colSpan={5} className="px-8 py-6 text-center text-sm text-slate-500">
-                              Không tìm thấy tài khoản chờ duyệt nào khớp với số CCCD này.
-                            </td>
-                          </tr>
-                        )}
-
-                        {sortedPendingUsers.map((u) => (
-                          <tr key={u.id} className="transition hover:bg-slate-50">
-                            <td className="px-8 py-4 font-semibold text-slate-900">{u.personalId || '—'}</td>
-                            <td className="px-4 py-4">{u.fullName}</td>
-                            <td className="px-4 py-4 text-slate-500">{u.phone || '—'}</td>
-                            <td className="px-4 py-4 text-slate-500">{u.address || '—'}</td>
-
-                            <td className="px-4 py-4">
-                              <div className="flex justify-center">
-                                <div className="flex gap-2">
-                                  <button
-                                    type="button"
-                                    onClick={() => void handleApproveUser(u.id)}
-                                    className="w-32 rounded-md bg-emerald-500 px-3 py-1 text-xs font-semibold text-white hover:bg-emerald-600"
-                                  >
-                                    Chấp nhận
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => void handleRejectUser(u.id)}
-                                    className="w-32 rounded-md border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-600 hover:bg-rose-50 hover:border-rose-300"
-                                  >
-                                    Từ chối
-                                  </button>
-                                </div>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </section>
-            )}
-
-            {/* TAB: FEEDBACKS (Kiến nghị phản ánh) */}
-            {activeTab === 'feedback' && (
-              <section className="w-full animate-[fadeIn_0.3s_ease-out]">
-                <div className="w-full rounded-3xl border border-slate-200 bg-white shadow-md">
-                  <div className="flex items-center justify-between border-b border-slate-100 px-8 py-6 flex-wrap gap-4">
-                    <div>
-                      <h2 className="text-xl font-semibold text-slate-900">Kiến nghị & phản ánh</h2>
-                      <p className="text-xs text-slate-500">Danh sách phản ánh của người dân gửi lên hệ thống</p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-4">
-                      <input
-                        type="text"
-                        placeholder="Tìm theo CCCD/SĐT..."
-                        value={complaintsSearchPhone}
-                        onChange={(e) => setComplaintsSearchPhone(e.target.value)}
-                        className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 outline-none hover:bg-slate-100 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => void loadComplaints()}
-                        className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
-                      >
-                        Làm mới
-                      </button>
-                      <div className="flex items-center gap-2">
-                        <label htmlFor="complaints-sort" className="text-xs text-slate-500">Sắp xếp:</label>
-                        <select
-                          id="complaints-sort"
-                          value={complaintsSort}
-                          onChange={(e) => setComplaintsSort(e.target.value as any)}
-                          className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 outline-none hover:bg-slate-100 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-                        >
-                          <option value="default">Mặc định</option>
-                          <option value="time-desc">Mới nhất</option>
-                          <option value="time-asc">Cũ nhất</option>
-                          <option value="name-asc">Tên A → Z</option>
-                          <option value="name-desc">Tên Z → A</option>
-                          <option value="status">Trạng thái (Chờ duyệt trước)</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full table-fixed divide-y divide-slate-100 text-sm">
-                      <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                        <tr>
-                          <th className="px-8 py-3 text-left">Họ và tên</th>
-                          <th className="w-[150px] px-4 py-3 text-left">SĐT</th>
-                          <th className="w-[120px] px-4 py-3 text-left">Ngày tạo</th>
-                          <th className="px-4 py-3 text-left">Email</th>
-                          <th className="px-4 py-3 text-left">Địa chỉ liên hệ</th>
-                          <th className="w-[260px] px-4 py-3 text-left">Thao tác</th>
-                        </tr>
-                      </thead>
-
-                      <tbody className="divide-y divide-slate-100 text-slate-600">
-                        {loadingComplaints && (
-                          <tr>
-                            <td colSpan={6} className="px-8 py-6 text-center text-sm text-slate-500">
-                              Đang tải phản ánh...
-                            </td>
-                          </tr>
-                        )}
-
-                        {!loadingComplaints && localComplaints.length === 0 && (
-                          <tr>
-                            <td colSpan={6} className="px-8 py-6 text-center text-sm text-slate-500">
-                              Chưa có phản ánh mới.
-                            </td>
-                          </tr>
-                        )}
-
-                        {!loadingComplaints && localComplaints.length > 0 && sortedComplaints.length === 0 && (
-                          <tr>
-                            <td colSpan={6} className="px-8 py-6 text-center text-sm text-slate-500">
-                              Không tìm thấy phản ánh nào khớp với số điện thoại này.
-                            </td>
-                          </tr>
-                        )}
-
-                        {sortedComplaints.map((item) => (
-                          <tr key={item.id} className="transition hover:bg-slate-50">
-                            <td className="px-8 py-4 font-semibold text-slate-900">{item.name}</td>
-                            <td className="px-4 py-4 text-slate-500">{item.phone}</td>
-                            <td className="px-4 py-4 text-slate-500 text-xs">
-                              {item.createdAt ? new Date(item.createdAt).toLocaleDateString('vi-VN') : '—'}
-                            </td>
-                            <td className="px-4 py-4 text-slate-500">{item.email}</td>
-                            <td className="px-4 py-4 text-slate-500">{item.address}</td>
-
-                            <td className="px-4 py-4">
-                              <div className="flex min-w-[260px] justify-center">
-                                {item.status === 'PENDING' ? (
-                                  <div className="flex gap-2">
-                                    <button
-                                      type="button"
-                                      onClick={() => handleViewComplaint(item)}
-                                      className="w-32 rounded-md bg-sky-500 px-3 py-1 text-xs font-semibold text-white hover:bg-sky-600"
-                                    >
-                                      Xem nội dung
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => void handleDeleteComplaint(item.id)}
-                                      className="w-32 rounded-md border border-rose-200 bg-white px-3 py-1 text-xs font-semibold text-rose-600 hover:bg-rose-50 hover:border-rose-300"
-                                    >
-                                      Xóa
-                                    </button>
-                                  </div>
-                                ) : item.status === 'ACCEPTED' ? (
-                                  <span className="w-40 rounded-md bg-emerald-100 px-3 py-1 text-center text-xs font-semibold text-emerald-800">
-                                    Đã tiếp nhận
-                                  </span>
-                                ) : (
-                                  <span className="w-40 rounded-md bg-rose-100 px-3 py-1 text-center text-xs font-semibold text-rose-800">
-                                    Đã xóa
-                                  </span>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                {selectedComplaint && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-                    <div className="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <h3 className="text-lg font-semibold text-slate-900">Nội dung phản ánh</h3>
-                          <p className="mt-1 text-xs text-slate-500">
-                            {selectedComplaint.name} • {selectedComplaint.phone}
-                          </p>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={closeComplaintModal}
-                          className="rounded-lg border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50"
-                        >
-                          Đóng
-                        </button>
-                      </div>
-
-                      <div className="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-700 border border-slate-100">
-                        {selectedComplaint.description?.trim() || selectedComplaint.content?.trim()
-                          ? selectedComplaint.description?.trim() || selectedComplaint.content?.trim()
-                          : 'Chưa có nội dung phản ánh.'}
-                      </div>
-
-                      {selectedComplaint.attachmentUrl && (
-                        <div className="mt-4">
-                          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Tệp đính kèm</p>
-
-                          <Image
-                            src={selectedComplaint.attachmentUrl}
-                            alt="Ảnh đính kèm"
-                            width={800}
-                            height={600}
-                            className="max-h-[300px] w-full rounded-lg border border-slate-200 object-contain"
-                          />
-
-                          <a
-                            href={selectedComplaint.attachmentUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mt-2 inline-block text-xs text-sky-600 hover:underline hover:text-sky-800"
-                          >
-                            Mở ảnh trong tab mới
-                          </a>
-                        </div>
-                      )}
-
-                      <div className="mt-4 text-xs text-slate-500">
-                        Email: {selectedComplaint.email || '—'} • Địa chỉ: {selectedComplaint.address || '—'}
-                      </div>
-                      {selectedComplaint.status === 'PENDING' && (
-                        <div className="mt-6 flex justify-end">
-                          <button
-                            type="button"
-                            onClick={() => { void handleAcceptComplaint(selectedComplaint.id); closeComplaintModal(); }}
-                            className="rounded-md bg-emerald-500 px-6 py-2 text-sm font-semibold text-white hover:bg-emerald-600 shadow-sm"
-                          >
-                            Tiếp nhận phản ánh này
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </section>
-            )}
-
-            {/* TAB: FEES */}
-            {activeTab === 'fees' && (
-              <section className="w-full animate-[fadeIn_0.3s_ease-out]">
-                <div className="w-full rounded-3xl border border-slate-200 bg-white shadow-md">
-                  <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 px-8 py-6">
-                    <div>
-                      <h2 className="text-xl font-semibold text-slate-900">Thiết lập các loại phí, số tiền và hạn nộp cho từng dịch vụ công</h2>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-8 px-8 py-8 lg:grid-cols-[1.2fr,0.8fr]">
-                    <form onSubmit={handleFeeSubmit} className="space-y-5">
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <label className="space-y-2 text-sm text-slate-700">
-                          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Loại phí</span>
-                          <select
-                            value={feeDraft.categoryId}
-                            onChange={(event) => handleFeeChange('categoryId', event.target.value)}
-                            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                          >
-                            {feeCategories.map((category) => (
-                              <option key={category.id} value={category.id}>
-                                {category.label}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-
-                        <label className="space-y-2 text-sm text-slate-700">
-                          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Số CCCD</span>
-                          <input
-                            type="text"
-                            value={feeDraft.personalId}
-                            onChange={(event) => handleFeeChange('personalId', event.target.value)}
-                            placeholder="Nhập số CCCD"
-                            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                          />
-                        </label>
-                      </div>
-
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <label className="space-y-2 text-sm text-slate-700">
-                          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Số tiền (VNĐ)</span>
-                          <input
-                            type="number"
-                            min={0}
-                            value={feeDraft.amount}
-                            onChange={(event) => handleFeeChange('amount', event.target.value)}
-                            placeholder="Ví dụ: 250000"
-                            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                          />
-                        </label>
-
-                        <label className="space-y-2 text-sm text-slate-700">
-                          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Hạn nộp</span>
-                          <input
-                            type="date"
-                            value={feeDraft.dueDate}
-                            onChange={(event) => handleFeeChange('dueDate', event.target.value)}
-                            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                          />
-                        </label>
-
-                        <div className="flex items-end md:col-span-2">
-                          <button
-                            type="submit"
-                            className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600 shadow-sm"
-                          >
-                            Tạo phí mới
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Gợi ý loại phí</p>
-                        <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                          {feeCategories.map((category) => (
-                            <div key={category.id} className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-                              <p className="text-sm font-semibold text-slate-900">{category.label}</p>
-                              <p className="mt-1 text-xs text-slate-500">{category.description}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </form>
-
-                    <div className="space-y-4">
-                      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-xs text-emerald-800 shadow-sm">
-                        <p className="font-semibold text-emerald-900">Lưu ý vận hành</p>
-                        <ul className="mt-3 space-y-2">
-                          <li>• Kiểm tra lại hạn nộp để tránh trùng lặp kỳ thu.</li>
-                          <li>• Cân đối số tiền theo quy định phí địa phương.</li>
-                          <li>• Thông báo cho người dân qua hệ thống thông báo khi đã tạo phí.</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-            )}
-
-            {/* TAB: SYSTEM NEWS */}
-            {activeTab === 'news' && (
-              <section className="w-full animate-[fadeIn_0.3s_ease-out]">
-                <div className="w-full rounded-3xl border border-slate-200 bg-white shadow-md">
-                  <div className="flex items-center justify-between border-b border-slate-100 px-8 py-6 flex-wrap gap-4">
-                    <div>
-                      <h2 className="text-xl font-semibold text-slate-900">Tin tức & Cập nhật hệ thống</h2>
-                      <p className="text-xs text-slate-500">Tạo và quản lý tin tức hiển thị trên trang chủ</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setNewsView('create')}
-                        className={`rounded-xl px-4 py-2 text-xs font-semibold transition-colors ${newsView === 'create'
-                            ? 'bg-emerald-500 text-white'
-                            : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-                          }`}
-                      >
-                        ✏️ Tạo mới
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => { setNewsView('history'); void loadNews(); }}
-                        className={`rounded-xl px-4 py-2 text-xs font-semibold transition-colors ${newsView === 'history'
-                            ? 'bg-emerald-500 text-white'
-                            : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-                          }`}
-                      >
-                        📋 Lịch sử phiên bản
-                      </button>
-                    </div>
-                  </div>
-
-                  {newsView === 'create' && (
-                    <div className="px-8 py-8">
-                      <form onSubmit={handleNewsSubmit} className="space-y-5 max-w-2xl">
-                        <label className="block space-y-2 text-sm text-slate-700">
-                          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Tiêu đề</span>
-                          <input
-                            type="text"
-                            value={newsDraft.title}
-                            onChange={(e) => setNewsDraft((prev) => ({ ...prev, title: e.target.value }))}
-                            placeholder="Nhập tiêu đề tin tức"
-                            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                          />
-                        </label>
-
-                        <label className="block space-y-2 text-sm text-slate-700">
-                          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Tóm tắt</span>
-                          <input
-                            type="text"
-                            value={newsDraft.summary}
-                            onChange={(e) => setNewsDraft((prev) => ({ ...prev, summary: e.target.value }))}
-                            placeholder="Mô tả ngắn gọn nội dung"
-                            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                          />
-                        </label>
-
-                        <div className="grid gap-4 md:grid-cols-2">
-                          <label className="block space-y-2 text-sm text-slate-700">
-                            <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Phiên bản (tuỳ chọn)</span>
-                            <input
-                              type="text"
-                              value={newsDraft.version}
-                              onChange={(e) => setNewsDraft((prev) => ({ ...prev, version: e.target.value }))}
-                              placeholder="VD: v2.1, Bản cập nhật tháng 3"
-                              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                            />
-                          </label>
-                        </div>
-
-                        <label className="block space-y-2 text-sm text-slate-700">
-                          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Nội dung chi tiết</span>
-                          <textarea
-                            rows={5}
-                            value={newsDraft.content}
-                            onChange={(e) => setNewsDraft((prev) => ({ ...prev, content: e.target.value }))}
-                            placeholder="Nhập nội dung chi tiết của tin tức hoặc bản cập nhật..."
-                            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 resize-none"
-                          />
-                        </label>
-
-                        <button
-                          type="submit"
-                          className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600 shadow-sm"
-                        >
-                          Đăng tin tức mới
-                        </button>
-                      </form>
-
-                      <div className="mt-8">
-                        <button
-                          type="button"
-                          onClick={() => { setNewsView('history'); void loadNews(); }}
-                          className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline transition-colors"
-                        >
-                          📋 Xem lịch sử phiên bản →
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {newsView === 'history' && (
-                    <div className="px-8 py-8">
-                      {loadingNews && (
-                        <p className="text-center text-sm text-slate-500 py-6">Đang tải danh sách tin tức...</p>
-                      )}
-                      {!loadingNews && newsItems.length === 0 && (
-                        <p className="text-center text-sm text-slate-500 py-6">Chưa có tin tức nào.</p>
-                      )}
-                      {!loadingNews && newsItems.length > 0 && (
-                        <div className="space-y-4">
-                          {newsItems.map((item) => (
-                            <div
-                              key={item.id}
-                              className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-emerald-300 hover:shadow-md"
-                            >
-                              <div className="flex items-start justify-between gap-4">
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-3 flex-wrap">
-                                    <h3 className="text-base font-semibold text-slate-900">{item.title}</h3>
-                                    {item.version && (
-                                      <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-700">
-                                        {item.version}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <p className="mt-1 text-xs text-slate-500">
-                                    {item.createdAt
-                                      ? new Date(item.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-                                      : '—'}
-                                  </p>
-                                  <p className="mt-2 text-sm text-slate-600 leading-relaxed">{item.summary}</p>
-                                  {item.content && (
-                                    <p className="mt-2 text-xs text-slate-500 leading-relaxed whitespace-pre-wrap">{item.content}</p>
-                                  )}
-                                </div>
-                                <button
-                                  type="button"
-                                  onClick={() => void handleDeleteNews(item.id)}
-                                  className="flex-shrink-0 rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 hover:border-rose-300 transition-colors"
-                                >
-                                  Xóa
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </section>
-            )}
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
