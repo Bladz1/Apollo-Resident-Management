@@ -132,6 +132,7 @@ function deriveUsernameFromJwt(token: string | null | undefined): string | null 
   if (!claims) return null;
 
   const username = pickString(claims, [
+    'fullName',
     'preferred_username',
     'username',
     'user_name',

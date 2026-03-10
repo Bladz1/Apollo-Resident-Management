@@ -35,7 +35,6 @@ function validatePassword(password: string) {
 export default function RegisterPage() {
   const [formState, setFormState] = useState({
     nationalId: "",
-    username: "",
     fullName: "",
     address: "",
     phone: "",
@@ -112,7 +111,7 @@ export default function RegisterPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: formState.username.trim(),
+          fullName: formState.fullName.trim(),
           password: formState.password,
           email: formState.email.trim(),
           address: formState.address.trim(),
@@ -149,7 +148,6 @@ export default function RegisterPage() {
   const handleReset = () => {
     setFormState({
       nationalId: "",
-      username: "",
       fullName: "",
       address: "",
       phone: "",
@@ -214,23 +212,6 @@ export default function RegisterPage() {
               )}
             </div>
 
-            <div>
-              <label htmlFor="username" className="text-sm font-semibold text-slate-700">
-                Tên đăng nhập <span className="text-red-900">*</span>
-              </label>
-              <input
-                id="username"
-                type="text"
-                required
-                minLength={3}
-                maxLength={50}
-                value={formState.username}
-                onChange={(event) => handleChange("username")(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-                placeholder=""
-                autoComplete="username"
-              />
-            </div>
 
             <div>
               <label htmlFor="full-name" className="text-sm font-semibold text-slate-700">
@@ -271,7 +252,7 @@ export default function RegisterPage() {
               <input
                 id="phone"
                 type="tel"
-                
+
                 required
                 value={formState.phone}
                 onChange={(event) => handleChange("phone")(event.target.value)}

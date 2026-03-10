@@ -19,7 +19,7 @@ type UserProfile = {
 const ProfilePage = () => {
   const router = useRouter();
 
-  const [username, setUsername] = useState<string | null>(null);
+  const [fullName, setFullName] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [roles, setRoles] = useState<string[]>([]);
 
@@ -45,10 +45,10 @@ const ProfilePage = () => {
 
   // ✅ Load username/userId (local) + fetch profile (server đọc cookie)
   useEffect(() => {
-    const loadedUsername = loadUsername();
+    const loadedFullName = loadUsername();
     const loadedUserId = loadUserId();
 
-    setUsername(loadedUsername);
+    setFullName(loadedFullName);
     setUserId(loadedUserId);
 
     const controller = new AbortController();
@@ -198,7 +198,7 @@ const ProfilePage = () => {
               </svg>
             </button>
 
-            {username ? (
+            {fullName ? (
               <div className="hidden items-center gap-2 md:flex">
                 <Image
                   src="/images/7.png"
@@ -207,7 +207,7 @@ const ProfilePage = () => {
                   height={32}
                   className="h-8 w-8 rounded-full border border-white object-cover shadow"
                 />
-                <span className="text-sm font-medium text-gray-700">{username}</span>
+                <span className="text-sm font-medium text-gray-700">{fullName}</span>
               </div>
             ) : null}
           </div>
@@ -262,7 +262,7 @@ const ProfilePage = () => {
               </div>
 
               <h2 className="mt-4 text-2xl font-semibold uppercase tracking-[0.05em] text-[#3f2a19]">
-                {username ?? 'Khách truy cập'}
+                {fullName ?? 'Khách truy cập'}
               </h2>
 
               <div className="mt-2 inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-sm text-gray-600">

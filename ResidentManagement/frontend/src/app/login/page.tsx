@@ -9,7 +9,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8080/
 
 type AuthExtractionResult = {
   token?: string;
-  username?: string;
+  fullName?: string;
   roles?: string[];
 };
 
@@ -61,7 +61,7 @@ function extractAuthDetails(payload: unknown): AuthExtractionResult {
   const pickString = (obj: Record<string, unknown>, keys: string[]) =>
     keys.map((k) => obj[k]).find((v) => typeof v === 'string' && v.trim()) as string | undefined;
 
-  while (queue.length && (!result.token || !result.username || !result.roles)) {
+  while (queue.length && (!result.token || !result.fullName || !result.roles)) {
     const current = queue.shift();
     if (!current || visited.has(current)) continue;
     visited.add(current);
@@ -69,7 +69,7 @@ function extractAuthDetails(payload: unknown): AuthExtractionResult {
     const record = current as Record<string, unknown>;
 
     result.token ??= pickString(record, ['token', 'jwt', 'accessToken', 'access_token']);
-    result.username ??= pickString(record, ['username', 'userName', 'name']);
+    result.fullName ??= pickString(record, ['fullName', 'username', 'userName', 'name']);
     result.roles ??= normalizeRoles(record.roles) ?? undefined;
 
     for (const key of ['data', 'result', 'user', 'account', 'profile']) {
@@ -89,7 +89,7 @@ function LoginPageContent() {
 
   const nextPath = useMemo(() => searchParams.get('next') || '/', [searchParams]);
 
-  const [username, setUsername] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -116,7 +116,7 @@ function LoginPageContent() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username,
+          identifier,
           password,
         }),
       });
@@ -128,15 +128,15 @@ function LoginPageContent() {
 
       const parsed = await res.json();
 
-      const { token, username: usernameFromResponse, roles } =
+      const { token, fullName: fullNameFromResponse, roles } =
         extractAuthDetails(parsed);
 
       if (!token) return;
 
       const resolvedUsername =
-        usernameFromResponse ??
+        fullNameFromResponse ??
         extractUsernameFromToken(token) ??
-        username;
+        identifier;
 
       const resolvedRoles =
         roles ?? extractRolesFromToken(token) ?? [];
@@ -159,7 +159,7 @@ function LoginPageContent() {
       router.replace(isAdmin ? '/admin' : '/');
     } catch (error) {
       console.error('Login error:', error);
-      setErrorMessage('Invalid username or password. Try again!');
+      setErrorMessage('Thông tin đăng nhập không chính xác. Vui lòng thử lại!');
     } finally {
       setLoading(false);
     }
@@ -168,7 +168,7 @@ function LoginPageContent() {
 
   return (
     <div
-      className="relative flex h-[calc(100vh-130px)] overflow-hidden items-center justify-center text-slate-900"
+      className="relative flex min-h-[calc(100vh-112px)] overflow-hidden items-center justify-center text-slate-900"
       style={{
         backgroundImage: "url('/images/trongdong.jpg')",
         backgroundSize: 'cover',
@@ -186,14 +186,14 @@ function LoginPageContent() {
 
         <form className="space-y-3.5" onSubmit={handleSubmit}>
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold">Tên đăng nhập</label>
+            <label className="text-xs font-semibold">CCCD hoặc Số điện thoại</label>
             <input
               type="text"
               required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
               className="w-full rounded-md border px-4 py-2.5 text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-300"
-              placeholder="CCCD hoặc SĐT"
+              placeholder="Nhập CCCD hoặc SĐT"
             />
           </div>
 
