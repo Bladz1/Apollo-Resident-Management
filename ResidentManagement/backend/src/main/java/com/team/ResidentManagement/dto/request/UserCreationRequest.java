@@ -17,9 +17,8 @@ import java.time.LocalDate;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserCreationRequest {
 
-    /** Tên đăng nhập tối thiểu 3 ký tự. */
-    @Size(min = 3, max = 50, message = "USERNAME_INVALID")
-    String username;
+    /** Họ và tên người dùng. */
+    String fullName;
 
     /** Mật khẩu tối thiểu 8 ký tự. */
     @Size(min = 8, max = 100, message = "PASSWORD_INVALID")

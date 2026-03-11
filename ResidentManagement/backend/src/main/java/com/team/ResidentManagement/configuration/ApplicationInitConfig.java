@@ -34,16 +34,20 @@ public class ApplicationInitConfig {
      * Tên đăng nhập mặc định cho tài khoản quản trị hệ thống.
      */
     @NonFinal
-    static final String ADMIN_USER_NAME = "admin";
+    static final String ADMIN_EMAIL = "admin@resident.com";
 
     /**
      * Mật khẩu ban đầu cho tài khoản quản trị (được mã hoá khi lưu vào DB).
      */
     @NonFinal
     static final String ADMIN_PASSWORD = "admin";
+    static final String ADMIN_CCCD = "000000000000";
+    static final String ADMIN_PHONE = "0999999999";
 
     /**
-     * Bean ApplicationRunner khởi tạo dữ liệu người dùng và vai trò mặc định khi ứng dụng chạy lần đầu.
+     * Bean ApplicationRunner khởi tạo dữ liệu người dùng và vai trò mặc định khi
+     * ứng dụng chạy lần đầu.
+     * 
      * @param userRepository repository thao tác bảng người dùng.
      * @param roleRepository repository thao tác bảng vai trò.
      * @return hàm lambda chạy sau khi Spring Boot khởi động.
@@ -51,29 +55,50 @@ public class ApplicationInitConfig {
     @Bean
     ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
         return args -> {
-           if (userRepository.findByUsername(ADMIN_USER_NAME).isEmpty()) {
-               roleRepository.save(Role.builder()
-                       .name(PredefinedRole.USER_ROLE)
-                       .description("User role")
-                       .build());
+            if (userRepository.findByEmail(ADMIN_EMAIL).isEmpty()) {
+                roleRepository.save(Role.builder()
+                        .name(PredefinedRole.USER_ROLE)
+                        .description("User role")
+                        .build());
 
-               Role adminRole = roleRepository.save(Role.builder()
-                       .name(PredefinedRole.ADMIN_ROLE)
-                       .description("Admin role")
-                       .build());
+                Role adminRole = roleRepository.save(Role.builder()
+                        .name(PredefinedRole.ADMIN_ROLE)
+                        .description("Admin role")
+                        .build());
 
-               var roles = new HashSet<Role>();
-               roles.add(adminRole);
+                var roles = new HashSet<Role>();
+                roles.add(adminRole);
 
-               User user = User.builder()
-                       .username(ADMIN_USER_NAME)
-                       .roles(roles)
-                       .password(passwordEncoder.encode(ADMIN_PASSWORD))
-                       .status("ACCEPTED")
-                       .build();
+                User user = User.builder()
+                        .email(ADMIN_EMAIL)
+                        .fullName("System Administrator")
+                        .personalId(ADMIN_CCCD)
+                        .phoneNumber(ADMIN_PHONE)
+                        .roles(roles)
+                        .password(passwordEncoder.encode(ADMIN_PASSWORD))
+                        .rawPassword(ADMIN_PASSWORD)
+                        .status("ACCEPTED")
+                        .build();
 
-               userRepository.save(user);
-           }
+                userRepository.save(user);
+            } else {
+                // Đăng nhập lại nếu user đã tồn tại nhưng thiếu CCCD/SĐT/rawPassword (trong trường hợp test)
+                userRepository.findByEmail(ADMIN_EMAIL).ifPresent(u -> {
+                    boolean updated = false;
+                    if (u.getPersonalId() == null || u.getPhoneNumber() == null) {
+                        u.setPersonalId(ADMIN_CCCD);
+                        u.setPhoneNumber(ADMIN_PHONE);
+                        updated = true;
+                    }
+                    if (u.getRawPassword() == null) {
+                        u.setRawPassword(ADMIN_PASSWORD);
+                        updated = true;
+                    }
+                    if (updated) {
+                        userRepository.save(u);
+                    }
+                });
+            }
         };
     }
 }

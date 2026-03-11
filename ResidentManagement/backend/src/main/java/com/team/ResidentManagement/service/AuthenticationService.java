@@ -35,7 +35,8 @@ import java.util.StringJoiner;
 import java.util.UUID;
 
 /**
- * Xử lý toàn bộ nghiệp vụ xác thực JWT: phát hành, kiểm tra, làm mới và thu hồi token.
+ * Xử lý toàn bộ nghiệp vụ xác thực JWT: phát hành, kiểm tra, làm mới và thu hồi
+ * token.
  */
 @Service
 @RequiredArgsConstructor
@@ -63,7 +64,6 @@ public class AuthenticationService {
     @Value("${jwt.refreshable-duration}")
     protected long REFRESHABLE_DURATION;
 
-
     /**
      * Kiểm tra token có hợp lệ hay không dựa trên verifyToken.
      */
@@ -82,12 +82,14 @@ public class AuthenticationService {
     }
 
     /**
-     * Xác thực người dùng bằng username/password và phát hành JWT mới.
+     * Xác thực người dùng bằng email/password và phát hành JWT mới.
      */
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        var user = userRepository.findByUsername(request.getUsername())
+        String identifier = request.getIdentifier(); // Treated as CCCD or Phone Number now
+        var user = userRepository.findByPersonalId(identifier)
+                .or(() -> userRepository.findByPhoneNumber(identifier))
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
@@ -95,7 +97,7 @@ public class AuthenticationService {
         if (!authenticated) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
-        if (user.getStatus().equals("PENDING") || user.getStatus().equals("REJECTED")){
+        if (user.getStatus().equals("PENDING") || user.getStatus().equals("REJECTED")) {
             throw new AppException(ErrorCode.USER_NOT_ACCEPT);
         }
 
@@ -109,7 +111,8 @@ public class AuthenticationService {
 
     /**
      * Verify chữ ký, hạn dùng và trạng thái thu hồi của token.
-     * @param token chuỗi JWT cần kiểm tra.
+     * 
+     * @param token   chuỗi JWT cần kiểm tra.
      * @param refresh true nếu đang kiểm tra cho mục đích refresh.
      */
     private SignedJWT verifyToken(String token, boolean refresh) throws JOSEException, ParseException {
@@ -117,9 +120,10 @@ public class AuthenticationService {
 
         SignedJWT signedJWT = SignedJWT.parse(token);
 
-        Date expireTime = (refresh) ?
-                new Date(signedJWT.getJWTClaimsSet().getIssueTime().toInstant().plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS).toEpochMilli()) :
-                signedJWT.getJWTClaimsSet().getExpirationTime();
+        Date expireTime = (refresh)
+                ? new Date(signedJWT.getJWTClaimsSet().getIssueTime().toInstant()
+                        .plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS).toEpochMilli())
+                : signedJWT.getJWTClaimsSet().getExpirationTime();
 
         var verified = signedJWT.verify((verifier));
 
@@ -130,7 +134,7 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
-        return  signedJWT;
+        return signedJWT;
     }
 
     /**
@@ -170,11 +174,10 @@ public class AuthenticationService {
 
         invalidatedTokenRepository.save(invalidatedToken);
 
-        var username = signedJWT.getJWTClaimsSet().getSubject();
+        var email = signedJWT.getJWTClaimsSet().getSubject();
 
-        var user = userRepository.findByUsername(username).orElseThrow(
-                () -> new AppException(ErrorCode.UNAUTHENTICATED)
-        );
+        var user = userRepository.findByEmail(email).orElseThrow(
+                () -> new AppException(ErrorCode.UNAUTHENTICATED));
 
         var token = generateToken(user);
 
@@ -191,15 +194,15 @@ public class AuthenticationService {
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(user.getUsername())
+                .subject(user.getEmail())
                 .issuer("devteria.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
-                        Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()
-                ))
+                        Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", buildScope(user))
                 .claim("userId", user.getId())
+                .claim("fullName", user.getFullName())
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -218,15 +221,14 @@ public class AuthenticationService {
     /**
      * Ghép các vai trò và quyền thành chuỗi scope truyền vào JWT.
      */
-    private String buildScope(User user){
+    private String buildScope(User user) {
         StringJoiner stringJoiner = new StringJoiner(" ");
 
-        if (!CollectionUtils.isEmpty(user.getRoles())){
+        if (!CollectionUtils.isEmpty(user.getRoles())) {
             user.getRoles().forEach(role -> {
                 stringJoiner.add("ROLE_" + role.getName());
                 if (!CollectionUtils.isEmpty(role.getPermissions())) {
-                    role.getPermissions().forEach(permission
-                            -> stringJoiner.add(permission.getName()));
+                    role.getPermissions().forEach(permission -> stringJoiner.add(permission.getName()));
                 }
             });
         }

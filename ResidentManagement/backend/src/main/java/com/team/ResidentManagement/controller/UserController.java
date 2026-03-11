@@ -80,6 +80,13 @@ public class UserController {
                 .build();
     }
 
+    @GetMapping("/admins")
+    ApiResponse<List<UserResponse>> getAdminUsers() {
+        return ApiResponse.<List<UserResponse>>builder()
+                .result(userService.getAdminUsers())
+                .build();
+    }
+
     /**
      * Lấy thông tin của chính người dùng đang đăng nhập.
      */

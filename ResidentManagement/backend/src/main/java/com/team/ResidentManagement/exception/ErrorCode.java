@@ -14,7 +14,6 @@ public enum ErrorCode {
     INVALID_KEY(1001, "Uncategorized Error", HttpStatus.BAD_REQUEST),
     USER_EXISTED(1002, "User already exist", HttpStatus.BAD_REQUEST),
     USER_NOT_FOUND(1003, "User Not Found", HttpStatus.NOT_FOUND),
-    USERNAME_INVALID(1004, "Username must be at least 3 characters!", HttpStatus.BAD_REQUEST),
     PASSWORD_INVALID(1005, "Password must be at least 8 characters!", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED_EXCEPTION(1006, "Unauthorized Error", HttpStatus.FORBIDDEN),
     UNAUTHENTICATED(1007, "Unauthenticated", HttpStatus.UNAUTHORIZED),

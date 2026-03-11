@@ -228,6 +228,12 @@ export default function Home() {
               <h2 className={styles["section-title"]}>
                 <span className={styles["section-icon"]}>🛠️</span>
                 Hướng dẫn sử dụng dành cho người dân
+                <Link
+                  href="/support"
+                  className="ml-auto inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-xs font-bold text-red-700 transition hover:bg-red-100 hover:border-red-300"
+                >
+                  Xem hướng dẫn chi tiết →
+                </Link>
               </h2>
 
               <div className="grid gap-6 md:grid-cols-3">

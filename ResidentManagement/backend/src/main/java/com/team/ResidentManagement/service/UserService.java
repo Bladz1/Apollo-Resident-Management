@@ -58,7 +58,7 @@ public class UserService {
     /** Repository phí để gán nghĩa vụ tài chính cho cư dân. */
     FeeRepository feeRepository;
 
-    FileStorageService  fileStorageService;
+    FileStorageService fileStorageService;
 
     FeedbackRepository feedbackRepository;
     FeedbackMapper feedbackMapper;
@@ -71,6 +71,7 @@ public class UserService {
      * Tạo mới người dùng với vai trò USER mặc định.
      */
     @PreAuthorize("hasRole('ADMIN')")
+    @CacheEvict(value = "admins", allEntries = true)
     public UserResponse createUser(UserCreationRequest request) {
         return createUserInternal(request);
     }
@@ -78,15 +79,15 @@ public class UserService {
     /**
      * Đăng ký tài khoản mới cho cư dân (không yêu cầu quyền admin).
      */
-    @CacheEvict(value = "users", key = "'pending'")
+    @CacheEvict(value = { "users", "admins" }, key = "'pending'", allEntries = true)
     public UserResponse registerUser(UserCreationRequest request) {
         return createUserInternal(request);
     }
 
-
     private UserResponse createUserInternal(UserCreationRequest request) {
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRawPassword(request.getPassword());
         user.setStatus("PENDING");
 
         HashSet<Role> roles = new HashSet<>();
@@ -109,13 +110,14 @@ public class UserService {
      */
     public UserResponse getMyInfo() {
         var context = SecurityContextHolder.getContext();
-        String name = context.getAuthentication().getName();
+        String email = context.getAuthentication().getName();
 
-        User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         UserResponse userResponse = userMapper.toUserResponse(user);
 
-        HashSet<FeedbackResponse> responses = feedbackRepository.findByUserId(user.getId()).stream().map(feedbackMapper::toFeedbackResponse).collect(Collectors.toCollection(HashSet::new));
+        HashSet<FeedbackResponse> responses = feedbackRepository.findByUserId(user.getId()).stream()
+                .map(feedbackMapper::toFeedbackResponse).collect(Collectors.toCollection(HashSet::new));
 
         userResponse.setFeedbacks(responses);
 
@@ -125,13 +127,14 @@ public class UserService {
     /**
      * Cập nhật thông tin, vai trò và các khoản phí của người dùng.
      */
-    @CacheEvict(value = "users", key = "#UserId")
+    @CacheEvict(value = { "users", "admins" }, allEntries = true)
     public UserResponse updateUser(String UserId, UserUpdateRequest request) {
         User user = userRepository.findById(UserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         userMapper.updateUser(user, request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRawPassword(request.getPassword());
 
         var roles = roleRepository.findAllById(request.getRoles());
         user.setRoles(new HashSet<>(roles));
@@ -142,7 +145,7 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    @CacheEvict(value = "users", key = "'pending'")
+    @CacheEvict(value = { "users", "admins" }, allEntries = true)
     public UserResponse updateUserStatus(String userId, UpdateUserStatusRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -169,14 +172,16 @@ public class UserService {
         user.setAvatarUrl(fileUrl);
         return userRepository.save(user);
     }
+
     /**
      * Xoá người dùng theo ID.
      */
-    @CacheEvict(value = "users", key = "#UserId")
+    @CacheEvict(value = { "users", "admins" }, allEntries = true)
     public String deleteUser(String UserId) {
         if (userRepository.existsById(UserId)) {
             userRepository.deleteById(UserId);
-        } else throw new RuntimeException("User not found");
+        } else
+            throw new RuntimeException("User not found");
         return "User has been deleted!";
     }
 
@@ -190,7 +195,8 @@ public class UserService {
                 .map(userMapper::toUserResponse)
                 .toList();
     }
-    //@Cacheable(value = "users", key = "'pending'")
+
+    // @Cacheable(value = "users", key = "'pending'")
     @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> getPendingUsers() {
         return userRepository.findAll().stream()
@@ -199,11 +205,19 @@ public class UserService {
                 .toList();
     }
 
+    @Cacheable(value = "admins", key = "'all'")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<UserResponse> getAdminUsers() {
+        return userRepository.findByRolesName("ADMIN").stream()
+                .map(userMapper::toUserResponse)
+                .toList();
+    }
+
     /**
      * Lấy người dùng theo ID và chỉ cho phép xem nếu là chính mình.
      */
     @Cacheable(value = "users", key = "#id")
-    @PostAuthorize("returnObject.username = authentication.name")
+    @PostAuthorize("returnObject.email = authentication.name")
     public UserResponse getUser(String id) {
 
         return userMapper.toUserResponse(userRepository.findById(id)

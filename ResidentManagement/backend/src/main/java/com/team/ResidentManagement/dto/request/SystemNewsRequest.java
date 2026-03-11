@@ -3,15 +3,14 @@ package com.team.ResidentManagement.dto.request;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-/**
- * DTO request chứa thông tin đăng nhập (email/password).
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuthenticationRequest {
-    String identifier;
-    String password;
+public class SystemNewsRequest {
+    String title;
+    String summary;
+    String content;
+    String version;
 }

@@ -42,7 +42,7 @@ public class UserControllerTest {
         date = LocalDate.of(2020, 1, 1);
 
         request = UserCreationRequest.builder()
-                .username("John")
+                .fullName("John Smith")
                 .password("22222222q")
                 .email("john.smith@example.com")
                 .gender("MALE")
@@ -51,7 +51,7 @@ public class UserControllerTest {
 
         userResponse = UserResponse.builder()
                 .id("123456789")
-                .username("John")
+                .fullName("John Smith")
                 .email("john.smith@example.com")
                 .gender("MALE")
                 .birthday(date)

@@ -30,94 +30,92 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    /** Danh sách endpoint không yêu cầu xác thực. */
-    private final String[] PUBLIC_ENDPOINT = {"/users","/users/register", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh"};
+        /** Danh sách endpoint không yêu cầu xác thực. */
+        private final String[] PUBLIC_ENDPOINT = { "/users", "/users/register", "/auth/token", "/auth/introspect",
+                        "/auth/logout", "/auth/refresh" };
 
-    /** Khoá bí mật dùng để ký và xác thực token JWT. */
-    @Value("${jwt.signer-key}")
-    private String signerKey;
+        /** Khoá bí mật dùng để ký và xác thực token JWT. */
+        @Value("${jwt.signer-key}")
+        private String signerKey;
 
+        /** Trình giải mã JWT tuỳ chỉnh để kiểm tra chữ ký và trích xuất claims. */
+        @Autowired
+        CustomJwtDecoder customJwtDecoder;
 
-    /** Trình giải mã JWT tuỳ chỉnh để kiểm tra chữ ký và trích xuất claims. */
-    @Autowired
-    CustomJwtDecoder customJwtDecoder;
+        /**
+         * Định nghĩa chuỗi filter chính cho bảo mật HTTP.
+         * 
+         * @param httpSecurity builder cấu hình bảo mật.
+         * @return SecurityFilterChain dùng bởi Spring Security.
+         */
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+                http
+                                .csrf(AbstractHttpConfigurer::disable)
+                                .cors(Customizer.withDefaults())
 
-    /**
-     * Định nghĩa chuỗi filter chính cho bảo mật HTTP.
-     * @param httpSecurity builder cấu hình bảo mật.
-     * @return SecurityFilterChain dùng bởi Spring Security.
-     */
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                                .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINT).permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/system-news", "/system-news/**")
+                                                .permitAll()
+                                                .requestMatchers(
+                                                                "/auth/**",
+                                                                "/users/**")
+                                                .permitAll()
+                                                .anyRequest().authenticated())
 
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINT).permitAll()
-                        .requestMatchers(
-                                "/auth/**",
-                                "/users/**"
-                        ).permitAll()
-                        .anyRequest().authenticated()
-                )
+                                .oauth2ResourceServer(oauth2 -> oauth2
+                                                .jwt(jwt -> jwt
+                                                                .decoder(customJwtDecoder)
+                                                                .jwtAuthenticationConverter(
+                                                                                jwtAuthenticationConverter()))
+                                                .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
 
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt
-                                .decoder(customJwtDecoder)
-                                .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                        )
-                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
-                );
+                return http.build();
+        }
 
-        return http.build();
-    }
+        /**
+         * Cấu hình CORS để frontend có thể gọi API trong môi trường phát triển.
+         */
 
-    /**
-     * Cấu hình CORS để frontend có thể gọi API trong môi trường phát triển.
-     */
+        @Bean
+        CorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration config = new CorsConfiguration();
 
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
+                config.setAllowedOriginPatterns(List.of(
+                                "http://localhost:3000",
+                                "https://resident-management.vercel.app"));
+                config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+                config.setAllowedHeaders(List.of("*"));
+                config.setExposedHeaders(List.of("Authorization", "Content-Type"));
+                config.setAllowCredentials(true);
 
-        config.setAllowedOriginPatterns(List.of(
-                "http://localhost:3000",
-                "https://resident-management.vercel.app"
-        ));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setExposedHeaders(List.of("Authorization", "Content-Type"));
-        config.setAllowCredentials(true);
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", config);
 
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
+                return source;
+        }
 
-        return source;
-    }
+        /**
+         * Tuỳ biến cách ánh xạ quyền hạn từ token JWT.
+         */
+        @Bean
+        JwtAuthenticationConverter jwtAuthenticationConverter() {
+                JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+                jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
 
+                JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+                jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
 
-    /**
-     * Tuỳ biến cách ánh xạ quyền hạn từ token JWT.
-     */
-    @Bean
-    JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+                return jwtAuthenticationConverter;
+        }
 
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
-
-        return jwtAuthenticationConverter;
-    }
-
-    /**
-     * Bộ mã hoá mật khẩu dùng thuật toán BCrypt với strength = 10.
-     */
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(10);
-    }
+        /**
+         * Bộ mã hoá mật khẩu dùng thuật toán BCrypt với strength = 10.
+         */
+        @Bean
+        PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder(10);
+        }
 }

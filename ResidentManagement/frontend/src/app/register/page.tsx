@@ -1,39 +1,19 @@
 "use client";
 
-import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
+import { 
+  RegisterFormState, 
+  API_BASE_URL, 
+  VN_PHONE_REGEX, 
+  validatePassword 
+} from "./types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
-const VN_PHONE_REGEX = /^(0[3|5|7|8|9][0-9]{8}|\+84[3|5|7|8|9][0-9]{8})$/;
-
-
-const PASSWORD_REQUIREMENTS = [
-  "Ít nhất 8 ký tự",
-  "Bao gồm chữ hoa",
-  "Bao gồm chữ thường",
-  "Bao gồm số",
-  "Bao gồm ký tự đặc biệt (!@#$%^&*)",
-];
-
-function validatePassword(password: string) {
-  const lengthOk = password.length >= 8;
-  const upperOk = /[A-Z]/.test(password);
-  const lowerOk = /[a-z]/.test(password);
-  const numberOk = /[0-9]/.test(password);
-  const specialOk = /[!@#$%^&*]/.test(password);
-
-  return {
-    lengthOk,
-    upperOk,
-    lowerOk,
-    numberOk,
-    specialOk,
-    isValid: lengthOk && upperOk && lowerOk && numberOk && specialOk,
-  };
-}
+// Components
+import RegisterHeader from "./components/RegisterHeader";
+import RegisterForm from "./components/RegisterForm";
 
 export default function RegisterPage() {
-  const [formState, setFormState] = useState({
+  const [formState, setFormState] = useState<RegisterFormState>({
     nationalId: "",
     fullName: "",
     address: "",
@@ -60,7 +40,7 @@ export default function RegisterPage() {
     formState.password.length > 0 && formState.password === formState.confirmPassword;
 
   const handleChange =
-    (field: keyof typeof formState) => (value: string | boolean) => {
+    (field: keyof RegisterFormState) => (value: string | boolean) => {
       setFormState((prev) => ({
         ...prev,
         [field]: value,
@@ -71,35 +51,13 @@ export default function RegisterPage() {
     event.preventDefault();
     if (loading) return;
     setLoading(true);
-    if (!VN_PHONE_REGEX.test(formState.phone)) {
-      setStatus("success");
-      setMessage("Đã đăng kí thành công ! Xin bạn vui lòng đợi đợi xác minh.");
-      setLoading(false);
-      return;
-    }
 
-    if (!passwordValidation.isValid) {
-      setStatus("success");
-      setMessage("Đã đăng kí thành công ! Xin bạn vui lòng đợi đợi xác minh.");
-      setLoading(false);
-      return;
-    }
-
-    if (formState.nationalId.length !== 12) {
-      setStatus("success");
-      setMessage("Đã đăng kí thành công ! Xin bạn vui lòng đợi đợi xác minh.");
-      setLoading(false);
-      return;
-    }
-
-    if (!passwordsMatch) {
-      setStatus("success");
-      setMessage("Đã đăng kí thành công ! Xin bạn vui lòng đợi đợi xác minh.");
-      setLoading(false);
-      return;
-    }
-
-    if (!formState.agree) {
+    // Initial validation checks (simplified as per original code behavior)
+    if (!VN_PHONE_REGEX.test(formState.phone) || 
+        !passwordValidation.isValid || 
+        formState.nationalId.length !== 12 || 
+        !passwordsMatch || 
+        !formState.agree) {
       setStatus("success");
       setMessage("Đã đăng kí thành công ! Xin bạn vui lòng đợi đợi xác minh.");
       setLoading(false);
@@ -121,8 +79,6 @@ export default function RegisterPage() {
           birthday: formState.dob,
         }),
       });
-
-      const responseBody = await response.json().catch(() => null);
 
       if (!response.ok) {
         setStatus("success");
@@ -172,263 +128,19 @@ export default function RegisterPage() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-5xl px-6 py-16">
-        <div className="mb-10 text-center">
-          <h1 className="text-xs font-semibold uppercase tracking-[0.35em] text-amber-700">
-            Đăng ký tài khoản
-          </h1>
-          <p className="mt-3 text-sm text-slate-700 md:text-base">
-            Vui lòng cung cấp thông tin chính xác để xác minh danh tính và đảm bảo an toàn dữ liệu.
-          </p>
-        </div>
+        <RegisterHeader />
 
-        <form
-          onSubmit={handleSubmit}
-          onReset={handleReset}
-          className="grid gap-6 rounded-3xl border border-slate-200 bg-white p-8 shadow-xl md:grid-cols-2"
-        >
-          {/* CỘT TRÁI */}
-          <div className="space-y-5">
-            <div>
-              <label htmlFor="national-id" className="text-sm font-semibold text-slate-700">
-                Số CCCD <span className="text-red-900">*</span>
-              </label>
-              <input
-                id="national-id"
-                type="text"
-                inputMode="numeric"
-                required
-                minLength={12}
-                maxLength={12}
-                value={formState.nationalId}
-                onChange={(e) => {
-                  const onlyAsciiDigits = e.target.value.replace(/[^0-9]/g, "");
-                  handleChange("nationalId")(onlyAsciiDigits.slice(0, 12));
-                }}
-                className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-                autoComplete="off"
-              />
-              {formState.nationalId.length > 0 && formState.nationalId.length < 12 && (
-                <p className="mt-2 text-xs text-rose-600">Số CCCD cần đủ 12 chữ số.</p>
-              )}
-            </div>
-
-
-            <div>
-              <label htmlFor="full-name" className="text-sm font-semibold text-slate-700">
-                Họ và tên <span className="text-red-900">*</span>
-              </label>
-              <input
-                id="full-name"
-                type="text"
-                required
-                value={formState.fullName}
-                onChange={(event) => handleChange("fullName")(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-                placeholder=""
-                autoComplete="name"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="address" className="text-sm font-semibold text-slate-700">
-                Nơi ở hiện tại <span className="text-red-900">*</span>
-              </label>
-              <input
-                id="address"
-                type="text"
-                required
-                value={formState.address}
-                onChange={(event) => handleChange("address")(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-                placeholder=""
-                autoComplete="street-address"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="phone" className="text-sm font-semibold text-slate-700">
-                Số điện thoại <span className="text-red-900">*</span>
-              </label>
-              <input
-                id="phone"
-                type="tel"
-
-                required
-                value={formState.phone}
-                onChange={(event) => handleChange("phone")(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-                placeholder=""
-                autoComplete="tel"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="text-sm font-semibold text-slate-700">
-                Email (nếu có)
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={formState.email}
-                onChange={(event) => handleChange("email")(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-                placeholder=""
-                autoComplete="email"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="dob" className="text-sm font-semibold text-slate-700">
-                Ngày tháng năm sinh <span className="text-red-900">*</span>
-              </label>
-              <input
-                id="dob"
-                type="date"
-                required
-                value={formState.dob}
-                onChange={(event) => handleChange("dob")(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-                autoComplete="bday"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="gender" className="text-sm font-semibold text-slate-700">
-                Giới tính <span className="text-red-900">*</span>
-              </label>
-              <select
-                id="gender"
-                required
-                value={formState.gender}
-                onChange={(event) => handleChange("gender")(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-              >
-                <option value="" disabled>
-                  Chọn giới tính
-                </option>
-                <option value="Nam">Nam</option>
-                <option value="Nữ">Nữ</option>
-
-              </select>
-            </div>
-          </div>
-
-          {/* CỘT PHẢI */}
-          <div className="space-y-5">
-            <div>
-              <label htmlFor="password" className="text-sm font-semibold text-slate-700">
-                Mật khẩu <span className="text-red-900">*</span>
-              </label>
-              <input
-                id="password"
-                type="password"
-                required
-                value={formState.password}
-                onChange={(event) => handleChange("password")(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-                placeholder=""
-                autoComplete="new-password"
-              />
-
-              <ul className="mt-3 space-y-1 text-xs text-slate-600">
-                {PASSWORD_REQUIREMENTS.map((requirement, index) => {
-                  const checks = [
-                    passwordValidation.lengthOk,
-                    passwordValidation.upperOk,
-                    passwordValidation.lowerOk,
-                    passwordValidation.numberOk,
-                    passwordValidation.specialOk,
-                  ];
-                  const isMet = checks[index];
-
-                  return (
-                    <li key={requirement} className="flex items-center gap-2">
-                      <span
-                        className={`inline-flex h-5 w-5 items-center justify-center rounded-full border text-[10px] ${isMet
-                          ? "border-emerald-300 bg-emerald-500/20 text-emerald-700"
-                          : "border-slate-200 bg-slate-50 text-slate-500"
-                          }`}
-                      >
-                        {isMet ? "✓" : "•"}
-                      </span>
-                      <span>{requirement}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-
-            <div>
-              <label htmlFor="confirm-password" className="text-sm font-semibold text-slate-700">
-                Xác nhận mật khẩu <span className="text-red-900">*</span>
-              </label>
-              <input
-                id="confirm-password"
-                type="password"
-                required
-                value={formState.confirmPassword}
-                onChange={(event) => handleChange("confirmPassword")(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-                placeholder=""
-                autoComplete="new-password"
-              />
-              {formState.confirmPassword.length > 0 && !passwordsMatch && (
-                <p className="mt-2 text-xs text-rose-600">Mật khẩu xác nhận chưa khớp.</p>
-              )}
-            </div>
-
-            <div className="rounded-2xl p-4 text-xs text-slate-700">
-              <label className="flex items-start gap-3">
-                <input
-                  type="checkbox"
-                  checked={formState.agree}
-                  onChange={(event) => handleChange("agree")(event.target.checked)}
-                  className="mt-1 h-5 w-5 rounded border-slate-300 bg-white text-amber-500 focus:ring-amber-400"
-                />
-                <span>
-                  Tôi đồng ý với{" "}
-                  <Link href="#" className="font-semibold text-black">
-                    Điều khoản sử dụng
-                  </Link>{" "}
-                  và{" "}
-                  <Link href="#" className="font-semibold text-black">
-                    Chính sách chia sẻ thông tin
-                  </Link>{" "}
-                  của Cổng Dịch vụ Công.
-                </span>
-              </label>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs">
-              <p
-                className={`font-semibold ${status === "success"
-                  ? "text-emerald-700"
-                  : "text-slate-700"
-                  }`}
-              >
-                {status === "idle" ? "Vui lòng điền đầy đủ thông tin trước khi gửi đăng ký." : message}
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="submit"
-                disabled={loading}
-                className="inline-flex flex-1 items-center justify-center rounded-full bg-gradient-to-r from-amber-300 via-amber-400 to-amber-200 px-6 py-3 text-sm font-semibold text-red-900 shadow-lg shadow-amber-500/30 transition hover:-translate-y-0.5 md:flex-none md:px-8"
-              >
-                {loading ? "Đang gửi..." : "Gửi đăng ký"}
-              </button>
-
-
-              <Link
-                href="/login"
-                className="inline-flex items-center justify-center rounded-full border border-amber-300 px-6 py-3 text-sm font-semibold text-amber-700 transition hover:border-amber-200 hover:text-amber-600"
-              >
-                Đã có tài khoản? Đăng nhập
-              </Link>
-            </div>
-          </div>
-        </form>
+        <RegisterForm
+          formState={formState}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+          handleReset={handleReset}
+          passwordValidation={passwordValidation}
+          passwordsMatch={passwordsMatch}
+          loading={loading}
+          status={status}
+          message={message}
+        />
       </div>
     </div>
   );
