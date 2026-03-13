@@ -1,6 +1,6 @@
 'use client';
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080/resident-management";
 export const VN_PHONE_REGEX = /^(0[3|5|7|8|9][0-9]{8}|\+84[3|5|7|8|9][0-9]{8})$/;
 
 export const PASSWORD_REQUIREMENTS = [

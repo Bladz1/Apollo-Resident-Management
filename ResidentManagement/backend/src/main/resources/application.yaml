@@ -32,7 +32,7 @@ spring:
 
 file:
   uploadDir: uploads/
-  baseUrl: "http://localhost:8080"
+  baseUrl: "http://localhost:8080/resident-management"
 
 payos:
   client-id: "1774adbb-a63b-42a1-8da3-ef74701f9174"

@@ -1,8 +1,29 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "../custom_css/css.module.css";
 import { services } from "./data";
 
 export default function ServicesPage() {
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 2;
+  const totalPages = Math.ceil(services.length / itemsPerPage);
+
+  const handleNext = () => {
+    setCurrentPage((prev) => (prev + 1) % totalPages);
+  };
+
+  const handlePrev = () => {
+    setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
+  };
+
+  const currentServices = services.slice(
+    currentPage * itemsPerPage,
+    currentPage * itemsPerPage + itemsPerPage
+  );
+
   return (
     <div className="min-h-screen bg-white text-black">
       <section
@@ -51,9 +72,11 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-5xl gap-8 px-6 py-12 md:grid-cols-2 bg-white">
-        {services.map((service) => (
-          <article
+      <section className="mx-auto max-w-5xl px-6 py-12 bg-white">
+        <div className="relative">
+          <div className="grid gap-8 md:grid-cols-2">
+            {currentServices.map((service) => (
+              <article
             key={service.id}
             id={service.id}
             className="group relative overflow-hidden rounded-3xl border border-red-300 p-6 shadow-lg transition hover:-translate-y-1 hover:border-red-500 hover:shadow-xl min-h-[380px] flex flex-col justify-end"
@@ -95,6 +118,43 @@ export default function ServicesPage() {
             </div>
           </article>
         ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="mt-8 flex items-center justify-center gap-4">
+              <button
+                onClick={handlePrev}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:bg-gray-50 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                aria-label="Trang trước"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+
+              <div className="flex gap-2">
+                {Array.from({ length: totalPages }).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentPage(index)}
+                    className={`h-2.5 rounded-full transition-all ${
+                      currentPage === index
+                        ? "w-8 bg-red-600"
+                        : "w-2.5 bg-gray-300 hover:bg-gray-400"
+                    }`}
+                    aria-label={`Trang ${index + 1}`}
+                  />
+                ))}
+              </div>
+
+              <button
+                onClick={handleNext}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:bg-gray-50 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                aria-label="Trang sau"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
+          )}
+        </div>
       </section>
 
     </div>

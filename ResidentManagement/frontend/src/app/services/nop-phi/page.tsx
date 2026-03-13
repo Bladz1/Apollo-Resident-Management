@@ -3,7 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { loadUserId, TOKEN_KEY } from "@/utils/auth-storage";
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080/resident-management";
 
 type FeeStatus = "Chưa nộp" | "Đã nộp" | "Đang xử lý";
 

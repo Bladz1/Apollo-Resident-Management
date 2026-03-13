@@ -4,4 +4,8 @@ jwt:
 
 file:
   uploadDir: uploads/
-  baseUrl: "http://localhost:8080"
+  baseUrl: "http://resident-management"
+
+server:
+  servlet:
+    context-path: /

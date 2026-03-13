@@ -85,7 +85,9 @@ public class SecurityConfig {
 
                 config.setAllowedOriginPatterns(List.of(
                                 "http://localhost:3000",
-                                "https://resident-management.vercel.app"));
+                                "https://resident-management.vercel.app",
+                                "http://resident-management",
+                                "https://resident-management"));
                 config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
                 config.setAllowedHeaders(List.of("*"));
                 config.setExposedHeaders(List.of("Authorization", "Content-Type"));
