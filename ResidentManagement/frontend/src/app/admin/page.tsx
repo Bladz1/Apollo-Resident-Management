@@ -52,6 +52,8 @@ export default function AdminDashboardPage() {
     amount: '',
     dueDate: '',
   });
+  const [cccdError, setCccdError] = useState<string | null>(null);
+  const [amountError, setAmountError] = useState<string | null>(null);
 
   // System News
   const [newsItems, setNewsItems] = useState<SystemNewsItem[]>([]);
@@ -271,16 +273,50 @@ export default function AdminDashboardPage() {
   }, [pendingUsers, pendingUsersSearchCCCD, pendingUsersSort]);
 
   // ========== Fees ==========
+  const handleAmountBlur = () => {
+    if (feeDraft.amount && Number(feeDraft.amount) < 1000) {
+      setAmountError('Số tiền không được dưới 1.000 VNĐ');
+    }
+  };
+
   const handleFeeChange = (field: 'categoryId' | 'personalId' | 'amount' | 'dueDate', value: string) => {
     setFeeDraft((prev) => ({ ...prev, [field]: value }));
+    if (field === 'personalId') {
+      setCccdError(null);
+    }
+    if (field === 'amount') {
+      setAmountError(null);
+    }
   };
 
   const handleFeeSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setCccdError(null);
+    setAmountError(null);
     if (!feeDraft.categoryId || !feeDraft.amount || !feeDraft.dueDate || !feeDraft.personalId.trim()) {
       alert('Vui lòng nhập đầy đủ thông tin phí');
       return;
     }
+
+    if (Number(feeDraft.amount) < 1000) {
+      setAmountError('Số tiền không được dưới 1.000 VNĐ');
+      return;
+    }
+
+    if (!/^\d{12}$/.test(feeDraft.personalId.trim())) {
+      setCccdError('CCCD phải gồm 12 chữ số');
+      return;
+    }
+
+    const selectedDate = new Date(feeDraft.dueDate);
+    selectedDate.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (selectedDate < today) {
+      alert('Hạn nộp không được trong quá khứ');
+      return;
+    }
+
     const category = feeCategories.find((item) => item.id === feeDraft.categoryId);
     try {
       const response = await fetch(`${API_BASE_URL}/fees`, {
@@ -300,6 +336,23 @@ export default function AdminDashboardPage() {
       });
       if (!response.ok) {
         const detail = await response.text();
+        let isUserNotFound = false;
+        try {
+          const errData = JSON.parse(detail);
+          if (errData.code === 1003 || errData.message === 'User Not Found') {
+            isUserNotFound = true;
+          }
+        } catch {
+          if (detail.includes('User Not Found') || detail.includes('1003')) {
+            isUserNotFound = true;
+          }
+        }
+        
+        if (isUserNotFound) {
+          setCccdError('CCCD không tồn tại');
+          return;
+        }
+        
         throw new Error(detail || 'Không thể tạo phí mới.');
       }
       const data = (await response.json()) as ApiResponse<FeeRecord>;
@@ -313,6 +366,7 @@ export default function AdminDashboardPage() {
       };
       setFeeRecords((prev) => [newRecord, ...prev].slice(0, 5));
       setFeeDraft({ categoryId: feeDraft.categoryId, personalId: '', amount: '', dueDate: '' });
+      window.alert('Tạo phí thành công!');
     } catch (error) {
       console.error('Create fee error:', error);
     }
@@ -468,7 +522,10 @@ export default function AdminDashboardPage() {
                 {activeTab === 'fees' && (
                   <FeesTab
                     feeDraft={feeDraft}
+                    cccdError={cccdError}
+                    amountError={amountError}
                     handleFeeChange={handleFeeChange}
+                    handleAmountBlur={handleAmountBlur}
                     handleFeeSubmit={handleFeeSubmit}
                   />
                 )}

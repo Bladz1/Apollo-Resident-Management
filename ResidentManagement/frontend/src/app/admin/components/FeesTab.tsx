@@ -10,11 +10,21 @@ type FeesTabProps = {
     amount: string;
     dueDate: string;
   };
+  cccdError?: string | null;
+  amountError?: string | null;
+  handleAmountBlur: () => void;
   handleFeeChange: (field: 'categoryId' | 'personalId' | 'amount' | 'dueDate', value: string) => void;
   handleFeeSubmit: (event: React.FormEvent<HTMLFormElement>) => Promise<void>;
 };
 
-const FeesTab: React.FC<FeesTabProps> = ({ feeDraft, handleFeeChange, handleFeeSubmit }) => {
+const FeesTab: React.FC<FeesTabProps> = ({ 
+  feeDraft, 
+  cccdError, 
+  amountError, 
+  handleFeeChange, 
+  handleAmountBlur, 
+  handleFeeSubmit 
+}) => {
   return (
     <section className="w-full animate-[fadeIn_0.3s_ease-out]">
       <div className="w-full rounded-3xl border border-slate-200 bg-white shadow-md p-8">
@@ -42,6 +52,7 @@ const FeesTab: React.FC<FeesTabProps> = ({ feeDraft, handleFeeChange, handleFeeS
               onChange={(e) => handleFeeChange('personalId', e.target.value)}
               className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none"
             />
+            {cccdError && <p className="text-red-500 text-xs mt-1">{cccdError}</p>}
           </div>
           <div className="space-y-4">
             <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">
@@ -51,8 +62,12 @@ const FeesTab: React.FC<FeesTabProps> = ({ feeDraft, handleFeeChange, handleFeeS
               type="number"
               value={feeDraft.amount}
               onChange={(e) => handleFeeChange('amount', e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none"
+              onBlur={handleAmountBlur}
+              className={`w-full rounded-xl border ${
+                amountError ? 'border-red-500/50 focus:ring-red-500/50' : 'border-slate-200 focus:ring-emerald-500/50'
+              } bg-slate-50 px-4 py-3 text-sm outline-none transition-colors duration-200`}
             />
+            {amountError && <p className="text-red-500 text-xs mt-1 animate-[fadeIn_0.2s_ease-out]">{amountError}</p>}
           </div>
           <div className="space-y-4">
             <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Hạn nộp</label>
