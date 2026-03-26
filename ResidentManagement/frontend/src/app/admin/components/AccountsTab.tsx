@@ -74,9 +74,9 @@ const AccountsTab: React.FC<AccountsTabProps> = ({
               ) : (
                 sortedPendingUsers.map((u) => (
                   <tr key={u.id} className="hover:bg-slate-50 transition">
-                    <td className="px-6 py-4 font-medium text-slate-900">{u.personalId}</td>
-                    <td className="px-6 py-4">{u.fullName}</td>
-                    <td className="px-6 py-4 text-slate-500">{u.phone}</td>
+                    <td className="px-6 py-4 font-medium text-slate-900 truncate max-w-[150px]" title={u.personalId}>{u.personalId}</td>
+                    <td className="px-6 py-4 truncate max-w-[200px]" title={u.fullName}>{u.fullName}</td>
+                    <td className="px-6 py-4 text-slate-500 truncate max-w-[120px]" title={u.phone}>{u.phone}</td>
                     <td className="px-6 py-4">
                       <div className="flex gap-2">
                         <button

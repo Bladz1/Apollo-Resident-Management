@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { UserResponse } from '../types';
 
 type StatsModalProps = {
@@ -51,19 +52,19 @@ const StatsModal: React.FC<StatsModalProps> = ({
 
       <div className="flex-1 overflow-auto p-8">
         <div className="inline-block min-w-full rounded-2xl border border-slate-200 bg-white shadow-xl overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200 text-[11px]">
+          <table className="min-w-full divide-y divide-slate-200 text-[11px] table-fixed">
             <thead className="bg-slate-50 font-bold uppercase text-slate-500">
               <tr>
-                <th className="sticky left-0 z-10 bg-slate-50 px-4 py-3 text-left">CCCD</th>
-                <th className="px-4 py-3 text-left">Họ tên</th>
-                <th className="px-4 py-3 text-left">SĐT</th>
-                <th className="px-4 py-3 text-left">Email</th>
-                <th className="px-4 py-3 text-left">Địa chỉ</th>
-                <th className="px-4 py-3 text-left">Giới tính</th>
-                <th className="px-4 py-3 text-left">Ngày sinh</th>
-                <th className="px-4 py-3 text-left">Trạng thái</th>
-                <th className="px-4 py-3 text-left">Vai trò</th>
-                <th className="px-4 py-3 text-left">Mật khẩu</th>
+                <th className="sticky left-0 z-10 bg-slate-50 px-4 py-3 text-left w-[120px]">CCCD</th>
+                <th className="px-4 py-3 text-left w-[150px]">Họ tên</th>
+                <th className="px-4 py-3 text-left w-[100px]">SĐT</th>
+                <th className="px-4 py-3 text-left w-[160px]">Email</th>
+                <th className="px-4 py-3 text-left w-[180px]">Địa chỉ</th>
+                <th className="px-4 py-3 text-left w-[80px]">Giới tính</th>
+                <th className="px-4 py-3 text-left w-[100px]">Ngày sinh</th>
+                <th className="px-4 py-3 text-left w-[100px]">Trạng thái</th>
+                <th className="px-4 py-3 text-left w-[120px]">Vai trò</th>
+                <th className="px-4 py-3 text-left w-[150px]">Mật khẩu</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -86,10 +87,14 @@ const StatsModal: React.FC<StatsModalProps> = ({
                     <td className="sticky left-0 z-10 bg-white px-4 py-3 font-bold text-slate-900">
                       {user.personalId || '—'}
                     </td>
-                    <td className="px-4 py-3">{user.fullName}</td>
+                    <td className="px-4 py-3 truncate max-w-[150px]" title={user.fullName}>
+                      {user.fullName}
+                    </td>
                     <td className="px-4 py-3">{user.phoneNumber || '—'}</td>
-                    <td className="px-4 py-3">{user.email || '—'}</td>
-                    <td className="px-4 py-3 truncate max-w-[150px]" title={user.address}>
+                    <td className="px-4 py-3 truncate max-w-[130px]" title={user.email || '—'}>
+                      {user.email || '—'}
+                    </td>
+                    <td className="px-4 py-3 truncate max-w-[150px]" title={user.address || '—'}>
                       {user.address || '—'}
                     </td>
                     <td className="px-4 py-3">{user.gender || '—'}</td>
@@ -118,18 +123,29 @@ const StatsModal: React.FC<StatsModalProps> = ({
                         ))}
                       </div>
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <code className="bg-slate-50 px-2 py-0.5 rounded font-mono text-slate-400">
+                    <td className="px-4 py-3 w-[150px]">
+                      <div className="flex items-center gap-2 overflow-hidden">
+                        <code
+                          className="bg-slate-50 px-2 py-0.5 rounded font-mono text-slate-400 truncate flex-1"
+                          title={
+                            visiblePasswords.has(user.id)
+                              ? user.rawPassword || user.password || 'N/A'
+                              : '••••••••'
+                          }
+                        >
                           {visiblePasswords.has(user.id)
                             ? user.rawPassword || user.password || 'N/A'
                             : '••••••••'}
                         </code>
                         <button
                           onClick={() => togglePasswordVisibility(user.id)}
-                          className="text-slate-400 hover:text-emerald-500 transition-colors"
+                          className="text-slate-400 hover:text-emerald-500 transition-colors shrink-0"
                         >
-                          {visiblePasswords.has(user.id) ? '👁️‍🗨️' : '👁️'}
+                          {visiblePasswords.has(user.id) ? (
+                            <EyeOff size={14} />
+                          ) : (
+                            <Eye size={14} />
+                          )}
                         </button>
                       </div>
                     </td>

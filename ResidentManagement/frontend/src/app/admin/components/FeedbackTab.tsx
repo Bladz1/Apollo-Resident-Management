@@ -60,7 +60,9 @@ const FeedbackTab: React.FC<FeedbackTabProps> = ({
               ) : (
                 sortedComplaints.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50 transition">
-                    <td className="px-6 py-4 font-medium text-slate-900">{item.name}</td>
+                    <td className="px-6 py-4 font-medium text-slate-900 truncate max-w-[200px]" title={item.name}>
+                      {item.name}
+                    </td>
                     <td className="px-6 py-4 text-slate-500">{item.phone}</td>
                     <td className="px-6 py-4 text-slate-400 text-xs">
                       {item.createdAt ? new Date(item.createdAt).toLocaleDateString('vi-VN') : '—'}

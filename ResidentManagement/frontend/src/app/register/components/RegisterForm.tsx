@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
+import { Eye, EyeOff } from 'lucide-react';
 import { RegisterFormState, PASSWORD_REQUIREMENTS } from '../types';
 
 type RegisterFormProps = {
@@ -34,6 +35,9 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
   status,
   message,
 }) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -170,16 +174,25 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
           <label htmlFor="password" className="text-sm font-semibold text-slate-700">
             Mật khẩu <span className="text-red-900">*</span>
           </label>
-          <input
-            id="password"
-            type="password"
-            required
-            value={formState.password}
-            onChange={(event) => handleChange('password')(event.target.value)}
-            className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-            placeholder=""
-            autoComplete="new-password"
-          />
+          <div className="relative mt-2">
+            <input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              required
+              value={formState.password}
+              onChange={(event) => handleChange('password')(event.target.value)}
+              className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
+              placeholder=""
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-500 transition-colors"
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
 
           <ul className="mt-3 space-y-1 text-xs text-slate-600">
             {PASSWORD_REQUIREMENTS.map((requirement, index) => {
@@ -214,16 +227,25 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
           <label htmlFor="confirm-password" className="text-sm font-semibold text-slate-700">
             Xác nhận mật khẩu <span className="text-red-900">*</span>
           </label>
-          <input
-            id="confirm-password"
-            type="password"
-            required
-            value={formState.confirmPassword}
-            onChange={(event) => handleChange('confirmPassword')(event.target.value)}
-            className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
-            placeholder=""
-            autoComplete="new-password"
-          />
+          <div className="relative mt-2">
+            <input
+              id="confirm-password"
+              type={showConfirmPassword ? 'text' : 'password'}
+              required
+              value={formState.confirmPassword}
+              onChange={(event) => handleChange('confirmPassword')(event.target.value)}
+              className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-300 focus:ring-2 focus:ring-amber-400/60"
+              placeholder=""
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-500 transition-colors"
+            >
+              {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
           {formState.confirmPassword.length > 0 && !passwordsMatch && (
             <p className="mt-2 text-xs text-rose-600">Mật khẩu xác nhận chưa khớp.</p>
           )}
