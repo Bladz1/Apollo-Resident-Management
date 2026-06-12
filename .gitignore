@@ -66,16 +66,23 @@ build/
 ### VS Code ###
 .vscode/
 
+# OS files
+.DS_Store
+Thumbs.db
 *_Zone.Identifier
+*:Zone.Identifier
+
+# Temp files
+*.TMP
+*.tmp
+~*
 
 # Node / Next.js
 node_modules/
 .next/
-
-# OS files
-.DS_Store
-Thumbs.db
-*:Zone.Identifier
+tsconfig.tsbuildinfo
+out/
+build/
 
 # Specific paths from subdirectories
 ResidentManagement/backend/target/
