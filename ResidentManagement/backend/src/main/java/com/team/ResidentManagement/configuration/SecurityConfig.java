@@ -60,8 +60,7 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.GET, "/system-news", "/system-news/**")
                                                 .permitAll()
                                                 .requestMatchers(
-                                                                "/auth/**",
-                                                                "/users/**")
+                                                                "/auth/**")
                                                 .permitAll()
                                                 .anyRequest().authenticated())
 

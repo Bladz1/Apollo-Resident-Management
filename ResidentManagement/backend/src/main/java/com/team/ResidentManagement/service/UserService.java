@@ -127,6 +127,7 @@ public class UserService {
      * Cập nhật thông tin, vai trò và các khoản phí của người dùng.
      */
     @CacheEvict(value = { "users", "admins" }, allEntries = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse updateUser(String UserId, UserUpdateRequest request) {
         User user = userRepository.findById(UserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -144,6 +145,7 @@ public class UserService {
     }
 
     @CacheEvict(value = { "users", "admins" }, allEntries = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse updateUserStatus(String userId, UpdateUserStatusRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -175,6 +177,7 @@ public class UserService {
      * Xoá người dùng theo ID.
      */
     @CacheEvict(value = { "users", "admins" }, allEntries = true)
+    @PreAuthorize("hasRole('ADMIN')")
     public String deleteUser(String UserId) {
         if (userRepository.existsById(UserId)) {
             userRepository.deleteById(UserId);
