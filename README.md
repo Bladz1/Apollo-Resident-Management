@@ -36,5 +36,3 @@
 
 - **Terraform** → quản lý hạ tầng AWS bằng code.
 - **Helm** (nếu dùng Kubernetes) → quản lý deployment chart.
-
----
