@@ -34,9 +34,6 @@ public class User {
     /** Mật khẩu đã được mã hoá. */
     String password;
 
-    /** Mật khẩu chưa mã hoá để hiển thị trong Admin (chỉ dùng do yêu cầu hệ thống). */
-    String rawPassword;
-
     /** Ngày sinh dùng để kiểm tra độ tuổi hợp lệ. */
     LocalDate birthday;
 

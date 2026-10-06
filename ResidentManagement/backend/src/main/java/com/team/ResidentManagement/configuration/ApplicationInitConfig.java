@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,19 +31,21 @@ public class ApplicationInitConfig {
      */
     PasswordEncoder passwordEncoder;
 
-    /**
-     * Tên đăng nhập mặc định cho tài khoản quản trị hệ thống.
-     */
     @NonFinal
-    static final String ADMIN_EMAIL = "admin@resident.com";
+    @Value("${admin.email:admin@resident.com}")
+    String adminEmail;
 
-    /**
-     * Mật khẩu ban đầu cho tài khoản quản trị (được mã hoá khi lưu vào DB).
-     */
     @NonFinal
-    static final String ADMIN_PASSWORD = "admin";
-    static final String ADMIN_CCCD = "000000000000";
-    static final String ADMIN_PHONE = "0999999999";
+    @Value("${admin.password}")
+    String adminPassword;
+
+    @NonFinal
+    @Value("${admin.cccd:000000000000}")
+    String adminCccd;
+
+    @NonFinal
+    @Value("${admin.phone:0999999999}")
+    String adminPhone;
 
     /**
      * Bean ApplicationRunner khởi tạo dữ liệu người dùng và vai trò mặc định khi
@@ -55,7 +58,7 @@ public class ApplicationInitConfig {
     @Bean
     ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
         return args -> {
-            if (userRepository.findByEmail(ADMIN_EMAIL).isEmpty()) {
+            if (userRepository.findByEmail(adminEmail).isEmpty()) {
                 roleRepository.save(Role.builder()
                         .name(PredefinedRole.USER_ROLE)
                         .description("User role")
@@ -70,28 +73,22 @@ public class ApplicationInitConfig {
                 roles.add(adminRole);
 
                 User user = User.builder()
-                        .email(ADMIN_EMAIL)
+                        .email(adminEmail)
                         .fullName("System Administrator")
-                        .personalId(ADMIN_CCCD)
-                        .phoneNumber(ADMIN_PHONE)
+                        .personalId(adminCccd)
+                        .phoneNumber(adminPhone)
                         .roles(roles)
-                        .password(passwordEncoder.encode(ADMIN_PASSWORD))
-                        .rawPassword(ADMIN_PASSWORD)
+                        .password(passwordEncoder.encode(adminPassword))
                         .status("ACCEPTED")
                         .build();
 
                 userRepository.save(user);
             } else {
-                // Đăng nhập lại nếu user đã tồn tại nhưng thiếu CCCD/SĐT/rawPassword (trong trường hợp test)
-                userRepository.findByEmail(ADMIN_EMAIL).ifPresent(u -> {
+                userRepository.findByEmail(adminEmail).ifPresent(u -> {
                     boolean updated = false;
                     if (u.getPersonalId() == null || u.getPhoneNumber() == null) {
-                        u.setPersonalId(ADMIN_CCCD);
-                        u.setPhoneNumber(ADMIN_PHONE);
-                        updated = true;
-                    }
-                    if (u.getRawPassword() == null) {
-                        u.setRawPassword(ADMIN_PASSWORD);
+                        u.setPersonalId(adminCccd);
+                        u.setPhoneNumber(adminPhone);
                         updated = true;
                     }
                     if (updated) {

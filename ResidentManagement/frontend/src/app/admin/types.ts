@@ -62,7 +62,6 @@ export type UserResponse = {
   address?: string;
   status?: UserRegisterStatus;
   password?: string;
-  rawPassword?: string;
   roles?: { name: string }[];
 };
 

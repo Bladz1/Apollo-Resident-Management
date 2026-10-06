@@ -1,5 +1,5 @@
 jwt:
-  signerKey: "FtnneCAPzaRwuVV6JBy1OgtRhoq08Fp/JYu5OFdCj+zPqDyn8+1VlXtwBcX8u4CJ"
+  signerKey: ${JWT_SIGNER_KEY}
   valid-duration: 86400
   refreshable-duration: 604800
 
@@ -10,10 +10,10 @@ server:
 
 spring:
   datasource:
-    url: ${DBMS_CONNECTION:jdbc:mysql://localhost:3306/resident_management}
+    url: ${DBMS_CONNECTION}
     driverClassName: "com.mysql.cj.jdbc.Driver"
-    username: ${DBMS_USERNAME:root}
-    password: ${DBMS_PASSWORD:root}
+    username: ${DBMS_USERNAME}
+    password: ${DBMS_PASSWORD}
 
   jpa:
     hibernate:
@@ -32,9 +32,9 @@ spring:
 
 file:
   uploadDir: uploads/
-  baseUrl: "http://localhost:8080/resident-management"
+  baseUrl: ${FILE_BASE_URL:http://localhost:8080/resident-management}
 
 payos:
-  client-id: "1774adbb-a63b-42a1-8da3-ef74701f9174"
-  api-key: "1738f8f1-cc14-4469-9cad-6c8a242bf7f5"
-  checksum-key: "2e43dbb18dbb734dda13c5adb1614af5426e8ff164c3bb0452836623b08b642d"
+  client-id: ${PAYOS_CLIENT_ID}
+  api-key: ${PAYOS_API_KEY}
+  checksum-key: ${PAYOS_CHECKSUM_KEY}

@@ -77,6 +77,11 @@ Thumbs.db
 *.tmp
 ~*
 
+# Environment files (chứa secrets, không được commit)
+.env
+.env.*
+!.env.example
+
 # Node / Next.js
 node_modules/
 .next/

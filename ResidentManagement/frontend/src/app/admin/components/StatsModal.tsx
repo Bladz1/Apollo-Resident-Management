@@ -129,12 +129,12 @@ const StatsModal: React.FC<StatsModalProps> = ({
                           className="bg-slate-50 px-2 py-0.5 rounded font-mono text-slate-400 truncate flex-1"
                           title={
                             visiblePasswords.has(user.id)
-                              ? user.rawPassword || user.password || 'N/A'
+                              ? user.password || 'N/A'
                               : '••••••••'
                           }
                         >
                           {visiblePasswords.has(user.id)
-                            ? user.rawPassword || user.password || 'N/A'
+                            ? user.password || 'N/A'
                             : '••••••••'}
                         </code>
                         <button

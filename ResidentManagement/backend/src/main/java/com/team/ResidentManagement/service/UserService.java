@@ -87,7 +87,6 @@ public class UserService {
     private UserResponse createUserInternal(UserCreationRequest request) {
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRawPassword(request.getPassword());
         user.setStatus("PENDING");
 
         HashSet<Role> roles = new HashSet<>();
@@ -134,7 +133,6 @@ public class UserService {
 
         userMapper.updateUser(user, request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRawPassword(request.getPassword());
 
         var roles = roleRepository.findAllById(request.getRoles());
         user.setRoles(new HashSet<>(roles));
